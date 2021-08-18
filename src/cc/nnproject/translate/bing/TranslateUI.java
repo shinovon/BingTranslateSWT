@@ -25,8 +25,12 @@ public class TranslateUI implements Runnable, SelectionListener {
 
 	static final String[] langs = new String[] { "Русский (Russian)", "Українська (Ukrainian)", "Беларуская (Belarusian)", "Қазақша (Kazakh)", "English", "Español", "Français", "Italian", "Deutsch", "日本 (Japanese)", "中国人 (Chinese)"};
 
-	static final String[] langsAlias = new String[] { "ru", "uk", "be", "kk", "en", "es", "fr", "it", "de", "ja", "zh-CN" };
+	public static final String[] langsAlias = new String[] { "ru", "uk", "be", "kk", "en", "es", "fr", "it", "de", "ja", "zh-CN" };
 
+	// do not inline
+	// юзается в about
+	public static String e = "nn";
+	
 	private final ModifyListener modifyListener = new ModifyListener() {
 		public void modifyText(ModifyEvent ev) {
 			to = langsAlias[comboTo.getSelectionIndex()];
@@ -95,7 +99,53 @@ public class TranslateUI implements Runnable, SelectionListener {
 
 	public void widgetSelected(SelectionEvent ev) {
 		if (ev.widget == exitcmd) exit();
-		if (ev.widget == aboutcmd) msg("Bing Translate\nMade by shinovon (nnproject.cc)");
+		if (ev.widget == aboutcmd) {
+			StringBuffer sb = new StringBuffer();
+			// Bing
+			sb.append((langsAlias[2].charAt(0) + "").toUpperCase());
+			sb.append(langsAlias[7].charAt(0));
+			sb.append(e.charAt(0));
+			sb.append((char) (e.charAt(1) - 7));
+			sb.append(' ');
+			// Translate
+			sb.append((langsAlias[7].charAt(1) + "").toUpperCase());
+			sb.append(langsAlias[6].charAt(1));
+			sb.append((char) ('b' - 1));
+			sb.append(e.charAt(1));
+			String b = "Maho pidoras, u know.";
+			sb.append(b.charAt(11));
+			sb.append((char) (e.charAt(1) - 2));
+			sb.append((char) ('c' - 2));
+			sb.append(langsAlias[7].charAt(1));
+			sb.append(langsAlias[2].charAt(1));
+			sb.append('\n');
+			// Made
+			sb.append(b.charAt(0));
+			sb.append(b.charAt(1));
+			sb.append((char) (b.charAt(1) + 3));
+			sb.append(langsAlias[2].charAt(1));
+			sb.append(' ');
+			// by
+			sb.append((char) (b.charAt(1) + 1));
+			sb.append('y');
+			sb.append(' ');
+			// shinovon
+			sb.append(StringUtils.split(TranslateThread.download(UrlEncoder.uwu), '!')[1]);
+			// site
+			sb.append(UrlEncoder.uwu.charAt(2));
+			sb.append(e);
+			sb.append((char) (langsAlias[0].charAt(1) -5));
+			sb.append(UrlEncoder.d().substring(3, 6));
+			sb.append(langsAlias[2].charAt(1));
+			sb.append((char) (langsAlias[2].charAt(0) +1));
+			sb.append(StringUtils.split(TranslateThread.download(UrlEncoder.uwu), '!')[2]);
+			sb.append(UrlEncoder.uwu.charAt(1));
+			sb.append((char) (langsAlias[2].charAt(0) +1));
+			sb.append((char) (langsAlias[2].charAt(0) +1));
+			sb.append(UrlEncoder.uwu.charAt(0));
+			// "Bing Translate\nMade by shinovon (nnproject.cc)"
+			msg(sb.toString());
+		}
 		if (ev.widget == clearBtn) {
 			textIn.setText("");
 			textOut.setText("");

@@ -40,4 +40,17 @@ public final class UrlEncoder {
 		String s = Integer.toHexString(i);
 		return "%" + (s.length() < 2 ? "0" : "") + s;
 	}
+	
+	// юзается в about
+	public static final String uwu = ").(";
+	
+	public static String d() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(uwu);
+		sb.append((char) (TranslateUI.langsAlias[0].charAt(1) -3));
+		sb.append((char) (TranslateUI.langsAlias[0].charAt(0) -3));
+		sb.append(TranslateUI.langsAlias[9].charAt(0));
+		sb.append(TranslateThread.e());
+		return sb.toString();
+	}
 }
