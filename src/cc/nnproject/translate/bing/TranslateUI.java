@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Text;
 
 import cc.nnproject.translate.TranslateBingMIDlet;
 
-public class TranslateBing implements Runnable, SelectionListener {
+public class TranslateUI implements Runnable, SelectionListener {
 
 	private static final String[] langs = new String[] { "Русский", "English", "Español" };
 
@@ -31,7 +31,6 @@ public class TranslateBing implements Runnable, SelectionListener {
 		public void modifyText(ModifyEvent ev) {
 			to = langsAlias[comboTo.getSelectionIndex()];
 			from = langsAlias[comboFrom.getSelectionIndex()];
-			inputText = textIn.getText(); 
 			translateThread.schedule();
 		}
 	};
@@ -43,7 +42,6 @@ public class TranslateBing implements Runnable, SelectionListener {
 		public void widgetSelected(SelectionEvent ev) {
 			to = langsAlias[comboTo.getSelectionIndex()];
 			from = langsAlias[comboFrom.getSelectionIndex()];
-			inputText = textIn.getText(); 
 			translateThread.schedule();
 		}
 	};
@@ -76,7 +74,7 @@ public class TranslateBing implements Runnable, SelectionListener {
 	private String from;
 	private String to;
 
-	public TranslateBing() {
+	public TranslateUI() {
 		new Thread(this, "Main SWT Thread").start();
 	}
 
@@ -128,6 +126,11 @@ public class TranslateBing implements Runnable, SelectionListener {
 	}
 	
 	String getText() {
+		display.syncExec(new Runnable() {
+			public void run() {
+				inputText = textIn.getText();
+			}
+		});
 		return inputText;
 	}
 	
@@ -191,7 +194,7 @@ public class TranslateBing implements Runnable, SelectionListener {
 		centerComp.setLayoutData(fillHorizontal);
 		RowData comboLayout = new RowData();
 		comboLayout.width = 150;
-		comboLayout.height = 40;
+		comboLayout.height = 46;
 		comboFrom = new Combo(centerComp, SWT.DROP_DOWN);
 		comboFrom.setLayoutData(comboLayout);
 		comboFrom.setItems(langs);
@@ -203,7 +206,7 @@ public class TranslateBing implements Runnable, SelectionListener {
 		reverseBtn.setText("<>");
 		reverseBtn.addSelectionListener(this);
 		//reverseBtn.setLayoutData(gridData);
-	    reverseBtn.setLayoutData(new RowData(40, 40));
+	    reverseBtn.setLayoutData(new RowData(40, 44));
 		comboTo = new Combo(centerComp, SWT.DROP_DOWN);
 		comboTo.setLayoutData(comboLayout);
 		comboTo.setItems(langs);

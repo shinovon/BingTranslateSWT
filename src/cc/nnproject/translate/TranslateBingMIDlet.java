@@ -2,7 +2,7 @@ package cc.nnproject.translate;
 
 import javax.microedition.midlet.MIDlet;
 
-import cc.nnproject.translate.bing.TranslateBing;
+import cc.nnproject.translate.bing.TranslateUI;
 
 public class TranslateBingMIDlet extends MIDlet {
 
@@ -25,7 +25,7 @@ public class TranslateBingMIDlet extends MIDlet {
 		if(started)
 			return;
 		started = true;
-		new TranslateBing();
+		new TranslateUI();
 	}
 
 }
