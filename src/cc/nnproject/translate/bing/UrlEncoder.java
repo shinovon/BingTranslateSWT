@@ -44,6 +44,10 @@ public final class UrlEncoder {
 	// юзается в about
 	public static final String uwu = ").(";
 	
+	public static String e() {
+		return "A".toLowerCase();
+	}
+	
 	public static String d() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(uwu);

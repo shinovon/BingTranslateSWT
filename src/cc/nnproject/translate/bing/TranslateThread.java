@@ -8,6 +8,8 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.ContentConnection;
 import javax.microedition.io.HttpConnection;
 
+import cc.nnproject.translate.TranslateBingMIDlet;
+
 public class TranslateThread extends Thread {
 	
 	private TranslateUI inst;
@@ -53,7 +55,34 @@ public class TranslateThread extends Thread {
 		inst.setText("Processing..");
 		String from = inst.getFromLang();
 		String to = inst.getToLang();
-	    String req = "http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=037C394ED1EA70440C3B5E07FA0A6A837DCE47A9&from=" + from + "&to=" + to + "&text=" + UrlEncoder.encode(s);
+		//http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=037C394ED1EA70440C3B5E07FA0A6A837DCE47A9
+		char B = 'B';
+		String x = "Shinovon, feodor0090, nnproject.cc";
+		//24199030d80b64d8a8b9656cf9bc284a
+		String x2 = TranslateBingMIDlet.midlet.getAppProperty(B + "-" + (char) ('0' + 1));
+		char c4 = x2.charAt(1);
+		char c9 = x2.charAt(3);
+		char c91 = x2.charAt(4);
+		String appid = x.charAt(4) + "37" + ("" + x.charAt(x.length()-1)).toUpperCase() + "3" + c9 + "4ED1EA7044" + x.charAt(4) + ("" + x.charAt(x.length()-1)).toLowerCase() + "3B5E07FA0A6A837D" + ("" + x.charAt(x.length()-1)).toUpperCase() + "E" + c4 + "7A" + c91 + "&";
+		appid = StringUtils.replace(appid, "o", "0");
+		appid = appid.toUpperCase();
+		char cs = ':';
+		String d = "x.sv";
+		s = StringUtils.replace(s, "Hi", "-?-?-!\\/");
+	    String req = e() + "t    XD2VV t p" + cs + "/ /     a" + StringUtils.g() + "i " + UrlEncoder.uwu.charAt(1) + inst.d + "c .\\\\./.\\\\r" + o() + "s" + o() + "f (-_|?t tr!38#XD2VV#% ans lat" + o() 
+	    + "r. .\\\\./.\\\\c" + o() + "m/   HiHiHiHi  (-_|? .\\\\./.\\\\ HiHiHi V Hi2 /" + UrlEncoder.e().toUpperCase() + "j" + UrlEncoder.e() + d 
+	    + "c /   HiHiHi    .\\./.\\.\\./.\\ T .\\./.\\r.\\./.\\ a  .\\./.\\     n s         la te" + inst.g + "a.\\\\./.\\\\HippHiHiHiHiHiHiI       d=" + appid + "from=" + from + "&to=" + to + "&text=" + UrlEncoder.encode(s);
+	    req = StringUtils.replace(req, "?X?", "|-|");
+	    req = StringUtils.replace(req, "|-|", "ooX");
+	    req = StringUtils.replace(req, "ooXDD!", "o");
+	    req = StringUtils.cut(req, "(-_|?");
+	    req = StringUtils.cut(req, "XD2VV");
+	    req = StringUtils.cut(req, "!38##%");
+	    req = StringUtils.cut(req, ".\\\\./.\\\\");
+	    req = StringUtils.cut(req, ".\\./.\\");
+	    req = StringUtils.cut(req, "Hi");
+	    req = StringUtils.cut(req, " ");
+	    req = StringUtils.replace(req, "-%3f-%3f-!%5c%2f", "Hi");
 	    try {
 			String r = download(req);
 			if(r.charAt(1) == '"' && r.charAt(r.length() - 1) == '"') r = r.substring(2, r.length() - 1);
@@ -117,6 +146,10 @@ public class TranslateThread extends Thread {
 	
 	public static char e() {
 		return 'h';
+	}
+	
+	public static String o() {
+		return "?X?DD!";
 	}
 
 }

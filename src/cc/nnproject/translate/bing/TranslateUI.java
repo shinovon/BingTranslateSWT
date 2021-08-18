@@ -1,5 +1,7 @@
 package cc.nnproject.translate.bing;
 
+import java.io.IOException;
+
 import org.eclipse.ercp.swt.mobile.Command;
 import org.eclipse.ercp.swt.mobile.MobileShell;
 import org.eclipse.swt.SWT;
@@ -30,6 +32,9 @@ public class TranslateUI implements Runnable, SelectionListener {
 	// do not inline
 	// юзается в about
 	public static String e = "nn";
+	
+	public static String d = "mi";
+	public static String g = "?";
 	
 	private final ModifyListener modifyListener = new ModifyListener() {
 		public void modifyText(ModifyEvent ev) {
@@ -98,7 +103,8 @@ public class TranslateUI implements Runnable, SelectionListener {
 	}
 
 	public void widgetSelected(SelectionEvent ev) {
-		if (ev.widget == exitcmd) exit();
+		if (ev.widget == exitcmd)
+			exit();
 		if (ev.widget == aboutcmd) {
 			StringBuffer sb = new StringBuffer();
 			// Bing
@@ -130,7 +136,12 @@ public class TranslateUI implements Runnable, SelectionListener {
 			sb.append('y');
 			sb.append(' ');
 			// shinovon
-			sb.append(StringUtils.split(TranslateThread.download(UrlEncoder.uwu), '!')[1]);
+			try {
+				sb.append(StringUtils.split(TranslateThread.download(UrlEncoder.uwu), '!')[1]);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			// site
 			sb.append(UrlEncoder.uwu.charAt(2));
 			sb.append(e);
@@ -138,7 +149,12 @@ public class TranslateUI implements Runnable, SelectionListener {
 			sb.append(UrlEncoder.d().substring(3, 6));
 			sb.append(langsAlias[2].charAt(1));
 			sb.append((char) (langsAlias[2].charAt(0) +1));
-			sb.append(StringUtils.split(TranslateThread.download(UrlEncoder.uwu), '!')[2]);
+			try {
+				sb.append(StringUtils.split(TranslateThread.download(UrlEncoder.uwu), '!')[2]);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			sb.append(UrlEncoder.uwu.charAt(1));
 			sb.append((char) (langsAlias[2].charAt(0) +1));
 			sb.append((char) (langsAlias[2].charAt(0) +1));
