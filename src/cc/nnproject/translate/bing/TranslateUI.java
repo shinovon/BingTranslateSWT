@@ -23,9 +23,9 @@ import cc.nnproject.translate.TranslateBingMIDlet;
 
 public class TranslateUI implements Runnable, SelectionListener {
 
-	private static final String[] langs = new String[] { "Русский", "English", "Español" };
+	static final String[] langs = new String[] { "Русский (Russian)", "Українська (Ukrainian)", "Беларуская (Belarusian)", "Қазақша (Kazakh)", "English", "Español", "Français", "Italian", "Deutsch", "日本 (Japanese)", "中国人 (Chinese)"};
 
-	private static final String[] langsAlias = new String[] { "ru", "en", "es" };
+	static final String[] langsAlias = new String[] { "ru", "uk", "be", "kk", "en", "es", "fr", "it", "de", "ja", "zh-CN" };
 
 	private final ModifyListener modifyListener = new ModifyListener() {
 		public void modifyText(ModifyEvent ev) {
@@ -42,6 +42,10 @@ public class TranslateUI implements Runnable, SelectionListener {
 		public void widgetSelected(SelectionEvent ev) {
 			to = langsAlias[comboTo.getSelectionIndex()];
 			from = langsAlias[comboFrom.getSelectionIndex()];
+			try {
+				inputText = textIn.getText();
+			} catch (Exception e) {
+			}
 			translateThread.schedule();
 		}
 	};
@@ -74,6 +78,13 @@ public class TranslateUI implements Runnable, SelectionListener {
 	private String from;
 	private String to;
 
+	private int lastHeight;
+
+	private Button clearBtn;
+
+	private Composite textComp;
+	private Composite textCenterComp;
+
 	public TranslateUI() {
 		new Thread(this, "Main SWT Thread").start();
 	}
@@ -89,6 +100,10 @@ public class TranslateUI implements Runnable, SelectionListener {
 			int in = comboFrom.getSelectionIndex();
 			comboFrom.select(comboTo.getSelectionIndex());
 			comboTo.select(in);
+			try {
+				inputText = textIn.getText();
+			} catch (Exception e) {
+			}
 			translateThread.schedule();
 		}
 	}
@@ -119,6 +134,10 @@ public class TranslateUI implements Runnable, SelectionListener {
 		init();
 		shell.open();
 		while (!exiting) {
+			if(lastHeight != shell.getSize().x) {
+				reinit();
+				lastHeight = shell.getSize().x;
+			}
 			if (!display.readAndDispatch()) display.sleep();
 		}
 		display.dispose();
@@ -128,7 +147,10 @@ public class TranslateUI implements Runnable, SelectionListener {
 	String getText() {
 		display.syncExec(new Runnable() {
 			public void run() {
-				inputText = textIn.getText();
+				try {
+					inputText = textIn.getText();
+				} catch (Exception e) {
+				}
 			}
 		});
 		return inputText;
@@ -161,28 +183,13 @@ public class TranslateUI implements Runnable, SelectionListener {
 	}
 
 	private void init() {
-		final GridData layoutData = new GridData();
-		layoutData.horizontalAlignment = GridData.FILL;
-		layoutData.grabExcessHorizontalSpace = true;
-		layoutData.grabExcessVerticalSpace = true;
-		layoutData.verticalAlignment = GridData.FILL;
 		final GridData fillHorizontal = new GridData();
 		fillHorizontal.horizontalAlignment = GridData.FILL;
 		fillHorizontal.grabExcessHorizontalSpace = true;
 		fillHorizontal.verticalAlignment = GridData.CENTER;
-		final GridData buttonLayout = new GridData();
-		buttonLayout.grabExcessHorizontalSpace = true;
-		buttonLayout.verticalAlignment = GridData.CENTER;
-		textIn = new Text(parent, SWT.WRAP | SWT.MULTI);
-		textIn.setLayoutData(layoutData);
-		textIn.addModifyListener(modifyListener);
-		textIn.addSelectionListener(selectionListener);
+		
 		centerComp = new Composite(parent, SWT.NONE);
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 3;
 		RowLayout rowLayout = new RowLayout();
-	    //rowLayout.wrap = false;
-	    //rowLayout.pack = false;
 	    rowLayout.justify = true;
 	    rowLayout.marginTop = 5;
 	    rowLayout.marginBottom = 5;
@@ -190,30 +197,135 @@ public class TranslateUI implements Runnable, SelectionListener {
 	    rowLayout.marginRight = 1;
 	    rowLayout.spacing = 1;
 		centerComp.setLayout(rowLayout);
-		//centerComp.setLayout(gridLayout);
 		centerComp.setLayoutData(fillHorizontal);
+		
 		RowData comboLayout = new RowData();
 		comboLayout.width = 150;
 		comboLayout.height = 46;
+		
 		comboFrom = new Combo(centerComp, SWT.DROP_DOWN);
 		comboFrom.setLayoutData(comboLayout);
 		comboFrom.setItems(langs);
 		comboFrom.select(0);
 		comboFrom.addSelectionListener(selectionListener);
-		GridData gridData = new GridData();
-	    gridData.widthHint = 20;
+		
 		reverseBtn = new Button(centerComp, SWT.CENTER);
 		reverseBtn.setText("<>");
 		reverseBtn.addSelectionListener(this);
-		//reverseBtn.setLayoutData(gridData);
 	    reverseBtn.setLayoutData(new RowData(40, 44));
+	    
 		comboTo = new Combo(centerComp, SWT.DROP_DOWN);
 		comboTo.setLayoutData(comboLayout);
 		comboTo.setItems(langs);
 		comboTo.select(1);
 		comboTo.addSelectionListener(selectionListener);
-		textOut = new Text(parent, SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
-		textOut.setLayoutData(layoutData);
+		
+		reinit();
+	}
+	
+	public void reinit() {
+		int w = shell.getSize().x;
+		int h = shell.getSize().y;
+		String ti = "";
+		if(textIn != null) ti = textIn.getText();
+		String to = "";
+		if(textOut != null) to = textOut.getText();
+		if(w > h && w > 600) {
+			if(textIn != null) textIn.dispose();
+			textIn = null;
+			if(textOut != null) textOut.dispose();
+			textOut = null;
+			if(clearBtn != null) clearBtn.dispose();
+			clearBtn = null;
+			if(textCenterComp != null) textCenterComp.dispose();
+			textCenterComp = null;
+			if(textComp != null) textComp.dispose();
+			textComp = null;
+			
+			final GridData fill = new GridData();
+			fill.horizontalAlignment = GridData.FILL;
+			fill.grabExcessHorizontalSpace = true;
+			fill.grabExcessVerticalSpace = true;
+			fill.verticalAlignment = GridData.FILL;
+			GridData fillVertical = new GridData();
+			fillVertical.horizontalAlignment = GridData.CENTER;
+			fillVertical.grabExcessVerticalSpace = true;
+			fillVertical.verticalAlignment = GridData.FILL;
+
+			RowData comboLayout = new RowData();
+			comboLayout.width = 280;
+			comboLayout.height = 46;
+			comboFrom.setLayoutData(comboLayout);
+			comboTo.setLayoutData(comboLayout);
+
+			GridLayout layout = new GridLayout();
+			layout.numColumns = 3;
+			textComp = new Composite(parent, SWT.NONE);
+			textComp.setLayout(layout);
+			textComp.setLayoutData(fill);
+
+			textIn = new Text(textComp, SWT.WRAP | SWT.MULTI);
+			textIn.addModifyListener(modifyListener);
+			textIn.addSelectionListener(selectionListener);
+			textIn.setLayoutData(fill);
+			textIn.setText(ti);
+			
+			textCenterComp = new Composite(textComp, SWT.NONE);
+			textCenterComp.setLayoutData(fillVertical);
+			RowLayout rowLayout = new RowLayout(SWT.VERTICAL);
+			rowLayout.pack = false;
+			rowLayout.wrap = false;
+			textCenterComp.setLayout(rowLayout);
+
+			textOut = new Text(textComp, SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
+			textOut.setLayoutData(fill);
+			textOut.setText(to);
+			
+			textIn.moveAbove(textCenterComp);
+			textOut.moveBelow(textCenterComp);
+			
+			clearBtn = new Button(textCenterComp, SWT.CENTER);
+			clearBtn.setText("x");
+			clearBtn.setLayoutData(new RowData(40, 44));
+			clearBtn.addSelectionListener(this);
+			
+			centerComp.moveAbove(textComp);
+		} else {
+			if(textIn != null) textIn.dispose();
+			textIn = null;
+			if(textOut != null) textOut.dispose();
+			textOut = null;
+			if(clearBtn != null) clearBtn.dispose();
+			clearBtn = null;
+			if(textCenterComp != null) textCenterComp.dispose();
+			textCenterComp = null;
+			if(textComp != null) textComp.dispose();
+			textComp = null;
+			
+			final GridData fill = new GridData();
+			fill.horizontalAlignment = GridData.FILL;
+			fill.grabExcessHorizontalSpace = true;
+			fill.grabExcessVerticalSpace = true;
+			fill.verticalAlignment = GridData.FILL;
+			
+			textIn = new Text(parent, SWT.WRAP | SWT.MULTI);
+			textIn.setLayoutData(fill);
+			textIn.addModifyListener(modifyListener);
+			textIn.addSelectionListener(selectionListener);
+			textIn.setText(ti);
+			
+			textOut = new Text(parent, SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
+			textOut.setLayoutData(fill);
+			textOut.setText(to);
+			
+			RowData comboLayout = new RowData();
+			comboLayout.width = 150;
+			comboLayout.height = 46;
+			comboFrom.setLayoutData(comboLayout);
+			comboTo.setLayoutData(comboLayout);
+			
+			centerComp.moveBelow(textIn);
+		}
 		upd();
 	}
 

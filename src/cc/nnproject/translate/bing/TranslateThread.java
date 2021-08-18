@@ -38,7 +38,7 @@ public class TranslateThread extends Thread {
 
 	public void schedule() {
 		b = true;
-		i = 4;
+		i = 5;
 	}
 
 	public void now() {
@@ -56,7 +56,6 @@ public class TranslateThread extends Thread {
 	    String req = "http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=037C394ED1EA70440C3B5E07FA0A6A837DCE47A9&from=" + from + "&to=" + to + "&text=" + UrlEncoder.encode(s);
 	    try {
 			String r = download(req);
-			String d = r.charAt(1) + " " + r.charAt(r.length() - 1) + "\n" + r;
 			if(r.charAt(1) == '"' && r.charAt(r.length() - 1) == '"') r = r.substring(2, r.length() - 1);
 			r = StringUtils.replace(r, "\\n", "\n");
 			r = StringUtils.cut(r, "\\r");
