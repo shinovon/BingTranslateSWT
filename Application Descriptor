@@ -2,6 +2,6 @@ MIDlet-Version: 1.0.0
 MIDlet-Vendor: nnproject
 MIDlet-Jar-URL: BingTranslateSWT.jar
 MicroEdition-Configuration: CLDC-1.1
-MIDlet-1: TranslateBingMIDlet,,cc.nnproject.translate.TranslateBingMIDlet
+MIDlet-1: Bing Translate,,cc.nnproject.translate.TranslateBingMIDlet
 MicroEdition-Profile: MIDP-2.0
 MIDlet-Name: Bing Translate
