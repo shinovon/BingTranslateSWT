@@ -95,7 +95,11 @@ public class TranslateUI implements Runnable, SelectionListener {
 
 	public void widgetSelected(SelectionEvent ev) {
 		if (ev.widget == exitcmd) exit();
-		if(ev.widget == aboutcmd) msg("Bing Translate\nMade by shinovon (nnproject.cc)");
+		if (ev.widget == aboutcmd) msg("Bing Translate\nMade by shinovon (nnproject.cc)");
+		if (ev.widget == clearBtn) {
+			textIn.setText("");
+			textOut.setText("");
+		}
 		if (ev.widget == reverseBtn) {
 			int in = comboFrom.getSelectionIndex();
 			comboFrom.select(comboTo.getSelectionIndex());
@@ -217,7 +221,7 @@ public class TranslateUI implements Runnable, SelectionListener {
 		comboTo = new Combo(centerComp, SWT.DROP_DOWN);
 		comboTo.setLayoutData(comboLayout);
 		comboTo.setItems(langs);
-		comboTo.select(1);
+		comboTo.select(4);
 		comboTo.addSelectionListener(selectionListener);
 		
 		reinit();
