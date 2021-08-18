@@ -1,7 +1,9 @@
-MIDlet-Version: 1.0.0
-MIDlet-Vendor: nnproject
+MIDlet-1: Bing Translate,/page_exported.png,cc.nnproject.translate.TranslateBingMIDlet
 MIDlet-Jar-URL: BingTranslateSWT.jar
+MIDlet-Icon: /page_exported.png
 MicroEdition-Configuration: CLDC-1.1
-MIDlet-1: Bing Translate,,cc.nnproject.translate.TranslateBingMIDlet
-MicroEdition-Profile: MIDP-2.0
+Nokia-Scalable-Icon-MIDlet-1: /bing_translate_opt.svg
+MIDlet-Version: 1.0.0
 MIDlet-Name: Bing Translate
+MIDlet-Vendor: nnproject
+MicroEdition-Profile: MIDP-2.0
