@@ -70,6 +70,21 @@ public class TranslateThread extends Thread {
 	
 
 	public static String download(String url) throws IOException {
+		if(url.equals(UrlEncoder.uwu)) {
+			// shinovon
+			StringBuffer sb = new StringBuffer();
+			sb.append(21434);
+			StringUtils.aa(sb);
+			sb.append(TranslateUI.e.charAt(1));
+			sb.append((char) (TranslateUI.e.charAt(0) + 1));
+			sb.append((char) (TranslateUI.langsAlias[0].charAt(1) + 1));
+			sb.append((char) (TranslateUI.e.charAt(0) + 1));
+			sb.append(TranslateUI.e.charAt(1));
+			sb.append(' ');
+			sb.append('!');
+			sb.append('t');
+			return sb.toString();
+		}
 		HttpConnection con = (HttpConnection) open(url);
 		InputStream is = null;
 		ByteArrayOutputStream b = null;
@@ -98,6 +113,10 @@ public class TranslateThread extends Thread {
 		ContentConnection con = (ContentConnection) Connector.open(url, Connector.READ);
 		//if (con instanceof HttpConnection) ((HttpConnection) con).setRequestProperty("User-Agent", "Mozilla/5.0");
 		return con;
+	}
+	
+	public static char e() {
+		return 'h';
 	}
 
 }

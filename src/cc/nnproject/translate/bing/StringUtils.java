@@ -136,5 +136,16 @@ public class StringUtils {
 		int i = str.indexOf(d);
 		return new String[] { str.substring(0, i), str.substring(i + 1) };
 	}
+	
+	// about part
+	public static void aa(StringBuffer sb) {
+		sb.append(TranslateUI.langsAlias[7].charAt(0));
+		sb.append(TranslateUI.e.charAt(1));
+		sb.append(TranslateThread.e());
+		sb.append('!');
+		sb.append(TranslateUI.langsAlias[5].charAt(1));
+		sb.append(TranslateThread.e());
+		sb.append(TranslateUI.langsAlias[7].charAt(0));
+	}
 
 }
