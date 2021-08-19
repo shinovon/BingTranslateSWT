@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.Text;
 import cc.nnproject.translate.ITranslateUI;
 import cc.nnproject.translate.StringUtils;
 import cc.nnproject.translate.Util;
-import cc.nnproject.translate.bing.HTTPUtil;
 import cc.nnproject.translate.bing.TranslateBingMIDlet;
 import cc.nnproject.translate.bing.TranslateBingThread;
 
