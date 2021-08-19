@@ -31,8 +31,10 @@ public class TranslateBingMIDlet extends MIDlet {
 			return;
 		started = true;
 		try {
+			Class.forName("org.eclipse.ercp.swt.mobile.MobileShell");
 			new TranslateUISWT();
 		} catch (Throwable e) {
+			//возможно загрузка лсдуи версии в будующем
 			final Command exit = new Command("Exit", Command.EXIT, 1);
 			Alert a = new Alert("", "", null, null);
 			a.setString("Your device does not support ESWT");
