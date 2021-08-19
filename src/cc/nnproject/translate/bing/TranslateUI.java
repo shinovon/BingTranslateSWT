@@ -9,6 +9,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -260,6 +261,7 @@ public class TranslateUI implements Runnable, SelectionListener {
 		
 		centerComp = new Composite(parent, SWT.NONE);
 		RowLayout rowLayout = new RowLayout();
+		
 	    rowLayout.justify = true;
 	    rowLayout.marginTop = 5;
 	    rowLayout.marginBottom = 5;
@@ -296,11 +298,12 @@ public class TranslateUI implements Runnable, SelectionListener {
 	public void reinit() {
 		int w = shell.getSize().x;
 		int h = shell.getSize().y;
-		String ti = "";
+		String ti = null;
 		if(textIn != null) ti = textIn.getText();
-		String to = "";
+		String to = null;
 		if(textOut != null) to = textOut.getText();
 		if(w > h && w > 600) {
+			// 640x360 (album)
 			if(textIn != null) textIn.dispose();
 			textIn = null;
 			if(textOut != null) textOut.dispose();
@@ -334,11 +337,11 @@ public class TranslateUI implements Runnable, SelectionListener {
 			textComp.setLayout(layout);
 			textComp.setLayoutData(fill);
 
-			textIn = new Text(textComp, SWT.WRAP | SWT.MULTI);
+			textIn = new Text(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.MULTI);
 			textIn.addModifyListener(modifyListener);
 			textIn.addSelectionListener(selectionListener);
 			textIn.setLayoutData(fill);
-			textIn.setText(ti);
+			if(ti != null) textIn.setText(ti);
 			
 			textCenterComp = new Composite(textComp, SWT.NONE);
 			textCenterComp.setLayoutData(fillVertical);
@@ -347,9 +350,9 @@ public class TranslateUI implements Runnable, SelectionListener {
 			rowLayout.wrap = false;
 			textCenterComp.setLayout(rowLayout);
 
-			textOut = new Text(textComp, SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
+			textOut = new Text(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
 			textOut.setLayoutData(fill);
-			textOut.setText(to);
+			if(to != null) textOut.setText(to);
 			
 			textIn.moveAbove(textCenterComp);
 			textOut.moveBelow(textCenterComp);
@@ -360,7 +363,8 @@ public class TranslateUI implements Runnable, SelectionListener {
 			clearBtn.addSelectionListener(this);
 			
 			centerComp.moveAbove(textComp);
-		} else {
+		} else if(w > h && w > 300) {
+			// 320x240 (album) 9.3*
 			if(textIn != null) textIn.dispose();
 			textIn = null;
 			if(textOut != null) textOut.dispose();
@@ -378,13 +382,85 @@ public class TranslateUI implements Runnable, SelectionListener {
 			fill.grabExcessVerticalSpace = true;
 			fill.verticalAlignment = GridData.FILL;
 			
-			textIn = new Text(parent, SWT.WRAP | SWT.MULTI);
+			textIn = new Text(parent, SWT.BORDER);
+			textIn.setLayoutData(fill);
+			textIn.addModifyListener(modifyListener);
+			textIn.addSelectionListener(selectionListener);
+			if(ti != null) textIn.setText(ti);
+			
+			textOut = new Text(parent, SWT.BORDER | SWT.READ_ONLY);
+			textOut.setLayoutData(fill);
+			if(to != null) textOut.setText(to);
+			
+			RowData comboLayout = new RowData();
+			comboLayout.width = 120;
+			comboLayout.height = 46;
+			comboFrom.setLayoutData(comboLayout); 
+			comboTo.setLayoutData(comboLayout);
+			
+			centerComp.moveBelow(textIn);
+		} else if(w < 300) {
+			// 240x320 (portrait) 9.3*
+			if(textIn != null) textIn.dispose();
+			textIn = null;
+			if(textOut != null) textOut.dispose();
+			textOut = null;
+			if(clearBtn != null) clearBtn.dispose();
+			clearBtn = null;
+			if(textCenterComp != null) textCenterComp.dispose();
+			textCenterComp = null;
+			if(textComp != null) textComp.dispose();
+			textComp = null;
+			
+			final GridData fill = new GridData();
+			fill.horizontalAlignment = GridData.FILL;
+			fill.grabExcessHorizontalSpace = true;
+			fill.grabExcessVerticalSpace = true;
+			fill.verticalAlignment = GridData.FILL;
+			
+			textIn = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.MULTI);
+			textIn.setLayoutData(fill);
+			textIn.addModifyListener(modifyListener);
+			textIn.addSelectionListener(selectionListener);
+			if(ti != null) textIn.setText(ti);
+			
+			textOut = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.READ_ONLY);
+			textOut.setLayoutData(fill);
+			if(to != null) textOut.setText(to);
+			
+			RowData comboLayout = new RowData();
+			comboLayout.width = 90;
+			comboLayout.height = 46;
+			comboFrom.setLayoutData(comboLayout);
+			comboTo.setLayoutData(comboLayout);
+			
+			centerComp.moveBelow(textIn);
+		} else {
+			// 360x640 (portrait)
+			if(textIn != null) textIn.dispose();
+			textIn = null;
+			if(textOut != null) textOut.dispose();
+			textOut = null;
+			if(clearBtn != null) clearBtn.dispose();
+			clearBtn = null;
+			if(textCenterComp != null) textCenterComp.dispose();
+			textCenterComp = null;
+			if(textComp != null) textComp.dispose();
+			textComp = null;
+			
+			final GridData fill = new GridData();
+			fill.horizontalAlignment = GridData.FILL;
+			fill.grabExcessHorizontalSpace = true;
+			fill.grabExcessVerticalSpace = true;
+			fill.verticalAlignment = GridData.FILL;
+			
+			textIn = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.MULTI);
 			textIn.setLayoutData(fill);
 			textIn.addModifyListener(modifyListener);
 			textIn.addSelectionListener(selectionListener);
 			textIn.setText(ti);
 			
-			textOut = new Text(parent, SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
+			textOut = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
 			textOut.setLayoutData(fill);
 			textOut.setText(to);
 			
@@ -403,6 +479,12 @@ public class TranslateUI implements Runnable, SelectionListener {
 		//textOut.redraw();
 		parent.layout();
 		shell.layout();
+		int w = shell.getSize().x;
+		if(w < 600 && w > 300) {
+			shell.redraw();
+			parent.redraw();
+			textOut.redraw();
+		}
 	}
 
 	public void exit() {
