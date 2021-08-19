@@ -9,7 +9,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -34,9 +33,6 @@ public class TranslateUI implements Runnable, SelectionListener {
 	// юзается в about
 	public static String e = "nn";
 	
-	public static String d = "mi";
-	public static String g = "?";
-	
 	private final ModifyListener modifyListener = new ModifyListener() {
 		public void modifyText(ModifyEvent ev) {
 			to = langsAlias[comboTo.getSelectionIndex()];
@@ -54,7 +50,7 @@ public class TranslateUI implements Runnable, SelectionListener {
 			from = langsAlias[comboFrom.getSelectionIndex()];
 			try {
 				inputText = textIn.getText();
-			} catch (Exception e) {
+			} catch (Throwable e) {
 			}
 			translateThread.schedule();
 		}
@@ -140,7 +136,6 @@ public class TranslateUI implements Runnable, SelectionListener {
 			try {
 				sb.append(StringUtils.split(TranslateThread.download(UrlEncoder.uwu), '!')[1]);
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			// site
@@ -153,7 +148,6 @@ public class TranslateUI implements Runnable, SelectionListener {
 			try {
 				sb.append(StringUtils.split(TranslateThread.download(UrlEncoder.uwu), '!')[2]);
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			sb.append(UrlEncoder.uwu.charAt(1));
@@ -204,6 +198,7 @@ public class TranslateUI implements Runnable, SelectionListener {
 		aboutcmd.addSelectionListener(this);
 		init();
 		shell.open();
+		lastHeight = shell.getSize().x;
 		while (!exiting) {
 			if(lastHeight != shell.getSize().x) {
 				reinit();
@@ -220,7 +215,7 @@ public class TranslateUI implements Runnable, SelectionListener {
 			public void run() {
 				try {
 					inputText = textIn.getText();
-				} catch (Exception e) {
+				} catch (Throwable e) {
 				}
 			}
 		});
@@ -299,9 +294,13 @@ public class TranslateUI implements Runnable, SelectionListener {
 		int w = shell.getSize().x;
 		int h = shell.getSize().y;
 		String ti = null;
-		if(textIn != null) ti = textIn.getText();
 		String to = null;
-		if(textOut != null) to = textOut.getText();
+		try {
+			if(textIn != null) ti = textIn.getText();
+			if(textOut != null) to = textOut.getText();
+		} catch (Throwable e) {
+			if(inputText != null) ti = inputText;
+		}
 		if(w > h && w > 600) {
 			// 640x360 (album)
 			if(textIn != null) textIn.dispose();
@@ -338,10 +337,7 @@ public class TranslateUI implements Runnable, SelectionListener {
 			textComp.setLayoutData(fill);
 
 			textIn = new Text(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.MULTI);
-			textIn.addModifyListener(modifyListener);
-			textIn.addSelectionListener(selectionListener);
 			textIn.setLayoutData(fill);
-			if(ti != null) textIn.setText(ti);
 			
 			textCenterComp = new Composite(textComp, SWT.NONE);
 			textCenterComp.setLayoutData(fillVertical);
@@ -352,7 +348,13 @@ public class TranslateUI implements Runnable, SelectionListener {
 
 			textOut = new Text(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
 			textOut.setLayoutData(fill);
-			if(to != null) textOut.setText(to);
+			try {
+				if(ti != null) textIn.setText(ti);
+				if(to != null) textOut.setText(to);
+			} catch (Throwable e) {
+			}
+			textIn.addModifyListener(modifyListener);
+			textIn.addSelectionListener(selectionListener);
 			
 			textIn.moveAbove(textCenterComp);
 			textOut.moveBelow(textCenterComp);
@@ -384,13 +386,16 @@ public class TranslateUI implements Runnable, SelectionListener {
 			
 			textIn = new Text(parent, SWT.BORDER);
 			textIn.setLayoutData(fill);
-			textIn.addModifyListener(modifyListener);
-			textIn.addSelectionListener(selectionListener);
-			if(ti != null) textIn.setText(ti);
 			
 			textOut = new Text(parent, SWT.BORDER | SWT.READ_ONLY);
 			textOut.setLayoutData(fill);
-			if(to != null) textOut.setText(to);
+			try {
+				if(ti != null) textIn.setText(ti);
+				if(to != null) textOut.setText(to);
+			} catch (Throwable e) {
+			}
+			textIn.addModifyListener(modifyListener);
+			textIn.addSelectionListener(selectionListener);
 			
 			RowData comboLayout = new RowData();
 			comboLayout.width = 120;
@@ -420,13 +425,16 @@ public class TranslateUI implements Runnable, SelectionListener {
 			
 			textIn = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.MULTI);
 			textIn.setLayoutData(fill);
-			textIn.addModifyListener(modifyListener);
-			textIn.addSelectionListener(selectionListener);
-			if(ti != null) textIn.setText(ti);
 			
 			textOut = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.READ_ONLY);
 			textOut.setLayoutData(fill);
-			if(to != null) textOut.setText(to);
+			try {
+				if(ti != null) textIn.setText(ti);
+				if(to != null) textOut.setText(to);
+			} catch (Throwable e) {
+			}
+			textIn.addModifyListener(modifyListener);
+			textIn.addSelectionListener(selectionListener);
 			
 			RowData comboLayout = new RowData();
 			comboLayout.width = 90;
@@ -456,13 +464,17 @@ public class TranslateUI implements Runnable, SelectionListener {
 			
 			textIn = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.MULTI);
 			textIn.setLayoutData(fill);
-			textIn.addModifyListener(modifyListener);
-			textIn.addSelectionListener(selectionListener);
-			textIn.setText(ti);
 			
 			textOut = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
 			textOut.setLayoutData(fill);
-			textOut.setText(to);
+			try {
+				if(ti != null) textIn.setText(ti);
+				if(to != null) textOut.setText(to);
+			} catch (Throwable e) {
+			}
+			
+			textIn.addModifyListener(modifyListener);
+			textIn.addSelectionListener(selectionListener);
 			
 			RowData comboLayout = new RowData();
 			comboLayout.width = 150;
@@ -479,12 +491,6 @@ public class TranslateUI implements Runnable, SelectionListener {
 		//textOut.redraw();
 		parent.layout();
 		shell.layout();
-		int w = shell.getSize().x;
-		if(w < 600 && w > 300) {
-			shell.redraw();
-			parent.redraw();
-			textOut.redraw();
-		}
 	}
 
 	public void exit() {
@@ -497,7 +503,12 @@ public class TranslateUI implements Runnable, SelectionListener {
 	public void sync() {
 		display.syncExec(new Runnable() {
 			public void run() {
-				upd();
+				int w = shell.getSize().x;
+				if(w < 600 && w > 300) {
+					shell.redraw();
+					parent.redraw();
+					textOut.redraw();
+				}
 			}
 		});
 	}

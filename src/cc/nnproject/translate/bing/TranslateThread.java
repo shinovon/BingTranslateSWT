@@ -57,6 +57,7 @@ public class TranslateThread extends Thread {
 	    try {
 			String r = download(req);
 			if(r.charAt(1) == '"' && r.charAt(r.length() - 1) == '"') r = r.substring(2, r.length() - 1);
+			r = StringUtils.replace(r, "\\u2029", "\n");
 			r = StringUtils.replace(r, "\\n", "\n");
 			r = StringUtils.cut(r, "\\r");
 			inst.setText(r);
