@@ -1,4 +1,4 @@
-package cc.nnproject.translate.bing;
+package cc.nnproject.translate.bing.swt;
 
 import java.io.IOException;
 
@@ -21,13 +21,15 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 
-import cc.nnproject.translate.TranslateBingMIDlet;
+import cc.nnproject.translate.ITranslateUI;
+import cc.nnproject.translate.StringUtils;
+import cc.nnproject.translate.Util;
+import cc.nnproject.translate.bing.HTTPUtil;
+import cc.nnproject.translate.bing.TranslateBingMIDlet;
+import cc.nnproject.translate.bing.TranslateBingThread;
 
-public class TranslateUI implements Runnable, SelectionListener {
+public class TranslateUISWT implements Runnable, SelectionListener, ITranslateUI {
 
-	static final String[] langs = new String[] { "Русский (Russian)", "Українська (Ukrainian)", "Беларуская (Belarusian)", "Қазақша (Kazakh)", "English", "Español", "Français", "Italian", "Deutsch", "日本 (Japanese)", "中国人 (Chinese)"};
-
-	public static final String[] langsAlias = new String[] { "ru", "uk", "be", "kk", "en", "es", "fr", "it", "de", "ja", "zh-CN" };
 
 	// do not inline
 	// юзается в about
@@ -77,7 +79,7 @@ public class TranslateUI implements Runnable, SelectionListener {
 
 	private Composite centerComp;
 
-	private TranslateThread translateThread = new TranslateThread(this);
+	private TranslateBingThread translateThread = new TranslateBingThread(this);
 
 	private Command aboutcmd;
 
@@ -91,7 +93,7 @@ public class TranslateUI implements Runnable, SelectionListener {
 	private Composite textComp;
 	private Composite textCenterComp;
 
-	public TranslateUI() {
+	public TranslateUISWT() {
 		new Thread(this, "Main SWT Thread").start();
 	}
 
@@ -134,26 +136,26 @@ public class TranslateUI implements Runnable, SelectionListener {
 			sb.append(' ');
 			// shinovon
 			try {
-				sb.append(StringUtils.split(TranslateThread.download(UrlEncoder.uwu), '!')[1]);
+				sb.append(StringUtils.split(Util.get(Util.uwu), '!')[1]);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 			// site
-			sb.append(UrlEncoder.uwu.charAt(2));
+			sb.append(Util.uwu.charAt(2));
 			sb.append(e);
 			sb.append((char) (langsAlias[0].charAt(1) -5));
-			sb.append(UrlEncoder.d().substring(3, 6));
+			sb.append(Util.d().substring(3, 6));
 			sb.append(langsAlias[2].charAt(1));
 			sb.append((char) (langsAlias[2].charAt(0) +1));
 			try {
-				sb.append(StringUtils.split(TranslateThread.download(UrlEncoder.uwu), '!')[2]);
+				sb.append(StringUtils.split(Util.get(Util.uwu), '!')[2]);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			sb.append(UrlEncoder.uwu.charAt(1));
+			sb.append(Util.uwu.charAt(1));
 			sb.append((char) (langsAlias[2].charAt(0) +1));
 			sb.append((char) (langsAlias[2].charAt(0) +1));
-			sb.append(UrlEncoder.uwu.charAt(0));
+			sb.append(Util.uwu.charAt(0));
 			// "Bing Translate\nMade by shinovon (nnproject.cc)"
 			msg(sb.toString());
 		}
@@ -173,7 +175,7 @@ public class TranslateUI implements Runnable, SelectionListener {
 		}
 	}
 	
-	void msg(final String s) {
+	public void msg(final String s) {
 		display.syncExec(new Runnable() {
 			public void run() {
 				MessageBox msg = new MessageBox(shell);
@@ -210,7 +212,7 @@ public class TranslateUI implements Runnable, SelectionListener {
 		translateThread.interrupt();
 	}
 	
-	String getText() {
+	public String getText() {
 		display.syncExec(new Runnable() {
 			public void run() {
 				try {
@@ -222,7 +224,7 @@ public class TranslateUI implements Runnable, SelectionListener {
 		return inputText;
 	}
 	
-	void setText(final String s) {
+	public void setText(final String s) {
 		display.syncExec(new Runnable() {
 			public void run() {
 				textOut.setText(s);
@@ -230,7 +232,7 @@ public class TranslateUI implements Runnable, SelectionListener {
 		});
 	}
 
-	String getFromLang() {
+	public String getFromLang() {
 		display.syncExec(new Runnable() {
 			public void run() {
 				from = langsAlias[comboFrom.getSelectionIndex()];
@@ -239,7 +241,7 @@ public class TranslateUI implements Runnable, SelectionListener {
 		return from;
 	}
 
-	String getToLang() {
+	public String getToLang() {
 		display.syncExec(new Runnable() {
 			public void run() {
 				to = langsAlias[comboTo.getSelectionIndex()];
@@ -511,6 +513,11 @@ public class TranslateUI implements Runnable, SelectionListener {
 				}
 			}
 		});
+	}
+
+	public boolean running() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

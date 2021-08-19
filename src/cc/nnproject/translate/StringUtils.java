@@ -1,6 +1,9 @@
-package cc.nnproject.translate.bing;
+package cc.nnproject.translate;
 
 import java.util.Vector;
+
+import cc.nnproject.translate.bing.TranslateBingThread;
+import cc.nnproject.translate.bing.swt.TranslateUISWT;
 
 /**
  * @author Shinovon
@@ -45,13 +48,13 @@ public class StringUtils {
 	
 	// about part
 	public static void aa(StringBuffer sb) {
-		sb.append(TranslateUI.langsAlias[7].charAt(0));
-		sb.append(TranslateUI.e.charAt(1));
-		sb.append(TranslateThread.e());
+		sb.append(TranslateUISWT.langsAlias[7].charAt(0));
+		sb.append(TranslateUISWT.e.charAt(1));
+		sb.append(TranslateBingThread.e());
 		sb.append('!');
-		sb.append(TranslateUI.langsAlias[5].charAt(1));
-		sb.append(TranslateThread.e());
-		sb.append(TranslateUI.langsAlias[7].charAt(0));
+		sb.append(TranslateUISWT.langsAlias[5].charAt(1));
+		sb.append(TranslateBingThread.e());
+		sb.append(TranslateUISWT.langsAlias[7].charAt(0));
 	}
 	
 	public static char g() {
