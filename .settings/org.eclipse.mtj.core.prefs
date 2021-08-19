@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
 obfuscate_use_project=true
+proguard_keep=public class * extends javax.microedition.midlet.MIDlet|public interface ** { <methods>; <fields>; }|public abstract class ** { public abstract <methods>; public <methods>; } 
 proguard_options=-dontusemixedcaseclassnames -microedition -dontwarn -dontnote -dontoptimize -dontshrink -defaultpackage 'nnproject_cc'
 proguard_use_specified=true

@@ -515,8 +515,7 @@ public class TranslateUISWT implements Runnable, SelectionListener, ITranslateUI
 	}
 
 	public boolean running() {
-		// TODO Auto-generated method stub
-		return false;
+		return !exiting;
 	}
 
 }
