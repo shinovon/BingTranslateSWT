@@ -22,27 +22,30 @@ public class TranslateUIBingLCD implements Runnable, ITranslateUI {
 	public void run() {
 		display = Display.getDisplay(TranslateBingMIDlet.midlet);
 		translateThread.start();
-		
+		// TODO
 	}
 
 	public String getText() {
+		// TODO
 		return null;
 	}
 
 	public void setText(String s) {
-		
+		// TODO
 	}
 
 	public String getFromLang() {
+		// TODO
 		return null;
 	}
 
 	public String getToLang() {
+		// TODO
 		return null;
 	}
 
 	public void sync() {
-		
+		// TODO
 	}
 
 	public void msg(String s) {
