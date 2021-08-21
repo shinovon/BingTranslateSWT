@@ -27,7 +27,7 @@ import cc.nnproject.translate.Util;
 import cc.nnproject.translate.bing.TranslateBingMIDlet;
 import cc.nnproject.translate.bing.TranslateBingThread;
 
-public class TranslateUISWT implements Runnable, SelectionListener, ITranslateUI {
+public class TranslateUIBingSWT implements Runnable, SelectionListener, ITranslateUI {
 
 
 	// do not inline
@@ -92,7 +92,7 @@ public class TranslateUISWT implements Runnable, SelectionListener, ITranslateUI
 	private Composite textComp;
 	private Composite textCenterComp;
 
-	public TranslateUISWT() {
+	public TranslateUIBingSWT() {
 		new Thread(this, "Main SWT Thread").start();
 	}
 
@@ -497,7 +497,6 @@ public class TranslateUISWT implements Runnable, SelectionListener, ITranslateUI
 	public void exit() {
 		exiting = true;
 		Display.getDefault().wake();
-		TranslateBingMIDlet.midlet.destroyApp(true);
 		TranslateBingMIDlet.midlet.notifyDestroyed();
 	}
 

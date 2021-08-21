@@ -7,19 +7,21 @@ import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.midlet.MIDlet;
 
-import cc.nnproject.translate.bing.swt.TranslateUISWT;
+import cc.nnproject.translate.ITranslateUI;
+import cc.nnproject.translate.bing.swt.TranslateUIBingSWT;
 
 public class TranslateBingMIDlet extends MIDlet {
 
 	public static TranslateBingMIDlet midlet;
 	private boolean started;
+	private ITranslateUI ui;
 
 	public TranslateBingMIDlet() {
 		midlet = this;
 	}
 
 	public void destroyApp(boolean b) {
-
+		ui.exit();
 	}
 
 	protected void pauseApp() {
@@ -32,7 +34,7 @@ public class TranslateBingMIDlet extends MIDlet {
 		started = true;
 		try {
 			Class.forName("org.eclipse.ercp.swt.mobile.MobileShell");
-			new TranslateUISWT();
+			ui = new TranslateUIBingSWT();
 		} catch (Throwable e) {
 			//возможно загрузка лсдуи версии в будующем
 			final Command exit = new Command("Exit", Command.EXIT, 1);

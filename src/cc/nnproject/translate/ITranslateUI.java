@@ -25,4 +25,6 @@ public interface ITranslateUI {
 	public void msg(String s);
 	
 	public boolean running();
+
+	public void exit();
 }
