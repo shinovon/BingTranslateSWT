@@ -68,6 +68,7 @@ public class TranslateUIBingLCD implements Runnable, ITranslateUI, CommandListen
 		setLangOutBtn.setText("Output language: " + langs[listLangOut.getSelectedIndex()]);
 		setLangOutBtn.setDefaultCommand(setLangOutCmd);
 		setLangOutBtn.setItemCommandListener(this);
+		form.append("\nShinovon (nnproject.cc)\nrunning LCDUI Version");
 		display.setCurrent(form);
 	}
 

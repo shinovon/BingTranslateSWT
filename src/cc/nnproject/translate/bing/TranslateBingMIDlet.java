@@ -4,7 +4,7 @@ import javax.microedition.midlet.MIDlet;
 
 import cc.nnproject.translate.ITranslateUI;
 import cc.nnproject.translate.bing.lcdui.TranslateUIBingLCD;
-import cc.nnproject.translate.bing.swt.TranslateUIBingSWT;
+import cc.nnproject.translate.bing.swt.ClassInvoker;
 
 public class TranslateBingMIDlet extends MIDlet {
 
@@ -30,7 +30,7 @@ public class TranslateBingMIDlet extends MIDlet {
 		started = true;
 		try {
 			Class.forName("org.eclipse.ercp.swt.mobile.MobileShell");
-			ui = new TranslateUIBingSWT();
+			ClassInvoker.init();
 		} catch (Throwable e) {
 			ui = new TranslateUIBingLCD();
 			/*

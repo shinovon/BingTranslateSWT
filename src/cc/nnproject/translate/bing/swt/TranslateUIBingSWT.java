@@ -28,11 +28,6 @@ import cc.nnproject.translate.bing.TranslateBingMIDlet;
 import cc.nnproject.translate.bing.TranslateBingThread;
 
 public class TranslateUIBingSWT implements Runnable, SelectionListener, ITranslateUI {
-
-
-	// do not inline
-	// юзается в about
-	public static String e = "nn";
 	
 	private final ModifyListener modifyListener = new ModifyListener() {
 		public void modifyText(ModifyEvent ev) {
@@ -515,6 +510,10 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 
 	public boolean running() {
 		return !exiting;
+	}
+
+	static void _init() {
+		new TranslateUIBingSWT();
 	}
 
 }

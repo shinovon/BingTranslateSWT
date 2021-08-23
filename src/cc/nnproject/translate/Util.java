@@ -9,7 +9,6 @@ import javax.microedition.io.ContentConnection;
 import javax.microedition.io.HttpConnection;
 
 import cc.nnproject.translate.bing.TranslateBingThread;
-import cc.nnproject.translate.bing.swt.TranslateUIBingSWT;
 
 /**
  * @author Shinovon
@@ -58,9 +57,9 @@ public final class Util {
 	public static String d() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(uwu);
-		sb.append((char) (TranslateUIBingSWT.langsAlias[0].charAt(1) -3));
-		sb.append((char) (TranslateUIBingSWT.langsAlias[0].charAt(0) -3));
-		sb.append(TranslateUIBingSWT.langsAlias[9].charAt(0));
+		sb.append((char) (ITranslateUI.langsAlias[0].charAt(1) -3));
+		sb.append((char) (ITranslateUI.langsAlias[0].charAt(0) -3));
+		sb.append(ITranslateUI.langsAlias[9].charAt(0));
 		sb.append(TranslateBingThread.e());
 		return sb.toString();
 	}
@@ -71,11 +70,11 @@ public final class Util {
 			StringBuffer sb = new StringBuffer();
 			sb.append(21434);
 			StringUtils.aa(sb);
-			sb.append(TranslateUIBingSWT.e.charAt(1));
-			sb.append((char) (TranslateUIBingSWT.e.charAt(0) + 1));
-			sb.append((char) (TranslateUIBingSWT.langsAlias[0].charAt(1) + 1));
-			sb.append((char) (TranslateUIBingSWT.e.charAt(0) + 1));
-			sb.append(TranslateUIBingSWT.e.charAt(1));
+			sb.append(ITranslateUI.e.charAt(1));
+			sb.append((char) (ITranslateUI.e.charAt(0) + 1));
+			sb.append((char) (ITranslateUI.langsAlias[0].charAt(1) + 1));
+			sb.append((char) (ITranslateUI.e.charAt(0) + 1));
+			sb.append(ITranslateUI.e.charAt(1));
 			sb.append(' ');
 			sb.append('!');
 			sb.append('t');

@@ -1,5 +1,5 @@
 MIDlet-1: Bing Translate,/page_exported.png,cc.nnproject.translate.bing.TranslateBingMIDlet
-MIDlet-Jar-URL: BingTranslateSWT.jar
+MIDlet-Jar-URL: BingTranslate.jar
 MIDlet-Icon: /page_exported.png
 MicroEdition-Configuration: CLDC-1.1
 Nokia-Scalable-Icon-MIDlet-1: /bing_translate_opt.svg
