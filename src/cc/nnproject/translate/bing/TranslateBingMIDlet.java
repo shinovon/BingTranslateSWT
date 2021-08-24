@@ -29,6 +29,7 @@ public class TranslateBingMIDlet extends MIDlet {
 			return;
 		started = true;
 		try {
+			Class.forName("cc.nnproject.translate.bing.swt.TranslateUIBingSWT");
 			Class.forName("org.eclipse.ercp.swt.mobile.MobileShell");
 			ClassInvoker.init();
 		} catch (Throwable e) {

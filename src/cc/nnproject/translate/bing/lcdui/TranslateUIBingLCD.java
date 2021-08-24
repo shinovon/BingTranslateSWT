@@ -59,16 +59,18 @@ public class TranslateUIBingLCD implements Runnable, ITranslateUI, CommandListen
 		form.addCommand(translateCmd);
 		form.setCommandListener(this);
 		form.append(textIn = new TextField("", "", 512, TextField.ANY));
+		textIn.setLabel("Input");
 		form.append(textOut = new TextField("", "", 512, TextField.ANY | TextField.UNEDITABLE));
+		textOut.setLabel("Output");
 		form.append(setLangInBtn = new StringItem("", "", StringItem.BUTTON));
-		setLangInBtn.setText("Input language: " + langs[listLangIn.getSelectedIndex()]);
+		setLangInBtn.setText("In: " + langs[listLangIn.getSelectedIndex()]);
 		setLangInBtn.setDefaultCommand(setLangInCmd);
 		setLangInBtn.setItemCommandListener(this);
 		form.append(setLangOutBtn = new StringItem("", "", StringItem.BUTTON));
-		setLangOutBtn.setText("Output language: " + langs[listLangOut.getSelectedIndex()]);
+		setLangOutBtn.setText("Out: " + langs[listLangOut.getSelectedIndex()]);
 		setLangOutBtn.setDefaultCommand(setLangOutCmd);
 		setLangOutBtn.setItemCommandListener(this);
-		form.append("\nShinovon (nnproject.cc)\nrunning LCDUI Version");
+		form.append("\nMade by Shinovon (nnproject.cc)\nrunning LCDUI Version");
 		display.setCurrent(form);
 	}
 
@@ -110,8 +112,8 @@ public class TranslateUIBingLCD implements Runnable, ITranslateUI, CommandListen
 	public void commandAction(Command c, Displayable d) {
 		if(c == translateCmd) translateThread.now();
 		if(c == listChangeCmd) {
-			setLangInBtn.setText("Input language: " + langs[listLangIn.getSelectedIndex()]);
-			setLangOutBtn.setText("Output language: " + langs[listLangOut.getSelectedIndex()]);
+			setLangInBtn.setText("In: " + langs[listLangIn.getSelectedIndex()]);
+			setLangOutBtn.setText("Out: " + langs[listLangOut.getSelectedIndex()]);
 			display.setCurrent(form);
 		}
 	}

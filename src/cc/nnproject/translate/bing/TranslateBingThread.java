@@ -7,11 +7,18 @@ import cc.nnproject.translate.Util;
 
 public class TranslateBingThread extends AbstractTranslateThread {
 
+	private String last;
+
 	public TranslateBingThread(ITranslateUI ui) {
 		super(ui);
 	}
 
 	protected void translate() {
+		if(r) {
+			if(last != null) ui.setText(last);
+			r = false;
+			return;
+		}
 		String s = ui.getText();
 		ui.sync();
 		if(s == null || s.length() < 2) return;
@@ -25,9 +32,10 @@ public class TranslateBingThread extends AbstractTranslateThread {
 			r = StringUtils.replace(r, "\\u2029", "\n");
 			r = StringUtils.replace(r, "\\n", "\n");
 			r = StringUtils.cut(r, "\\r");
+			last = r;
 			ui.setText(r);
 			ui.sync();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			ui.setText("Error!");
 			ui.sync();
 			ui.msg("Translation request failed\n" + e.toString());

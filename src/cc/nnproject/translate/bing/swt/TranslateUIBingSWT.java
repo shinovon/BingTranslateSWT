@@ -33,6 +33,10 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 		public void modifyText(ModifyEvent ev) {
 			to = langsAlias[comboTo.getSelectionIndex()];
 			from = langsAlias[comboFrom.getSelectionIndex()];
+			try {
+				inputText = textIn.getText();
+			} catch (Throwable e) {
+			}
 			translateThread.schedule();
 		}
 	};
@@ -186,10 +190,11 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 		shell.setLayout(new FillLayout());
 		parent = new Composite(shell, SWT.NONE);
 		parent.setLayout(new GridLayout());
-		exitcmd = new Command(shell, Command.OK, 1);
+		exitcmd = new Command(shell, Command.EXIT, 1);
 		exitcmd.setText("Exit");
 		exitcmd.addSelectionListener(this);
-		aboutcmd = new Command(shell, Command.EXIT, 1);
+		Command group = new Command(shell, Command.COMMANDGROUP, 1);
+		aboutcmd = new Command(group, Command.EXIT, 1);
 		aboutcmd.setText("About");
 		aboutcmd.addSelectionListener(this);
 		init();
@@ -221,7 +226,11 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 	public void setText(final String s) {
 		display.syncExec(new Runnable() {
 			public void run() {
-				textOut.setText(s);
+				try {
+					textOut.setText(s);
+				} catch (Throwable e) {
+					translateThread.scheduleRetext();
+				}
 			}
 		});
 	}
@@ -292,8 +301,8 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 		String ti = null;
 		String to = null;
 		try {
-			if(textIn != null) ti = textIn.getText();
 			if(textOut != null) to = textOut.getText();
+			if(textIn != null) ti = textIn.getText();
 		} catch (Throwable e) {
 			if(inputText != null) ti = inputText;
 		}

@@ -3,6 +3,7 @@ package cc.nnproject.translate;
 public abstract class AbstractTranslateThread extends Thread {
 	
 	protected ITranslateUI ui;
+	protected boolean r;
 	private boolean b;
 	private int i;
 
@@ -31,6 +32,11 @@ public abstract class AbstractTranslateThread extends Thread {
 	/** Поставить таймер на 2.5 секунд */
 	public final void schedule() {
 		schedule(5);
+	}
+	
+	public final void scheduleRetext() {
+		schedule(1);
+		r = true;
 	}
 
 	/** Поставить таймер на 0 секунд <br>
