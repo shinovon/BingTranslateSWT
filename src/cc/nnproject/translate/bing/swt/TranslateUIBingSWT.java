@@ -186,17 +186,23 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 	public void run() {
 		display = new Display();
 		translateThread.start();
-		shell = new MobileShell(display, SWT.NONE, 2);
+		shell = new MobileShell(display, SWT.NONE, MobileShell.SMALL_STATUS_PANE);
+		shell.setText("Bing Translate");
+		//shell.setImage(new Image(display, getClass().getResourceAsStream("/page_exported.png")));
 		shell.setLayout(new FillLayout());
 		parent = new Composite(shell, SWT.NONE);
 		parent.setLayout(new GridLayout());
 		exitcmd = new Command(shell, Command.EXIT, 1);
 		exitcmd.setText("Exit");
 		exitcmd.addSelectionListener(this);
-		Command group = new Command(shell, Command.COMMANDGROUP, 1);
-		aboutcmd = new Command(group, Command.EXIT, 1);
-		aboutcmd.setText("About");
-		aboutcmd.addSelectionListener(this);
+		String s = System.getProperty("microedition.platform");
+		if(s != null && s.indexOf("platform_version=5.3") > -1) {
+			Command group = new Command(shell, Command.COMMANDGROUP, 1);
+			group.setText("App");
+			aboutcmd = new Command(group, Command.GENERAL, 1);
+			aboutcmd.setText("About");
+			aboutcmd.addSelectionListener(this);
+		}
 		init();
 		shell.open();
 		lastHeight = shell.getSize().x;
@@ -274,8 +280,9 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 		RowData comboLayout = new RowData();
 		comboLayout.width = 150;
 		comboLayout.height = 46;
-		
-		comboFrom = new Combo(centerComp, SWT.DROP_DOWN);
+		int comboStyle = SWT.DROP_DOWN;
+		if(shell.getSize().x < 300) comboStyle = SWT.NONE;
+		comboFrom = new Combo(centerComp, comboStyle);
 		comboFrom.setLayoutData(comboLayout);
 		comboFrom.setItems(langs);
 		comboFrom.select(0);
@@ -286,7 +293,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 		reverseBtn.addSelectionListener(this);
 	    reverseBtn.setLayoutData(new RowData(40, 44));
 	    
-		comboTo = new Combo(centerComp, SWT.DROP_DOWN);
+		comboTo = new Combo(centerComp, comboStyle);
 		comboTo.setLayoutData(comboLayout);
 		comboTo.setItems(langs);
 		comboTo.select(4);
@@ -496,6 +503,8 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 		//textOut.redraw();
 		parent.layout();
 		shell.layout();
+		shell.redraw();
+		shell.update();
 	}
 
 	public void exit() {
@@ -510,8 +519,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 				int w = shell.getSize().x;
 				if(w < 600 && w > 300) {
 					shell.redraw();
-					parent.redraw();
-					textOut.redraw();
+					shell.update();
 				}
 			}
 		});

@@ -25,6 +25,7 @@ public class TranslateUIBingLCD implements Runnable, ITranslateUI, CommandListen
 	private Command setLangInCmd = new Command("Change in", Command.OK, 1);
 	private Command setLangOutCmd = new Command("Change out", Command.OK, 1);
 	private Command listChangeCmd = new Command("Change", Command.OK, 1);
+	private Command exitCmd = new Command("Exit", Command.EXIT, 1);
 
 	private TranslateBingThread translateThread = new TranslateBingThread(this);
 
@@ -57,6 +58,7 @@ public class TranslateUIBingLCD implements Runnable, ITranslateUI, CommandListen
 		translateThread.start();
 		form = new Form("Bing Translate");
 		form.addCommand(translateCmd);
+		form.addCommand(exitCmd);
 		form.setCommandListener(this);
 		form.append(textIn = new TextField("", "", 512, TextField.ANY));
 		textIn.setLabel("Input");
@@ -70,7 +72,7 @@ public class TranslateUIBingLCD implements Runnable, ITranslateUI, CommandListen
 		setLangOutBtn.setText("Out: " + langs[listLangOut.getSelectedIndex()]);
 		setLangOutBtn.setDefaultCommand(setLangOutCmd);
 		setLangOutBtn.setItemCommandListener(this);
-		form.append("\nMade by Shinovon (nnproject.cc)\nrunning LCDUI Version");
+		form.append("\nMade by Shinovon (nnproject.cc)");
 		display.setCurrent(form);
 	}
 
@@ -106,11 +108,13 @@ public class TranslateUIBingLCD implements Runnable, ITranslateUI, CommandListen
 
 	public void exit() {
 		exiting = true;
+		translateThread.interrupt();
 		TranslateBingMIDlet.midlet.notifyDestroyed();
 	}
 
 	public void commandAction(Command c, Displayable d) {
 		if(c == translateCmd) translateThread.now();
+		if(c == exitCmd) exit();
 		if(c == listChangeCmd) {
 			setLangInBtn.setText("In: " + langs[listLangIn.getSelectedIndex()]);
 			setLangOutBtn.setText("Out: " + langs[listLangOut.getSelectedIndex()]);

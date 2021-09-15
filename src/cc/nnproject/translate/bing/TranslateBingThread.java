@@ -7,7 +7,8 @@ import cc.nnproject.translate.Util;
 
 public class TranslateBingThread extends AbstractTranslateThread {
 
-	private String last;
+	private String lastInput;
+	private String lastTranslated;
 
 	public TranslateBingThread(ITranslateUI ui) {
 		super(ui);
@@ -15,11 +16,13 @@ public class TranslateBingThread extends AbstractTranslateThread {
 
 	protected void translate() {
 		if(r) {
-			if(last != null) ui.setText(last);
 			r = false;
+			if(lastTranslated != null) ui.setText(lastTranslated);
 			return;
 		}
 		String s = ui.getText();
+		if(lastInput != null && lastInput.equals(s) && lastTranslated != null) return;
+		lastInput = s;
 		ui.sync();
 		if(s == null || s.length() < 2) return;
 		ui.setText("Processing..");
@@ -32,7 +35,7 @@ public class TranslateBingThread extends AbstractTranslateThread {
 			r = StringUtils.replace(r, "\\u2029", "\n");
 			r = StringUtils.replace(r, "\\n", "\n");
 			r = StringUtils.cut(r, "\\r");
-			last = r;
+			lastTranslated = r;
 			ui.setText(r);
 			ui.sync();
 		} catch (Throwable e) {
