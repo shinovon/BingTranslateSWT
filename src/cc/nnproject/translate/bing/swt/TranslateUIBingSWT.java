@@ -24,8 +24,8 @@ import org.eclipse.swt.widgets.Text;
 import cc.nnproject.translate.ITranslateUI;
 import cc.nnproject.translate.StringUtils;
 import cc.nnproject.translate.Util;
-import cc.nnproject.translate.bing.TranslateBingMIDlet;
 import cc.nnproject.translate.bing.TranslateBingThread;
+import cc.nnproject.translate.bing.app.TranslateBingMIDlet;
 
 public class TranslateUIBingSWT implements Runnable, SelectionListener, ITranslateUI {
 	

@@ -13,8 +13,8 @@ import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextField;
 
 import cc.nnproject.translate.ITranslateUI;
-import cc.nnproject.translate.bing.TranslateBingMIDlet;
 import cc.nnproject.translate.bing.TranslateBingThread;
+import cc.nnproject.translate.bing.app.TranslateBingMIDlet;
 
 public class TranslateUIBingLCD implements Runnable, ITranslateUI, CommandListener, ItemCommandListener {
 

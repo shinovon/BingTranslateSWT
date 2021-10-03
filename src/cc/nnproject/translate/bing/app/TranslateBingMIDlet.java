@@ -1,4 +1,4 @@
-package cc.nnproject.translate.bing;
+package cc.nnproject.translate.bing.app;
 
 import javax.microedition.midlet.MIDlet;
 
