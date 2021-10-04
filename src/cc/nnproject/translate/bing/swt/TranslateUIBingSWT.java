@@ -48,10 +48,12 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 		public void widgetSelected(SelectionEvent ev) {
 			to = langsAlias[comboTo.getSelectionIndex()];
 			from = langsAlias[comboFrom.getSelectionIndex()];
+			/*
 			try {
 				inputText = textIn.getText();
 			} catch (Throwable e) {
 			}
+			*/
 			translateThread.schedule();
 		}
 	};
@@ -90,6 +92,8 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 
 	private Composite textComp;
 	private Composite textCenterComp;
+
+	private Command clearcmd;
 
 	public TranslateUIBingSWT() {
 		new Thread(this, "Main SWT Thread").start();
@@ -155,9 +159,9 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			sb.append((char) (langsAlias[2].charAt(0) +1));
 			sb.append(Util.uwu.charAt(0));
 			// "Bing Translate\nMade by shinovon (nnproject.cc)"
-			msg(sb.toString());
+			msg(sb.toString() + " & Feodor0090");
 		}
-		if (ev.widget == clearBtn) {
+		if (ev.widget == clearBtn || ev.widget == clearcmd) {
 			textIn.setText("");
 			textOut.setText("");
 		}
@@ -195,14 +199,24 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 		exitcmd = new Command(shell, Command.EXIT, 1);
 		exitcmd.setText("Exit");
 		exitcmd.addSelectionListener(this);
+		/*
 		String s = System.getProperty("microedition.platform");
-		if(s != null && s.indexOf("platform_version=5.3") > -1) {
+		
+		if(s != null && s.indexOf("platform_version=3.2") > -1) {
 			Command group = new Command(shell, Command.COMMANDGROUP, 1);
 			group.setText("App");
 			aboutcmd = new Command(group, Command.GENERAL, 1);
 			aboutcmd.setText("About");
 			aboutcmd.addSelectionListener(this);
-		}
+		} else {
+		*/
+		aboutcmd = new Command(shell, Command.GENERAL, 2);
+		aboutcmd.setText("About");
+		aboutcmd.addSelectionListener(this);
+		clearcmd = new Command(shell, Command.GENERAL, 1);
+		clearcmd.setText("Clear");
+		clearcmd.addSelectionListener(this);
+		//}
 		init();
 		shell.open();
 		lastHeight = shell.getSize().x;
@@ -218,6 +232,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 	}
 	
 	public String getText() {
+		/*
 		display.syncExec(new Runnable() {
 			public void run() {
 				try {
@@ -226,6 +241,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 				}
 			}
 		});
+		*/
 		return inputText;
 	}
 	
@@ -366,7 +382,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			} catch (Throwable e) {
 			}
 			textIn.addModifyListener(modifyListener);
-			textIn.addSelectionListener(selectionListener);
+			//textIn.addSelectionListener(selectionListener);
 			
 			textIn.moveAbove(textCenterComp);
 			textOut.moveBelow(textCenterComp);
@@ -407,7 +423,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			} catch (Throwable e) {
 			}
 			textIn.addModifyListener(modifyListener);
-			textIn.addSelectionListener(selectionListener);
+			//textIn.addSelectionListener(selectionListener);
 			
 			RowData comboLayout = new RowData();
 			comboLayout.width = 120;
@@ -446,7 +462,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			} catch (Throwable e) {
 			}
 			textIn.addModifyListener(modifyListener);
-			textIn.addSelectionListener(selectionListener);
+			//textIn.addSelectionListener(selectionListener);
 			
 			RowData comboLayout = new RowData();
 			comboLayout.width = 90;
@@ -486,7 +502,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			}
 			
 			textIn.addModifyListener(modifyListener);
-			textIn.addSelectionListener(selectionListener);
+			//textIn.addSelectionListener(selectionListener);
 			
 			RowData comboLayout = new RowData();
 			comboLayout.width = 150;
