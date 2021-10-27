@@ -395,12 +395,6 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			fillVertical.grabExcessVerticalSpace = true;
 			fillVertical.verticalAlignment = GridData.FILL;
 
-			RowData comboLayout = new RowData();
-			comboLayout.width = 280;
-			comboLayout.height = 46;
-			comboFrom.setLayoutData(comboLayout);
-			comboTo.setLayoutData(comboLayout);
-
 			GridLayout layout = new GridLayout();
 			layout.numColumns = 3;
 			textComp = new Composite(parent, SWT.NONE);
@@ -423,20 +417,27 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			textIn.moveAbove(textCenterComp);
 			textOut.moveBelow(textCenterComp);
 			
+			RowData centerButtonLayout = new RowData(40, 44);
 			clearBtn = new Button(textCenterComp, SWT.CENTER);
 			clearBtn.setText("x");
-			clearBtn.setLayoutData(new RowData(40, 44));
+			clearBtn.setLayoutData(centerButtonLayout);
 			clearBtn.addSelectionListener(this);
 			
 			copyBtn = new Button(textCenterComp, SWT.CENTER);
 			copyBtn.setText("C");
-			copyBtn.setLayoutData(new RowData(40, 44));
+			copyBtn.setLayoutData(centerButtonLayout);
 			copyBtn.addSelectionListener(this);
 			
 			pasteBtn = new Button(textCenterComp, SWT.CENTER);
 			pasteBtn.setText("V");
-			pasteBtn.setLayoutData(new RowData(40, 44));
+			pasteBtn.setLayoutData(centerButtonLayout);
 			pasteBtn.addSelectionListener(this);
+
+			RowData comboLayout = new RowData();
+			comboLayout.width = 280;
+			comboLayout.height = 46;
+			comboFrom.setLayoutData(comboLayout);
+			comboTo.setLayoutData(comboLayout);
 			
 			centerComp.moveAbove(textComp);
 		} else if(w > h && w > 300) {
