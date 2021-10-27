@@ -15,12 +15,12 @@ public class TranslateBingThread extends AbstractTranslateThread {
 	}
 
 	protected void translate() {
-		if(r) {
+		String s = ui.getText();
+		if(r && lastInput != null && lastInput.equals(s)) {
 			r = false;
 			if(lastTranslated != null) ui.setText(lastTranslated);
 			return;
 		}
-		String s = ui.getText();
 		if(lastInput != null && lastInput.equals(s) && lastTranslated != null) return;
 		lastInput = s;
 		ui.sync();

@@ -3,7 +3,10 @@ package cc.nnproject.translate.bing.swt;
 import java.io.IOException;
 
 import org.eclipse.ercp.swt.mobile.Command;
+import org.eclipse.ercp.swt.mobile.MobileDevice;
 import org.eclipse.ercp.swt.mobile.MobileShell;
+import org.eclipse.ercp.swt.mobile.ScreenEvent;
+import org.eclipse.ercp.swt.mobile.ScreenListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -27,7 +30,7 @@ import cc.nnproject.translate.Util;
 import cc.nnproject.translate.bing.TranslateBingThread;
 import cc.nnproject.translate.bing.app.TranslateBingMIDlet;
 
-public class TranslateUIBingSWT implements Runnable, SelectionListener, ITranslateUI {
+public class TranslateUIBingSWT implements Runnable, SelectionListener, ITranslateUI, ScreenListener {
 	
 	private final ModifyListener modifyListener = new ModifyListener() {
 		public void modifyText(ModifyEvent ev) {
@@ -69,31 +72,31 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 
 	private Command exitcmd;
 
+	private Command aboutcmd;
+	private Command clearcmd;
+	private Command copycmd;
+	private Command pastecmd;
+
 	private Combo comboFrom;
 	private Combo comboTo;
+	
 	private Text textIn;
-
 	private Text textOut;
 
 	private Button reverseBtn;
 
 	private Composite centerComp;
+	private Button clearBtn;
+	private Button copyBtn;
+	private Button pasteBtn;
 
 	private TranslateBingThread translateThread = new TranslateBingThread(this);
-
-	private Command aboutcmd;
 
 	private String from;
 	private String to;
 
-	private int lastHeight;
-
-	private Button clearBtn;
-
 	private Composite textComp;
 	private Composite textCenterComp;
-
-	private Command clearcmd;
 
 	public TranslateUIBingSWT() {
 		new Thread(this, "Main SWT Thread").start();
@@ -143,6 +146,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 				e1.printStackTrace();
 			}
 			// site
+			/*
 			sb.append(Util.uwu.charAt(2));
 			sb.append(e);
 			sb.append((char) (langsAlias[0].charAt(1) -5));
@@ -158,8 +162,15 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			sb.append((char) (langsAlias[2].charAt(0) +1));
 			sb.append((char) (langsAlias[2].charAt(0) +1));
 			sb.append(Util.uwu.charAt(0));
+			*/
 			// "Bing Translate\nMade by shinovon (nnproject.cc)"
 			msg(sb.toString() + " & Feodor0090");
+		}
+		if (ev.widget == copyBtn || ev.widget == copycmd) {
+			textOut.copy();
+		}
+		if (ev.widget == pastecmd) {
+			textIn.paste();
 		}
 		if (ev.widget == clearBtn || ev.widget == clearcmd) {
 			textIn.setText("");
@@ -169,8 +180,15 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			int in = comboFrom.getSelectionIndex();
 			comboFrom.select(comboTo.getSelectionIndex());
 			comboTo.select(in);
+			String out = "";
 			try {
-				inputText = textIn.getText();
+				out = textOut.getText();
+				inputText = out;
+			} catch (Exception e) {
+			}
+			try {
+				textIn.setText(out);
+				textOut.setText("");
 			} catch (Exception e) {
 			}
 			translateThread.schedule();
@@ -190,6 +208,10 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 	public void run() {
 		display = new Display();
 		translateThread.start();
+		try {
+			MobileDevice.getMobileDevice().getScreens()[0].addEventListener(this);
+		} catch (Exception e) {
+		}
 		shell = new MobileShell(display, SWT.NONE, MobileShell.SMALL_STATUS_PANE);
 		shell.setText("Bing Translate");
 		//shell.setImage(new Image(display, getClass().getResourceAsStream("/page_exported.png")));
@@ -210,21 +232,22 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			aboutcmd.addSelectionListener(this);
 		} else {
 		*/
-		aboutcmd = new Command(shell, Command.GENERAL, 2);
+		aboutcmd = new Command(shell, Command.GENERAL, 4);
 		aboutcmd.setText("About");
 		aboutcmd.addSelectionListener(this);
-		clearcmd = new Command(shell, Command.GENERAL, 1);
+		clearcmd = new Command(shell, Command.GENERAL, 3);
 		clearcmd.setText("Clear");
 		clearcmd.addSelectionListener(this);
+		copycmd = new Command(shell, Command.GENERAL, 2);
+		copycmd.setText("Copy output");
+		copycmd.addSelectionListener(this);
+		pastecmd = new Command(shell, Command.GENERAL, 1);
+		pastecmd.setText("Paste input");
+		pastecmd.addSelectionListener(this);
 		//}
 		init();
 		shell.open();
-		lastHeight = shell.getSize().x;
 		while (!exiting) {
-			if(lastHeight != shell.getSize().x) {
-				reinit();
-				lastHeight = shell.getSize().x;
-			}
 			if (!display.readAndDispatch()) display.sleep();
 		}
 		display.dispose();
@@ -315,12 +338,27 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 		comboTo.select(4);
 		comboTo.addSelectionListener(selectionListener);
 		
-		reinit();
+		reinit(-1);
 	}
 	
-	public void reinit() {
-		int w = shell.getSize().x;
-		int h = shell.getSize().y;
+	public void reinit(int orientation) {
+		int w;
+		int h;
+		int sx = shell.getSize().x;
+		int sy = shell.getSize().y;
+		if(orientation == -1) {
+			// first init
+			w = sx;
+			h = sy;
+		} else if(orientation == 0) {
+			// portrait
+			w = Math.min(sx, sy);
+			h = Math.max(sx, sy);
+		} else {
+			// landscape
+			w = Math.max(sx, sy);
+			h = Math.min(sx, sy);
+		}
 		String ti = null;
 		String to = null;
 		try {
@@ -329,18 +367,23 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 		} catch (Throwable e) {
 			if(inputText != null) ti = inputText;
 		}
+		// dispose all
+		if(textIn != null) textIn.dispose();
+		textIn = null;
+		if(textOut != null) textOut.dispose();
+		textOut = null;
+		if(clearBtn != null) clearBtn.dispose();
+		clearBtn = null;
+		if(copyBtn != null) copyBtn.dispose();
+		copyBtn = null;
+		if(pasteBtn != null) pasteBtn.dispose();
+		pasteBtn = null;
+		if(textCenterComp != null) textCenterComp.dispose();
+		textCenterComp = null;
+		if(textComp != null) textComp.dispose();
+		textComp = null;
 		if(w > h && w > 600) {
 			// 640x360 (album)
-			if(textIn != null) textIn.dispose();
-			textIn = null;
-			if(textOut != null) textOut.dispose();
-			textOut = null;
-			if(clearBtn != null) clearBtn.dispose();
-			clearBtn = null;
-			if(textCenterComp != null) textCenterComp.dispose();
-			textCenterComp = null;
-			if(textComp != null) textComp.dispose();
-			textComp = null;
 			
 			final GridData fill = new GridData();
 			fill.horizontalAlignment = GridData.FILL;
@@ -376,13 +419,6 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 
 			textOut = new Text(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
 			textOut.setLayoutData(fill);
-			try {
-				if(ti != null) textIn.setText(ti);
-				if(to != null) textOut.setText(to);
-			} catch (Throwable e) {
-			}
-			textIn.addModifyListener(modifyListener);
-			//textIn.addSelectionListener(selectionListener);
 			
 			textIn.moveAbove(textCenterComp);
 			textOut.moveBelow(textCenterComp);
@@ -392,19 +428,19 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			clearBtn.setLayoutData(new RowData(40, 44));
 			clearBtn.addSelectionListener(this);
 			
+			copyBtn = new Button(textCenterComp, SWT.CENTER);
+			copyBtn.setText("C");
+			copyBtn.setLayoutData(new RowData(40, 44));
+			copyBtn.addSelectionListener(this);
+			
+			pasteBtn = new Button(textCenterComp, SWT.CENTER);
+			pasteBtn.setText("V");
+			pasteBtn.setLayoutData(new RowData(40, 44));
+			pasteBtn.addSelectionListener(this);
+			
 			centerComp.moveAbove(textComp);
 		} else if(w > h && w > 300) {
 			// 320x240 (album) 9.3*
-			if(textIn != null) textIn.dispose();
-			textIn = null;
-			if(textOut != null) textOut.dispose();
-			textOut = null;
-			if(clearBtn != null) clearBtn.dispose();
-			clearBtn = null;
-			if(textCenterComp != null) textCenterComp.dispose();
-			textCenterComp = null;
-			if(textComp != null) textComp.dispose();
-			textComp = null;
 			
 			final GridData fill = new GridData();
 			fill.horizontalAlignment = GridData.FILL;
@@ -417,13 +453,6 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			
 			textOut = new Text(parent, SWT.BORDER | SWT.READ_ONLY);
 			textOut.setLayoutData(fill);
-			try {
-				if(ti != null) textIn.setText(ti);
-				if(to != null) textOut.setText(to);
-			} catch (Throwable e) {
-			}
-			textIn.addModifyListener(modifyListener);
-			//textIn.addSelectionListener(selectionListener);
 			
 			RowData comboLayout = new RowData();
 			comboLayout.width = 120;
@@ -434,16 +463,6 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			centerComp.moveBelow(textIn);
 		} else if(w < 300) {
 			// 240x320 (portrait) 9.3*
-			if(textIn != null) textIn.dispose();
-			textIn = null;
-			if(textOut != null) textOut.dispose();
-			textOut = null;
-			if(clearBtn != null) clearBtn.dispose();
-			clearBtn = null;
-			if(textCenterComp != null) textCenterComp.dispose();
-			textCenterComp = null;
-			if(textComp != null) textComp.dispose();
-			textComp = null;
 			
 			final GridData fill = new GridData();
 			fill.horizontalAlignment = GridData.FILL;
@@ -461,8 +480,6 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 				if(to != null) textOut.setText(to);
 			} catch (Throwable e) {
 			}
-			textIn.addModifyListener(modifyListener);
-			//textIn.addSelectionListener(selectionListener);
 			
 			RowData comboLayout = new RowData();
 			comboLayout.width = 90;
@@ -472,17 +489,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			
 			centerComp.moveBelow(textIn);
 		} else {
-			// 360x640 (portrait)
-			if(textIn != null) textIn.dispose();
-			textIn = null;
-			if(textOut != null) textOut.dispose();
-			textOut = null;
-			if(clearBtn != null) clearBtn.dispose();
-			clearBtn = null;
-			if(textCenterComp != null) textCenterComp.dispose();
-			textCenterComp = null;
-			if(textComp != null) textComp.dispose();
-			textComp = null;
+			// 360x640 (portrait) and others
 			
 			final GridData fill = new GridData();
 			fill.horizontalAlignment = GridData.FILL;
@@ -495,14 +502,6 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			
 			textOut = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
 			textOut.setLayoutData(fill);
-			try {
-				if(ti != null) textIn.setText(ti);
-				if(to != null) textOut.setText(to);
-			} catch (Throwable e) {
-			}
-			
-			textIn.addModifyListener(modifyListener);
-			//textIn.addSelectionListener(selectionListener);
 			
 			RowData comboLayout = new RowData();
 			comboLayout.width = 150;
@@ -511,6 +510,13 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			comboTo.setLayoutData(comboLayout);
 			
 			centerComp.moveBelow(textIn);
+		}
+		textIn.addModifyListener(modifyListener);
+		//textIn.addSelectionListener(selectionListener);
+		try {
+			if(ti != null) textIn.setText(ti);
+			if(to != null) textOut.setText(to);
+		} catch (Throwable e) {
 		}
 		upd();
 	}
@@ -547,6 +553,18 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 
 	static void _init() {
 		new TranslateUIBingSWT();
+	}
+
+	public void screenActivated(ScreenEvent event) {
+		
+	}
+
+	public void screenDeactivated(ScreenEvent event) {
+		
+	}
+
+	public void screenOrientationChanged(ScreenEvent event) {
+		reinit(event.orientation);
 	}
 
 }
