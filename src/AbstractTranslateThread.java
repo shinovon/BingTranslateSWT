@@ -1,4 +1,3 @@
-package cc.nnproject.translate;
 
 public abstract class AbstractTranslateThread extends Thread {
 	

@@ -1,4 +1,3 @@
-package cc.nnproject.translate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -7,8 +6,6 @@ import java.io.InputStream;
 import javax.microedition.io.Connector;
 import javax.microedition.io.ContentConnection;
 import javax.microedition.io.HttpConnection;
-
-import cc.nnproject.translate.bing.TranslateBingThread;
 
 /**
  * @author Shinovon
@@ -54,16 +51,6 @@ public final class Util {
 	// юзается в about
 	public static final String uwu = ").(";
 	
-	public static String d() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(uwu);
-		sb.append((char) (ITranslateUI.langsAlias[0].charAt(1) -3));
-		sb.append((char) (ITranslateUI.langsAlias[0].charAt(0) -3));
-		sb.append(ITranslateUI.langsAlias[9].charAt(0));
-		sb.append(TranslateBingThread.e());
-		return sb.toString();
-	}
-	
 	public static String get(String url) throws IOException {
 		if(url.equals(Util.uwu)) {
 			// shinovon
@@ -72,7 +59,7 @@ public final class Util {
 			StringUtils.aa(sb);
 			sb.append(ITranslateUI.e.charAt(1));
 			sb.append((char) (ITranslateUI.e.charAt(0) + 1));
-			sb.append((char) (ITranslateUI.langsAlias[0].charAt(1) + 1));
+			sb.append((char) ('u' + 1));
 			sb.append((char) (ITranslateUI.e.charAt(0) + 1));
 			sb.append(ITranslateUI.e.charAt(1));
 			sb.append(' ');
@@ -105,7 +92,7 @@ public final class Util {
 	}
 
 	private static ContentConnection open(String url) throws IOException {
-		ContentConnection con = (ContentConnection) Connector.open(url, Connector.READ);
+		ContentConnection con = (ContentConnection) Connector.open(url);
 		//if (con instanceof HttpConnection) ((HttpConnection) con).setRequestProperty("User-Agent", "Mozilla/5.0");
 		return con;
 	}

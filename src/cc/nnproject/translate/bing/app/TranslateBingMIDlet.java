@@ -2,9 +2,10 @@ package cc.nnproject.translate.bing.app;
 
 import javax.microedition.midlet.MIDlet;
 
-import cc.nnproject.translate.ITranslateUI;
-import cc.nnproject.translate.bing.lcdui.TranslateUIBingLCD;
-import cc.nnproject.translate.bing.swt.ClassInvoker;
+import Languages;
+import ITranslateUI;
+import swt.ClassInvoker;
+import lcdui.TranslateLCDUI;
 
 public class TranslateBingMIDlet extends MIDlet {
 
@@ -28,16 +29,18 @@ public class TranslateBingMIDlet extends MIDlet {
 		if(started)
 			return;
 		started = true;
+		Languages.init(true);
 		try {
-			Class.forName("cc.nnproject.translate.bing.swt.TranslateUIBingSWT");
+			Class.forName("swt.TranslateSWTUI");
 			Class.forName("org.eclipse.ercp.swt.mobile.MobileShell");
 			ClassInvoker.init();
 		} catch (Throwable e) {
-			ui = new TranslateUIBingLCD();
+			//Languages.init(false);
+			ui = new TranslateLCDUI();
 			/*
 			final Command exit = new Command("Exit", Command.EXIT, 1);
 			Alert a = new Alert("", "", null, null);
-			a.setString("Your device does not support ESWT");
+			a.setString("Your device does not support eSWT");
 			a.addCommand(exit);
 			a.setCommandListener(new CommandListener() {
 				public void commandAction(Command c, Displayable d) {

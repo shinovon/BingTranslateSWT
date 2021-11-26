@@ -1,9 +1,3 @@
-package cc.nnproject.translate.bing;
-
-import cc.nnproject.translate.AbstractTranslateThread;
-import cc.nnproject.translate.ITranslateUI;
-import cc.nnproject.translate.StringUtils;
-import cc.nnproject.translate.Util;
 
 public class TranslateBingThread extends AbstractTranslateThread {
 
@@ -46,6 +40,11 @@ public class TranslateBingThread extends AbstractTranslateThread {
 			ui.sync();
 			ui.msg("Translation request failed\n" + e.toString());
 		}
+	    Languages.save();
+	}
+	
+	public void clearLastInput() {
+		lastInput = null;
 	}
 	
 	public static char e() {

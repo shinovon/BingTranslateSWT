@@ -1,31 +1,23 @@
-package cc.nnproject.translate.bing.lcdui;
+package lcdui;
 
-import javax.microedition.lcdui.Alert;
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.CommandListener;
-import javax.microedition.lcdui.Display;
-import javax.microedition.lcdui.Displayable;
-import javax.microedition.lcdui.Form;
-import javax.microedition.lcdui.Item;
-import javax.microedition.lcdui.ItemCommandListener;
-import javax.microedition.lcdui.List;
-import javax.microedition.lcdui.StringItem;
-import javax.microedition.lcdui.TextField;
-
-import cc.nnproject.translate.ITranslateUI;
-import cc.nnproject.translate.bing.TranslateBingThread;
+import javax.microedition.lcdui.*;
+import ITranslateUI;
+import Languages;
+import TranslateBingThread;
 import cc.nnproject.translate.bing.app.TranslateBingMIDlet;
 
-public class TranslateUIBingLCD implements Runnable, ITranslateUI, CommandListener, ItemCommandListener {
+public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, ItemCommandListener {
 
 	private Display display;
 	private Form form;
 	
-	private Command translateCmd = new Command("Translate", Command.OK, 1);
+	private Command translateCmd = new Command("Translate", Command.OK, 3);
 	private Command setLangInCmd = new Command("Change in", Command.OK, 1);
 	private Command setLangOutCmd = new Command("Change out", Command.OK, 1);
 	private Command listChangeCmd = new Command("Change", Command.OK, 1);
+	private Command langsDoneCmd = new Command("Done", Command.OK, 1);
 	private Command exitCmd = new Command("Exit", Command.EXIT, 1);
+	private Command langsCmd = new Command("Edit visible languages", Command.SCREEN, 23);
 
 	private TranslateBingThread translateThread = new TranslateBingThread(this);
 
@@ -36,22 +28,35 @@ public class TranslateUIBingLCD implements Runnable, ITranslateUI, CommandListen
 	private List listLangOut;
 	private StringItem setLangInBtn;
 	private StringItem setLangOutBtn;
+	private List listLangs;
 	
-	public TranslateUIBingLCD() {
+	private String from;
+	private String to;
+	
+	public TranslateLCDUI() {
 		new Thread(this, "Main LCDUI Thread").start();
 	}
 
 	public void run() {
 		listLangIn = new List("Input language", List.EXCLUSIVE);
 		listLangOut = new List("Output language", List.EXCLUSIVE);
-		for(int i = 0; i < langs.length; i++) {
-			listLangIn.append(langs[i], null);
-			listLangOut.append(langs[i], null);
+		listLangs = new List("Languages", List.MULTIPLE);
+		String[] a = Languages.getLangNames();
+		for(int i = 0; i < a.length; i++) {
+			listLangIn.append(a[i], null);
+			listLangOut.append(a[i], null);
 		}
+		a = Languages.getLangNames();
+		for(int i = 0; i < a.length; i++) {
+			listLangs.append(a[i], null);
+		}
+		listLangs.setSelectedFlags(Languages.getSelected());
 		listLangIn.addCommand(listChangeCmd);
 		listLangOut.addCommand(listChangeCmd);
-		listLangIn.setSelectedIndex(0, true);
-		listLangOut.setSelectedIndex(4, true);
+		listLangIn.setSelectedIndex(Languages.getLastFrom(), true);
+		listLangOut.setSelectedIndex(Languages.getLastTo(), true);
+		from = Languages.getSelectedLang(Languages.getLastFrom())[1];
+		to = Languages.getSelectedLang(Languages.getLastTo())[1];
 		listLangIn.setCommandListener(this);
 		listLangOut.setCommandListener(this);
 		display = Display.getDisplay(TranslateBingMIDlet.midlet);
@@ -59,17 +64,18 @@ public class TranslateUIBingLCD implements Runnable, ITranslateUI, CommandListen
 		form = new Form("Bing Translate");
 		form.addCommand(translateCmd);
 		form.addCommand(exitCmd);
+		form.addCommand(langsCmd);
 		form.setCommandListener(this);
 		form.append(textIn = new TextField("", "", 512, TextField.ANY));
 		textIn.setLabel("Input");
 		form.append(textOut = new TextField("", "", 512, TextField.ANY | TextField.UNEDITABLE));
 		textOut.setLabel("Output");
 		form.append(setLangInBtn = new StringItem("", "", StringItem.BUTTON));
-		setLangInBtn.setText("In: " + langs[listLangIn.getSelectedIndex()]);
+		setLangInBtn.setText("In: " + Languages.getSelectedLang(listLangIn.getSelectedIndex())[0]);
 		setLangInBtn.setDefaultCommand(setLangInCmd);
 		setLangInBtn.setItemCommandListener(this);
 		form.append(setLangOutBtn = new StringItem("", "", StringItem.BUTTON));
-		setLangOutBtn.setText("Out: " + langs[listLangOut.getSelectedIndex()]);
+		setLangOutBtn.setText("Out: " + Languages.getSelectedLang(listLangOut.getSelectedIndex())[0]);
 		setLangOutBtn.setDefaultCommand(setLangOutCmd);
 		setLangOutBtn.setItemCommandListener(this);
 		form.append("\nMade by Shinovon (nnproject.cc)");
@@ -85,11 +91,11 @@ public class TranslateUIBingLCD implements Runnable, ITranslateUI, CommandListen
 	}
 
 	public String getFromLang() {
-		return langsAlias[listLangIn.getSelectedIndex()];
+		return from;
 	}
 
 	public String getToLang() {
-		return langsAlias[listLangOut.getSelectedIndex()];
+		return to;
 	}
 
 	public void sync() {
@@ -115,9 +121,26 @@ public class TranslateUIBingLCD implements Runnable, ITranslateUI, CommandListen
 	public void commandAction(Command c, Displayable d) {
 		if(c == translateCmd) translateThread.now();
 		if(c == exitCmd) exit();
+		if(c == langsCmd) {
+			display.setCurrent(listLangs);
+		}
+		if(c == langsDoneCmd) {
+			listLangIn.deleteAll();
+			listLangOut.deleteAll();
+			String[] a = Languages.getLangNames();
+			for(int i = 0; i < a.length; i++) {
+				listLangIn.append(a[i], null);
+				listLangOut.append(a[i], null);
+			}
+			display.setCurrent(form);
+		}
 		if(c == listChangeCmd) {
-			setLangInBtn.setText("In: " + langs[listLangIn.getSelectedIndex()]);
-			setLangOutBtn.setText("Out: " + langs[listLangOut.getSelectedIndex()]);
+			Languages.setLastSelected(listLangIn.getSelectedIndex(), listLangOut.getSelectedIndex());
+			Languages.save();
+			setLangInBtn.setText("In: " + Languages.getSelectedLang(listLangIn.getSelectedIndex())[0]);
+			setLangOutBtn.setText("Out: " + Languages.getSelectedLang(listLangOut.getSelectedIndex())[0]);
+			from = Languages.getSelectedLang(listLangIn.getSelectedIndex())[1];
+			to = Languages.getSelectedLang(listLangOut.getSelectedIndex())[1];
 			display.setCurrent(form);
 		}
 	}

@@ -1,4 +1,4 @@
-package cc.nnproject.translate.bing.swt;
+package swt;
 
 import java.io.IOException;
 
@@ -7,11 +7,15 @@ import org.eclipse.ercp.swt.mobile.MobileDevice;
 import org.eclipse.ercp.swt.mobile.MobileShell;
 import org.eclipse.ercp.swt.mobile.ScreenEvent;
 import org.eclipse.ercp.swt.mobile.ScreenListener;
+import org.eclipse.ercp.swt.mobile.SortedList;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -22,20 +26,26 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import cc.nnproject.translate.ITranslateUI;
-import cc.nnproject.translate.StringUtils;
-import cc.nnproject.translate.Util;
-import cc.nnproject.translate.bing.TranslateBingThread;
+import Util;
+import Languages;
+import StringUtils;
+import ITranslateUI;
+import TranslateBingThread;
 import cc.nnproject.translate.bing.app.TranslateBingMIDlet;
 
-public class TranslateUIBingSWT implements Runnable, SelectionListener, ITranslateUI, ScreenListener {
+public class TranslateSWTUI implements Runnable, SelectionListener, ITranslateUI, ScreenListener, ControlListener {
+	
+	private static final String model = System.getProperty("microedition.platform");
+	//private static final boolean is93 = model.indexOf("n=3.2") != -1;
+	private static final boolean is94 = model.indexOf("n=5.0") != -1;
 	
 	private final ModifyListener modifyListener = new ModifyListener() {
 		public void modifyText(ModifyEvent ev) {
-			to = langsAlias[comboTo.getSelectionIndex()];
-			from = langsAlias[comboFrom.getSelectionIndex()];
+			to = Languages.getSelectedLang(comboTo.getSelectionIndex())[1];
+			from = Languages.getSelectedLang(comboFrom.getSelectionIndex())[1];
 			try {
 				inputText = textIn.getText();
 			} catch (Throwable e) {
@@ -49,14 +59,21 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			
 		}
 		public void widgetSelected(SelectionEvent ev) {
-			to = langsAlias[comboTo.getSelectionIndex()];
-			from = langsAlias[comboFrom.getSelectionIndex()];
+			int in;
+			int out;
+			Languages.setLastSelected(in = comboFrom.getSelectionIndex(), out = comboTo.getSelectionIndex());
+			to = Languages.getSelectedLang(in)[1];
+			from = Languages.getSelectedLang(out)[1];
 			/*
 			try {
 				inputText = textIn.getText();
 			} catch (Throwable e) {
 			}
 			*/
+			if(ev.widget instanceof Combo) {
+				Languages.save();
+				translateThread.clearLastInput();
+			}
 			translateThread.schedule();
 		}
 	};
@@ -73,6 +90,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 	private Command exitcmd;
 
 	private Command aboutcmd;
+	private Command langscmd;
 	private Command clearcmd;
 	private Command copycmd;
 	private Command pastecmd;
@@ -98,42 +116,97 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 	private Composite textComp;
 	private Composite textCenterComp;
 
-	public TranslateUIBingSWT() {
+	private Shell langsShell;
+	private SortedList langsList;
+
+	//private boolean landscape;
+
+	private Command langsDoneCmd;
+
+	public TranslateSWTUI() {
 		new Thread(this, "Main SWT Thread").start();
 	}
 
 	public void widgetDefaultSelected(SelectionEvent e) {
+	    if (e.widget == langsList && e.widget != null) {
+	    	updateLangs();
+	    }
+	}
 
+	private void updateLangs() {
+		Languages.setSelected(langsList.getSelection());
+		Languages.setLastSelected(comboFrom.getSelectionIndex(), comboTo.getSelectionIndex());
+		String st = comboTo.getText();
+		String sf = comboFrom.getText();
+		comboFrom.setItems(Languages.getLangNames());
+		comboTo.setItems(Languages.getLangNames());
+		comboFrom.select(Languages.getSelectedIndex(sf));
+		comboTo.select(Languages.getSelectedIndex(st));
+		Languages.save();
+	}
+	
+	private void updateLangsPosition() {
+		if(langsShell == null) return;
+		Rectangle bgdBnds = shell.getBounds();
+		langsShell.setBounds(bgdBnds.x+1, bgdBnds.y+1, bgdBnds.width-1, bgdBnds.height-1);
 	}
 
 	public void widgetSelected(SelectionEvent ev) {
 		if (ev.widget == exitcmd)
 			exit();
+		if (ev.widget == langscmd) {
+			if(langsShell == null) {
+				langsShell = new Shell(shell, SWT.BORDER | SWT.TITLE | SWT.MODELESS);
+				langsShell.setLayout(new FillLayout());
+				langsShell.addControlListener(this);
+				langsList = new SortedList(langsShell, SWT.MULTI | SWT.V_SCROLL, SortedList.FILTER);
+				langsList.setItems(Languages.SUPPORTED_LANGUAGE_NAMES);
+				langsList.setSelection(Languages.getLangNames());
+				langsDoneCmd = new Command(langsShell, Command.EXIT, 1);
+				langsDoneCmd.setText("Done");
+				langsDoneCmd.addSelectionListener(this);
+			}
+			langsShell.setVisible(true);
+			langsShell.forceActive();
+			langsList.showSelection();
+			langsList.forceFocus();
+		}
+		if (ev.widget == langsDoneCmd) {
+			shell.removeControlListener(this);
+			langsDoneCmd.dispose();
+			langsList.dispose();
+			langsList = null;
+			langsShell.setVisible(false);
+			langsShell.dispose();
+			langsShell = null;
+			shell.forceActive();
+			shell.forceFocus();
+		}
 		if (ev.widget == aboutcmd) {
 			StringBuffer sb = new StringBuffer();
 			// Bing
-			sb.append((langsAlias[2].charAt(0) + "").toUpperCase());
-			sb.append(langsAlias[7].charAt(0));
+			sb.append(('b' + "").toUpperCase());
+			sb.append('i');
 			sb.append(e.charAt(0));
 			sb.append((char) (e.charAt(1) - 7));
 			sb.append(' ');
 			// Translate
-			sb.append((langsAlias[7].charAt(1) + "").toUpperCase());
-			sb.append(langsAlias[6].charAt(1));
+			sb.append(('t' + "").toUpperCase());
+			sb.append('r');
 			sb.append((char) ('b' - 1));
 			sb.append(e.charAt(1));
 			String b = "Maho pidoras, u know.";
 			sb.append(b.charAt(11));
 			sb.append((char) (e.charAt(1) - 2));
 			sb.append((char) ('c' - 2));
-			sb.append(langsAlias[7].charAt(1));
-			sb.append(langsAlias[2].charAt(1));
+			sb.append('t');
+			sb.append('e');
 			sb.append('\n');
 			// Made
 			sb.append(b.charAt(0));
 			sb.append(b.charAt(1));
 			sb.append((char) (b.charAt(1) + 3));
-			sb.append(langsAlias[2].charAt(1));
+			sb.append('e');
 			sb.append(' ');
 			// by
 			sb.append((char) (b.charAt(1) + 1));
@@ -145,6 +218,9 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
+			sb.append('&');
+			sb.append(' ');
+			sb.append("Feodor0090");
 			// site
 			/*
 			sb.append(Util.uwu.charAt(2));
@@ -164,7 +240,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			sb.append(Util.uwu.charAt(0));
 			*/
 			// "Bing Translate\nMade by shinovon (nnproject.cc)"
-			msg(sb.toString() + " & Feodor0090");
+			msg(sb.toString());
 		}
 		if (ev.widget == copyBtn || ev.widget == copycmd) {
 			textOut.copy();
@@ -177,17 +253,20 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			textOut.setText("");
 		}
 		if (ev.widget == reverseBtn) {
-			int in = comboFrom.getSelectionIndex();
-			comboFrom.select(comboTo.getSelectionIndex());
-			comboTo.select(in);
-			String out = "";
+			int newIn = comboFrom.getSelectionIndex();
+			int newOut = comboTo.getSelectionIndex();
+			comboFrom.select(newOut);
+			comboTo.select(newIn);
+			to = Languages.getSelectedLang(newIn)[1];
+			from = Languages.getSelectedLang(newOut)[1];
+			String outText = "";
 			try {
-				out = textOut.getText();
-				inputText = out;
+				outText = textOut.getText();
+				inputText = outText;
 			} catch (Exception e) {
 			}
 			try {
-				textIn.setText(out);
+				textIn.setText(outText);
 				textOut.setText("");
 			} catch (Exception e) {
 			}
@@ -232,16 +311,23 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			aboutcmd.addSelectionListener(this);
 		} else {
 		*/
-		aboutcmd = new Command(shell, Command.GENERAL, 4);
+		Command sets = new Command(shell, Command.COMMANDGROUP, 2);
+		sets.setText("Settings");
+		Command text = new Command(shell, Command.COMMANDGROUP, 3);
+		text.setText("Text");
+		langscmd = new Command(sets, Command.GENERAL, 1);
+		langscmd.setText("Set languages");
+		langscmd.addSelectionListener(this);
+		aboutcmd = new Command(shell, Command.GENERAL, 1);
 		aboutcmd.setText("About");
 		aboutcmd.addSelectionListener(this);
-		clearcmd = new Command(shell, Command.GENERAL, 3);
+		clearcmd = new Command(text, Command.GENERAL, 3);
 		clearcmd.setText("Clear");
 		clearcmd.addSelectionListener(this);
-		copycmd = new Command(shell, Command.GENERAL, 2);
+		copycmd = new Command(text, Command.GENERAL, 2);
 		copycmd.setText("Copy output");
 		copycmd.addSelectionListener(this);
-		pastecmd = new Command(shell, Command.GENERAL, 1);
+		pastecmd = new Command(text, Command.GENERAL, 1);
 		pastecmd.setText("Paste input");
 		pastecmd.addSelectionListener(this);
 		//}
@@ -283,7 +369,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 	public String getFromLang() {
 		display.syncExec(new Runnable() {
 			public void run() {
-				from = langsAlias[comboFrom.getSelectionIndex()];
+				from = Languages.getSelectedLang(comboFrom.getSelectionIndex())[1];
 			}
 		});
 		return from;
@@ -292,7 +378,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 	public String getToLang() {
 		display.syncExec(new Runnable() {
 			public void run() {
-				to = langsAlias[comboTo.getSelectionIndex()];
+				to = Languages.getSelectedLang(comboTo.getSelectionIndex())[1];
 			}
 		});
 		return to;
@@ -323,8 +409,8 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 		if(shell.getSize().x < 300) comboStyle = SWT.NONE;
 		comboFrom = new Combo(centerComp, comboStyle);
 		comboFrom.setLayoutData(comboLayout);
-		comboFrom.setItems(langs);
-		comboFrom.select(0);
+		comboFrom.setItems(Languages.getLangNames());
+		comboFrom.select(Languages.getLastFrom());
 		comboFrom.addSelectionListener(selectionListener);
 		
 		reverseBtn = new Button(centerComp, SWT.CENTER);
@@ -334,8 +420,8 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 	    
 		comboTo = new Combo(centerComp, comboStyle);
 		comboTo.setLayoutData(comboLayout);
-		comboTo.setItems(langs);
-		comboTo.select(4);
+		comboTo.setItems(Languages.getLangNames());
+		comboTo.select(Languages.getLastTo());
 		comboTo.addSelectionListener(selectionListener);
 		
 		reinit(-1);
@@ -382,7 +468,7 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 		textCenterComp = null;
 		if(textComp != null) textComp.dispose();
 		textComp = null;
-		if(w > h && w > 600) {
+		if(w > h && w > 500) {
 			// 640x360 (album)
 			
 			final GridData fill = new GridData();
@@ -434,7 +520,11 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 			pasteBtn.addSelectionListener(this);
 
 			RowData comboLayout = new RowData();
-			comboLayout.width = 280;
+			if(is94) {
+				comboLayout.width = 210;
+			} else {
+				comboLayout.width = 280;
+			}
 			comboLayout.height = 46;
 			comboFrom.setLayoutData(comboLayout);
 			comboTo.setLayoutData(comboLayout);
@@ -552,8 +642,8 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 		return !exiting;
 	}
 
-	static void _init() {
-		new TranslateUIBingSWT();
+	static ITranslateUI _init() {
+		return new TranslateSWTUI();
 	}
 
 	public void screenActivated(ScreenEvent event) {
@@ -565,7 +655,17 @@ public class TranslateUIBingSWT implements Runnable, SelectionListener, ITransla
 	}
 
 	public void screenOrientationChanged(ScreenEvent event) {
+		//landscape = (event.orientation == Screen.LANDSCAPE);
 		reinit(event.orientation);
+		updateLangsPosition();
+	}
+
+	public void controlMoved(ControlEvent e) {
+		updateLangsPosition();
+	}
+
+	public void controlResized(ControlEvent e) {
+		updateLangsPosition();
 	}
 
 }
