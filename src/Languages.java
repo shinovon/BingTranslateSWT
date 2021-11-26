@@ -377,6 +377,7 @@ public class Languages {
 			String s2 = SUPPORTED_LANGUAGE_NAMES[i];
 			if(s2.equals(s)) return i;
 		}
+		return 0;
 	}
 
 	public static boolean[] getSelected() {
