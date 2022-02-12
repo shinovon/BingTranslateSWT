@@ -46,17 +46,19 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 			listLangIn.append(a[i], null);
 			listLangOut.append(a[i], null);
 		}
-		a = Languages.getLangNames();
+		a = Languages.SUPPORTED_LANGUAGE_NAMES;
 		for(int i = 0; i < a.length; i++) {
 			listLangs.append(a[i], null);
 		}
 		listLangs.setSelectedFlags(Languages.getSelected());
+		listLangs.addCommand(langsDoneCmd);
 		listLangIn.addCommand(listChangeCmd);
 		listLangOut.addCommand(listChangeCmd);
 		listLangIn.setSelectedIndex(Languages.getLastFrom(), true);
 		listLangOut.setSelectedIndex(Languages.getLastTo(), true);
 		from = Languages.getSelectedLang(Languages.getLastFrom())[1];
 		to = Languages.getSelectedLang(Languages.getLastTo())[1];
+		listLangs.setCommandListener(this);
 		listLangIn.setCommandListener(this);
 		listLangOut.setCommandListener(this);
 		display = Display.getDisplay(TranslateBingMIDlet.midlet);
@@ -125,6 +127,10 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 			display.setCurrent(listLangs);
 		}
 		if(c == langsDoneCmd) {
+			boolean[] b = new boolean[listLangs.size()];
+			int size = listLangs.getSelectedFlags(b);
+			Languages.setSelected(b, size);
+			Languages.save();
 			listLangIn.deleteAll();
 			listLangOut.deleteAll();
 			String[] a = Languages.getLangNames();

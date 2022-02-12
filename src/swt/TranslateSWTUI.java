@@ -140,8 +140,11 @@ public class TranslateSWTUI implements Runnable, SelectionListener, ITranslateUI
 		String sf = comboFrom.getText();
 		comboFrom.setItems(Languages.getLangNames());
 		comboTo.setItems(Languages.getLangNames());
-		comboFrom.select(Languages.getSelectedIndex(sf));
-		comboTo.select(Languages.getSelectedIndex(st));
+		int ti;
+		int fi;
+		comboFrom.select(ti = Languages.getSelectedIndex(sf));
+		comboTo.select(fi = Languages.getSelectedIndex(st));
+		Languages.setLastSelected(fi, ti);
 		Languages.save();
 	}
 	
@@ -157,6 +160,7 @@ public class TranslateSWTUI implements Runnable, SelectionListener, ITranslateUI
 		if (ev.widget == langscmd) {
 			if(langsShell == null) {
 				langsShell = new Shell(shell, SWT.BORDER | SWT.TITLE | SWT.MODELESS);
+				langsShell.setText("Languages");
 				langsShell.setLayout(new FillLayout());
 				langsShell.addControlListener(this);
 				langsList = new SortedList(langsShell, SWT.MULTI | SWT.V_SCROLL, SortedList.FILTER);
@@ -172,6 +176,7 @@ public class TranslateSWTUI implements Runnable, SelectionListener, ITranslateUI
 			langsList.forceFocus();
 		}
 		if (ev.widget == langsDoneCmd) {
+			updateLangs();
 			shell.removeControlListener(this);
 			langsDoneCmd.dispose();
 			langsList.dispose();
@@ -221,24 +226,20 @@ public class TranslateSWTUI implements Runnable, SelectionListener, ITranslateUI
 			sb.append('&');
 			sb.append(' ');
 			sb.append("Feodor0090");
-			// site
-			/*
+			sb.append('\n');
 			sb.append(Util.uwu.charAt(2));
 			sb.append(e);
-			sb.append((char) (langsAlias[0].charAt(1) -5));
-			sb.append(Util.d().substring(3, 6));
-			sb.append(langsAlias[2].charAt(1));
-			sb.append((char) (langsAlias[2].charAt(0) +1));
-			try {
-				sb.append(StringUtils.split(Util.get(Util.uwu), '!')[2]);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			sb.append('p');
+			sb.append('r');
+			sb.append('o');
+			sb.append('j');
+			sb.append('e');
+			sb.append('c');
+			sb.append('t');
 			sb.append(Util.uwu.charAt(1));
-			sb.append((char) (langsAlias[2].charAt(0) +1));
-			sb.append((char) (langsAlias[2].charAt(0) +1));
+			sb.append('c');
+			sb.append('c');
 			sb.append(Util.uwu.charAt(0));
-			*/
 			// "Bing Translate\nMade by shinovon (nnproject.cc)"
 			msg(sb.toString());
 		}
@@ -442,8 +443,10 @@ public class TranslateSWTUI implements Runnable, SelectionListener, ITranslateUI
 			h = Math.max(sx, sy);
 		} else {
 			// landscape
-			w = Math.max(sx, sy);
-			h = Math.min(sx, sy);
+			w = sx;
+			h = sy;
+			//w = Math.max(sx, sy);
+			//h = Math.min(sx, sy);
 		}
 		String ti = null;
 		String to = null;
@@ -468,6 +471,7 @@ public class TranslateSWTUI implements Runnable, SelectionListener, ITranslateUI
 		textCenterComp = null;
 		if(textComp != null) textComp.dispose();
 		textComp = null;
+		
 		if(w > h && w > 500) {
 			// 640x360 (album)
 			
@@ -530,9 +534,10 @@ public class TranslateSWTUI implements Runnable, SelectionListener, ITranslateUI
 			comboTo.setLayoutData(comboLayout);
 			
 			centerComp.moveAbove(textComp);
+			centerComp.layout();
 		} else if(w > h && w > 300) {
 			// 320x240 (album) 9.3*
-			
+
 			final GridData fill = new GridData();
 			fill.horizontalAlignment = GridData.FILL;
 			fill.grabExcessHorizontalSpace = true;
@@ -601,6 +606,7 @@ public class TranslateSWTUI implements Runnable, SelectionListener, ITranslateUI
 			comboTo.setLayoutData(comboLayout);
 			
 			centerComp.moveBelow(textIn);
+			centerComp.layout();
 		}
 		textIn.addModifyListener(modifyListener);
 		//textIn.addSelectionListener(selectionListener);

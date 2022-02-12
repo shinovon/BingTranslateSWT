@@ -1,11 +1,12 @@
-MIDlet-Version: 1.2.3
+MIDlet-Version: 1.2.4
 MIDlet-Vendor: nnproject
 MIDlet-Info-URL: http://nnproject.cc
 MIDlet-Icon: /page_exported.png
 MicroEdition-Configuration: CLDC-1.1
 Nokia-MIDlet-UID-1: 0xA1F739D3
-MIDlet-1: Bing Translate,/page_exported.png,cc.nnproject.translate.bing.app.TranslateBingMIDlet
 MIDlet-Name: Bing Translate
+MIDlet-1: Bing Translate,/page_exported.png,cc.nnproject.translate.bing.app.TranslateBingMIDlet
 MicroEdition-Profile: MIDP-2.0
 MIDlet-Jar-URL: BingTranslate.jar
+Nokia-Scalable-Icon: /bing_translate_opt.svg
 Nokia-Scalable-Icon-MIDlet-1: /bing_translate_opt.svg

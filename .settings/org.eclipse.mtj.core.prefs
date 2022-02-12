@@ -1,4 +1,4 @@
 eclipse.preferences.version=1
 obfuscate_use_project=true
-proguard_options=-dontusemixedcaseclassnames -microedition -dontwarn -dontnote -dontoptimize -defaultpackage ''
+proguard_options=-dontusemixedcaseclassnames -microedition -dontwarn -dontnote -defaultpackage ''
 proguard_use_specified=true

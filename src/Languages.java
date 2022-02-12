@@ -237,6 +237,24 @@ public class Languages {
 			langAliases[i] = SUPPORTED_LANGUAGE_ALIAS[x];
 		}
 	}
+	public static void setSelected(boolean[] a, int count) {
+		int[] b = new int[count];
+		int j = 0;
+		for(int i = 0; i < a.length; i++) {
+			boolean x = a[i];
+			if(x) {
+				b[j++] = i;
+			}
+		}
+		langIndexes = b;
+		langNames = new String[count];
+		langAliases = new String[count];
+		for(int i = 0; i < count; i++) {
+			int x = b[i];
+			langNames[i] = SUPPORTED_LANGUAGE_NAMES[x];
+			langAliases[i] = SUPPORTED_LANGUAGE_ALIAS[x];
+		}
+	}
 	
 	public static void save() {
 		try {
@@ -261,6 +279,7 @@ public class Languages {
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -312,8 +331,9 @@ public class Languages {
 					langAliases[j] = SUPPORTED_LANGUAGE_ALIAS[x];
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				lastFrom = 0;
-				lastTo = 4;
+				lastTo = 3;
 				setSelected(new int[] { 
 						82-8, 
 						103-8, 
@@ -372,9 +392,17 @@ public class Languages {
 		lastTo = to;
 	}
 
-	public static int getSelectedIndex(String s) {
+	public static int getSupportedIndex(String s) {
 		for(int i = 0; i < SUPPORTED_LANGUAGE_NAMES.length; i++) {
 			String s2 = SUPPORTED_LANGUAGE_NAMES[i];
+			if(s2.equals(s)) return i;
+		}
+		return 0;
+	}
+
+	public static int getSelectedIndex(String s) {
+		for(int i = 0; i < langNames.length; i++) {
+			String s2 = langNames[i];
 			if(s2.equals(s)) return i;
 		}
 		return 0;
