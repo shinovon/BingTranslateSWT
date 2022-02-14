@@ -63,11 +63,9 @@ public class TranslateSWTUI
 
 	private final SelectionListener selectionListener = new SelectionListener() {
 		public void widgetDefaultSelected(SelectionEvent ev) {
-			System.out.println("defaultSelected2 " + ev.widget);
 		}
 
 		public void widgetSelected(SelectionEvent ev) {
-			System.out.println("selected2 " + ev.widget);
 			int in;
 			int out;
 			/*
@@ -212,7 +210,6 @@ public class TranslateSWTUI
 	}
 
 	public void widgetSelected(SelectionEvent ev) {
-		System.out.println("selected " + ev.widget);
 		if (ev.widget == exitcmd)
 			exit();
 		if (/* ev.widget == langscmd || */ev.widget == langsMenuItem) {
@@ -823,7 +820,6 @@ public class TranslateSWTUI
 	private Command outLangsDoneCmd;
 
 	public void focusGained(FocusEvent e) {
-		System.out.println("focusGained " + e.widget);
 		if (fullscreenLangs && e.widget instanceof Combo) {
 			if (e.widget == comboTo) {
 				if (outLangsShell == null) {
