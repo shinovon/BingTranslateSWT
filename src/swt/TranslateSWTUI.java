@@ -79,6 +79,7 @@ public class TranslateSWTUI
 				Languages.save();
 				translateThread.clearLastInput();
 			} else if (ev.widget == outLangsDoneCmd) {
+				comboReset();
 				Languages.setLastSelected(in = comboFrom.getSelectionIndex(), 
 						out = Languages
 						.getSelectedIndex(outLangsList.getSelection()[0]));
@@ -99,6 +100,7 @@ public class TranslateSWTUI
 				textIn.forceFocus();
 				comboTo.setVisible(true);
 			} else if (ev.widget == inLangsDoneCmd) {
+				comboReset();
 				Languages.setLastSelected(in = Languages.getSelectedIndex(inLangsList.getSelection()[0]),
 						out = comboTo.getSelectionIndex());
 				to = Languages.getSelectedLang(in)[1];
@@ -545,6 +547,8 @@ public class TranslateSWTUI
 		comboTo.setItems(Languages.getLangNames());
 		comboTo.select(Languages.getLastTo());
 		comboTo.addSelectionListener(selectionListener);
+		
+		comboReset();
 	}
 
 	public void reinit(int orientation) {
@@ -818,9 +822,12 @@ public class TranslateSWTUI
 	private SortedList inLangsList;
 	private Command inLangsDoneCmd;
 	private Command outLangsDoneCmd;
+	
+	private long comboInitTime;
 
 	public void focusGained(FocusEvent e) {
 		if (fullscreenLangs && e.widget instanceof Combo) {
+			if((System.currentTimeMillis() - comboInitTime) < 300) return;
 			if (e.widget == comboTo) {
 				if (outLangsShell == null) {
 					outLangsShell = new Shell(shell, SWT.BORDER | SWT.TITLE | SWT.MODELESS);
@@ -863,6 +870,10 @@ public class TranslateSWTUI
 
 	public void focusLost(FocusEvent e) {
 
+	}
+	
+	public void comboReset() {
+		comboInitTime = System.currentTimeMillis();
 	}
 
 }
