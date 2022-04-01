@@ -5,6 +5,7 @@ public abstract class AbstractTranslateThread extends Thread {
 	protected boolean r;
 	private boolean b;
 	private int i;
+	protected boolean d;
 
 	public AbstractTranslateThread(ITranslateUI ui) {
 		super("Translate Thread");
@@ -36,6 +37,10 @@ public abstract class AbstractTranslateThread extends Thread {
 	public final void scheduleRetext() {
 		schedule(1);
 		r = true;
+	}
+	
+	public final void setDownload() {
+		d = true;
 	}
 
 	/** Поставить таймер на 0 секунд <br>

@@ -1,24 +1,25 @@
-package cc.nnproject.translate.bing.app;
+package nnproject.translatev2;
+
 
 import javax.microedition.midlet.MIDlet;
 
-import Languages;
 import ITranslateUI;
-import swt.ClassInvoker;
+import Languages;
 import lcdui.TranslateLCDUI;
+import swt.ClassInvoker;
 
-public class TranslateBingMIDlet extends MIDlet {
+public class TranslateMIDlet extends MIDlet {
 
-	public static TranslateBingMIDlet midlet;
+	public static TranslateMIDlet midlet;
 	private boolean started;
 	private ITranslateUI ui;
 
-	public TranslateBingMIDlet() {
+	public TranslateMIDlet() {
 		midlet = this;
 	}
 
 	public void destroyApp(boolean b) {
-		ui.exit();
+		if(ui != null) ui.exit();
 	}
 
 	protected void pauseApp() {
@@ -36,7 +37,8 @@ public class TranslateBingMIDlet extends MIDlet {
 			ClassInvoker.init();
 		} catch (Throwable e) {
 			//Languages.init(false);
-			ui = new TranslateLCDUI();
+			//ui = new TranslateLCDUI();
+			notifyDestroyed();
 			/*
 			final Command exit = new Command("Exit", Command.EXIT, 1);
 			Alert a = new Alert("", "", null, null);

@@ -3,8 +3,8 @@ package lcdui;
 import javax.microedition.lcdui.*;
 import ITranslateUI;
 import Languages;
-import TranslateBingThread;
-import cc.nnproject.translate.bing.app.TranslateBingMIDlet;
+import TranslateThread;
+import nnproject.translatev2.TranslateMIDlet;
 
 public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, ItemCommandListener {
 
@@ -19,7 +19,7 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	private Command exitCmd = new Command("Exit", Command.EXIT, 1);
 	private Command langsCmd = new Command("Edit visible languages", Command.SCREEN, 23);
 
-	private TranslateBingThread translateThread = new TranslateBingThread(this);
+	private TranslateThread translateThread = new TranslateThread(this);
 
 	private boolean exiting;
 	private TextField textIn;
@@ -41,6 +41,7 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 		listLangIn = new List("Input language", List.EXCLUSIVE);
 		listLangOut = new List("Output language", List.EXCLUSIVE);
 		listLangs = new List("Languages", List.MULTIPLE);
+		/*
 		String[] a = Languages.getLangNames();
 		for(int i = 0; i < a.length; i++) {
 			listLangIn.append(a[i], null);
@@ -54,14 +55,14 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 		listLangs.addCommand(langsDoneCmd);
 		listLangIn.addCommand(listChangeCmd);
 		listLangOut.addCommand(listChangeCmd);
-		listLangIn.setSelectedIndex(Languages.getLastFrom(), true);
-		listLangOut.setSelectedIndex(Languages.getLastTo(), true);
-		from = Languages.getSelectedLang(Languages.getLastFrom())[1];
-		to = Languages.getSelectedLang(Languages.getLastTo())[1];
+		listLangIn.setSelectedIndex(Languages.getFromIndex(), true);
+		listLangOut.setSelectedIndex(Languages.getToIndex(), true);
+		from = Languages.getSelectedLang(Languages.getFromIndex())[1];
+		to = Languages.getSelectedLang(Languages.getToIndex())[1];
 		listLangs.setCommandListener(this);
 		listLangIn.setCommandListener(this);
 		listLangOut.setCommandListener(this);
-		display = Display.getDisplay(TranslateBingMIDlet.midlet);
+		display = Display.getDisplay(TranslateMIDlet.midlet);
 		translateThread.start();
 		form = new Form("Bing Translate");
 		form.addCommand(translateCmd);
@@ -81,7 +82,7 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 		setLangOutBtn.setDefaultCommand(setLangOutCmd);
 		setLangOutBtn.setItemCommandListener(this);
 		form.append("\nMade by Shinovon (nnproject.cc)");
-		display.setCurrent(form);
+		display.setCurrent(form);*/
 	}
 
 	public String getText() {
@@ -117,10 +118,11 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	public void exit() {
 		exiting = true;
 		translateThread.interrupt();
-		TranslateBingMIDlet.midlet.notifyDestroyed();
+		TranslateMIDlet.midlet.notifyDestroyed();
 	}
 
 	public void commandAction(Command c, Displayable d) {
+		/*
 		if(c == translateCmd) translateThread.now();
 		if(c == exitCmd) exit();
 		if(c == langsCmd) {
@@ -141,14 +143,14 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 			display.setCurrent(form);
 		}
 		if(c == listChangeCmd) {
-			Languages.setLastSelected(listLangIn.getSelectedIndex(), listLangOut.getSelectedIndex());
+			Languages.setSelected(listLangIn.getSelectedIndex(), listLangOut.getSelectedIndex());
 			Languages.save();
 			setLangInBtn.setText("In: " + Languages.getSelectedLang(listLangIn.getSelectedIndex())[0]);
 			setLangOutBtn.setText("Out: " + Languages.getSelectedLang(listLangOut.getSelectedIndex())[0]);
 			from = Languages.getSelectedLang(listLangIn.getSelectedIndex())[1];
 			to = Languages.getSelectedLang(listLangOut.getSelectedIndex())[1];
 			display.setCurrent(form);
-		}
+		}*/
 	}
 
 	public void commandAction(Command c, Item item) {
@@ -157,6 +159,31 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 		} else if(c == setLangOutCmd) {
 			display.setCurrent(listLangOut);
 		}
+		
+	}
+
+	public void setDownloading(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void downloadingError(String s) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setLanguages(String[][] l) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void downloadingDone() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setTranslating(boolean b) {
+		// TODO Auto-generated method stub
 		
 	}
 

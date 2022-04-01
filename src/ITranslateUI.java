@@ -29,4 +29,14 @@ public interface ITranslateUI {
 	public boolean running();
 
 	public void exit();
+
+	public void setDownloading(boolean b);
+
+	public void downloadingError(String s);
+
+	public void setLanguages(String[][] l);
+
+	public void downloadingDone();
+
+	public void setTranslating(boolean b);
 }

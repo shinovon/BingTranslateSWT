@@ -41,20 +41,5 @@ public class StringUtils {
 		v.copyInto(r);
 		return r;
 	}
-	
-	// about part
-	public static void aa(StringBuffer sb) {
-		sb.append('-');
-		sb.append(ITranslateUI.e.charAt(1));
-		sb.append(TranslateBingThread.e());
-		sb.append('!');
-		sb.append('s');
-		sb.append(TranslateBingThread.e());
-		sb.append('i');
-	}
-	
-	public static char g() {
-		return 'p';
-	}
 
 }
