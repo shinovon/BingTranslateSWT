@@ -19,7 +19,8 @@ public class TranslateBingThread extends AbstractTranslateThread {
 		lastInput = s;
 		ui.sync();
 		if(s == null || s.length() < 2) return;
-		ui.setText("Processing..");
+		ui.setTranslating(true);
+		//ui.setText("Processing..");
 		String from = ui.getFromLang();
 		String to = ui.getToLang();
 		String req = "http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=037C394ED1EA70440C3B5E07FA0A6A837DCE47A9&from=" + from + "&to=" + to + "&text=" + Util.encodeURL(s);
@@ -38,8 +39,10 @@ public class TranslateBingThread extends AbstractTranslateThread {
 		} catch (Throwable e) {
 			ui.setText("Error!");
 			ui.sync();
-			ui.msg("Translation request failed\n" + e.toString());
+			ui.error(e.toString());
+			ui.msg("Translation failed\n" + e.toString());
 		}
+		ui.setTranslating(false);
 	    Languages.save();
 	}
 	

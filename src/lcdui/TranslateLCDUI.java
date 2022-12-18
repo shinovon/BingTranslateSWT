@@ -80,7 +80,7 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 		setLangOutBtn.setText("Out: " + Languages.getSelectedLang(listLangOut.getSelectedIndex())[0]);
 		setLangOutBtn.setDefaultCommand(setLangOutCmd);
 		setLangOutBtn.setItemCommandListener(this);
-		form.append("\nMade by Shinovon (nnproject.cc)");
+		//form.append("\nBy shinovon & Feodor0090\nnnp.nnchan.ru");
 		display.setCurrent(form);
 	}
 
@@ -157,6 +157,16 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 		} else if(c == setLangOutCmd) {
 			display.setCurrent(listLangOut);
 		}
+		
+	}
+
+	public void error(String s) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setTranslating(boolean state) {
+		// TODO Auto-generated method stub
 		
 	}
 

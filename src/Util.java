@@ -48,25 +48,7 @@ public final class Util {
 		return "%" + (s.length() < 2 ? "0" : "") + s;
 	}
 	
-	// юзается в about
-	public static final String uwu = ").(";
-	
 	public static String get(String url) throws IOException {
-		if(url.equals(Util.uwu)) {
-			// shinovon
-			StringBuffer sb = new StringBuffer();
-			sb.append(21434);
-			StringUtils.aa(sb);
-			sb.append(ITranslateUI.e.charAt(1));
-			sb.append((char) (ITranslateUI.e.charAt(0) + 1));
-			sb.append((char) ('u' + 1));
-			sb.append((char) (ITranslateUI.e.charAt(0) + 1));
-			sb.append(ITranslateUI.e.charAt(1));
-			sb.append(' ');
-			sb.append('!');
-			sb.append('t');
-			return sb.toString();
-		}
 		HttpConnection con = (HttpConnection) open(url);
 		InputStream is = null;
 		ByteArrayOutputStream b = null;

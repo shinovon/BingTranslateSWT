@@ -1,7 +1,5 @@
 package swt;
 
-import java.io.IOException;
-
 import javax.microedition.rms.RecordStore;
 
 import org.eclipse.ercp.swt.mobile.Command;
@@ -10,6 +8,7 @@ import org.eclipse.ercp.swt.mobile.MobileShell;
 import org.eclipse.ercp.swt.mobile.ScreenEvent;
 import org.eclipse.ercp.swt.mobile.ScreenListener;
 import org.eclipse.ercp.swt.mobile.SortedList;
+import org.eclipse.ercp.swt.mobile.TaskTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -35,9 +34,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import Util;
 import Languages;
-import StringUtils;
 import ITranslateUI;
 import TranslateBingThread;
 import cc.nnproject.translate.bing.app.TranslateBingMIDlet;
@@ -244,60 +241,7 @@ public class TranslateSWTUI
 			shell.forceFocus();
 		}
 		if (/* ev.widget == aboutcmd || */ev.widget == aboutMenuItem) {
-			StringBuffer sb = new StringBuffer();
-			// Bing
-			sb.append(('b' + "").toUpperCase());
-			sb.append('i');
-			sb.append(e.charAt(0));
-			sb.append((char) (e.charAt(1) - 7));
-			sb.append(' ');
-			// Translate
-			sb.append(('t' + "").toUpperCase());
-			sb.append('r');
-			sb.append((char) ('b' - 1));
-			sb.append(e.charAt(1));
-			String b = "Maho pidoras, u know.";
-			sb.append(b.charAt(11));
-			sb.append((char) (e.charAt(1) - 2));
-			sb.append((char) ('c' - 2));
-			sb.append('t');
-			sb.append('e');
-			sb.append('\n');
-			// Made
-			sb.append(b.charAt(0));
-			sb.append(b.charAt(1));
-			sb.append((char) (b.charAt(1) + 3));
-			sb.append('e');
-			sb.append(' ');
-			// by
-			sb.append((char) (b.charAt(1) + 1));
-			sb.append('y');
-			sb.append(' ');
-			// shinovon
-			try {
-				sb.append(StringUtils.split(Util.get(Util.uwu), '!')[1]);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			sb.append('&');
-			sb.append(' ');
-			sb.append("Feodor0090");
-			sb.append('\n');
-			sb.append(Util.uwu.charAt(2));
-			sb.append(e);
-			sb.append('p');
-			sb.append('r');
-			sb.append('o');
-			sb.append('j');
-			sb.append('e');
-			sb.append('c');
-			sb.append('t');
-			sb.append(Util.uwu.charAt(1));
-			sb.append('c');
-			sb.append('c');
-			sb.append(Util.uwu.charAt(0));
-			// "Bing Translate\nMade by shinovon (nnproject.cc)"
-			msg(sb.toString());
+			msg("Bing Translate\nBy shinovon & Feodor0090\nnnp.nnchan.ru");
 		}
 		if (ev.widget == copyBtn /* || ev.widget == copycmd */ || ev.widget == copyMenuItem) {
 			textOut.copy();
@@ -824,6 +768,9 @@ public class TranslateSWTUI
 	private Command outLangsDoneCmd;
 	
 	private long comboInitTime;
+	
+	protected TaskTip errorTask;
+	protected TaskTip dlTask;
 
 	public void focusGained(FocusEvent e) {
 		if (fullscreenLangs && e.widget instanceof Combo) {
@@ -874,6 +821,50 @@ public class TranslateSWTUI
 	
 	public void comboReset() {
 		comboInitTime = System.currentTimeMillis();
+	}
+
+	public void error(final String s) {
+		display.asyncExec(new Runnable() {
+
+			public void run() {
+				if(dlTask != null) {
+					dlTask.setVisible(false);
+				}
+				errorTask = new TaskTip(shell, SWT.NONE);
+				errorTask.setText(s.toLowerCase().indexOf("IOException") != -1 ? "No network access" : "Unknown error!");
+				errorTask.setVisible(true);
+
+				display.timerExec(4000, new Runnable() {
+					public void run() {
+						if(errorTask != null) {
+							errorTask.setVisible(false);
+							errorTask.dispose();
+							errorTask = null;
+						}
+					}
+				});
+			}
+		});
+	}
+
+	public void setTranslating(final boolean b) {
+		display.asyncExec(new Runnable() {
+			public void run() {
+				if(b) {
+					if(dlTask == null) {
+						dlTask = new TaskTip(shell, SWT.INDETERMINATE);
+					}
+					dlTask.setText("Translating...");
+					dlTask.setVisible(true);
+				} else {
+					if(dlTask != null) {
+						dlTask.setVisible(false);
+						dlTask.dispose();
+						dlTask = null;
+					}
+				}
+			}
+		});
 	}
 
 }

@@ -1,9 +1,5 @@
 
 public interface ITranslateUI {
-
-	// do not inline
-	// юзается в about
-	public static String e = "nn";
 	
 	//public static final String[] langs = new String[] { "Русский (Russian)", "Українська (Ukrainian)", "Беларуская (Belarusian)", "Қазақша (Kazakh)", "English", "Español", "Français", "Italian", "Deutsch", "日本 (Japanese)", "中国人 (Chinese)"};
 	//public static final String[] langsAlias = new String[] { "ru", "uk", "be", "kk", "en", "es", "fr", "it", "de", "ja", "zh-CN" };
@@ -29,4 +25,8 @@ public interface ITranslateUI {
 	public boolean running();
 
 	public void exit();
+
+	public void error(String s);
+
+	public void setTranslating(boolean state);
 }
