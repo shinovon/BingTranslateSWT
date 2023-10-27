@@ -2,10 +2,10 @@ package cc.nnproject.translate.bing.app;
 
 import javax.microedition.midlet.MIDlet;
 
-import Languages;
-import ITranslateUI;
-import swt.ClassInvoker;
-import lcdui.TranslateLCDUI;
+import cc.nnproject.translate.ITranslateUI;
+import cc.nnproject.translate.Languages;
+import cc.nnproject.translate.lcdui.TranslateLCDUI;
+import cc.nnproject.translate.swt.ClassInvoker;
 
 public class TranslateBingMIDlet extends MIDlet {
 

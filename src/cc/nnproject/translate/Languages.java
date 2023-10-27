@@ -1,3 +1,4 @@
+package cc.nnproject.translate;
 
 import javax.microedition.rms.RecordStore;
 
@@ -223,9 +224,6 @@ public class Languages {
 
 	private static int lastFrom;
 	private static int lastTo;
-
-	static {
-	}
 	
 	public static void setSelected(int[] a) {
 		langIndexes = a;

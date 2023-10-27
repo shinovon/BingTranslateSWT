@@ -1,9 +1,10 @@
-package lcdui;
+package cc.nnproject.translate.lcdui;
 
 import javax.microedition.lcdui.*;
-import ITranslateUI;
-import Languages;
-import TranslateBingThread;
+
+import cc.nnproject.translate.ITranslateUI;
+import cc.nnproject.translate.Languages;
+import cc.nnproject.translate.TranslateBingThread;
 import cc.nnproject.translate.bing.app.TranslateBingMIDlet;
 
 public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, ItemCommandListener {
@@ -161,13 +162,9 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	}
 
 	public void error(String s) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public void setTranslating(boolean state) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

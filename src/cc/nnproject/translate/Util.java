@@ -1,3 +1,4 @@
+package cc.nnproject.translate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,7 +10,6 @@ import javax.microedition.io.HttpConnection;
 
 /**
  * @author Shinovon
- *
  */
 public final class Util {
 
@@ -64,18 +64,15 @@ public final class Util {
 			}
 			return new String(b.toByteArray(), "UTF-8");
 		} finally {
-			if (b != null)
-				b.close();
-			if (is != null)
-				is.close();
-			if (con != null)
-				con.close();
+			if(b != null) b.close();
+			if(is != null) is.close();
+			if(con != null) con.close();
 		}
 	}
 
 	private static ContentConnection open(String url) throws IOException {
 		ContentConnection con = (ContentConnection) Connector.open(url);
-		//if (con instanceof HttpConnection) ((HttpConnection) con).setRequestProperty("User-Agent", "Mozilla/5.0");
+//		if (con instanceof HttpConnection) ((HttpConnection) con).setRequestProperty("User-Agent", "Mozilla/5.0");
 		return con;
 	}
 }

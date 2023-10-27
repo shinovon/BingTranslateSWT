@@ -1,3 +1,4 @@
+package cc.nnproject.translate;
 
 import java.util.Vector;
 
@@ -8,8 +9,7 @@ public class StringUtils {
 
 	public static String replace(String str, String from, String to) {
 		int j = str.indexOf(from);
-		if (j == -1)
-			return str;
+		if(j == -1) return str;
 		final StringBuffer sb = new StringBuffer();
 		int k = 0;
 		for (int i = from.length(); j != -1; j = str.indexOf(from, k)) {
@@ -19,15 +19,10 @@ public class StringUtils {
 		sb.append(str.substring(k, str.length()));
 		return sb.toString();
 	}
-
-	public static String cut(String str, String find) {
-		return replace(str, find, "");
-	}
 	
 	public static String[] split(String str, char d) {
 		int i = str.indexOf(d);
-		if(i == -1)
-			return new String[] {str};
+		if(i == -1) return new String[] {str};
 		Vector v = new Vector();
 		v.addElement(str.substring(0, i));
 		while(i != -1) {
@@ -40,10 +35,6 @@ public class StringUtils {
 		String[] r = new String[v.size()];
 		v.copyInto(r);
 		return r;
-	}
-	
-	public static char g() {
-		return 'p';
 	}
 
 }
