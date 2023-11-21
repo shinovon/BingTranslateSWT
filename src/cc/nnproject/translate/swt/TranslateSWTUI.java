@@ -34,6 +34,8 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.nokia.mid.ui.Clipboard;
+
 import cc.nnproject.translate.ITranslateUI;
 import cc.nnproject.translate.Languages;
 import cc.nnproject.translate.TranslateBingThread;
@@ -96,6 +98,52 @@ public class TranslateSWTUI implements Runnable, SelectionListener, ITranslateUI
 	public void widgetDefaultSelected(SelectionEvent e) {
 		if(e.widget == langsList) {
 			updateLangs();
+			return;
+		}
+		int in, out;
+		if(e.widget == outLangsList) {
+			comboReset();
+			Languages.setLastSelected(in = comboFrom.getSelectionIndex(), out = Languages.getSelectedIndex(outLangsList.getSelection()[0]));
+			to = Languages.getSelectedLang(in)[1];
+			from = Languages.getSelectedLang(out)[1];
+			comboTo.select(out);
+			Languages.save();
+			translateThread.clearLastInput();
+			outLangsList.dispose();
+			outLangsList = null;
+			outLangsShell.setVisible(false);
+			outLangsShell.dispose();
+			outLangsShell = null;
+			outLangsDoneCmd.dispose();
+			outLangsDoneCmd = null;
+			shell.forceActive();
+			shell.forceFocus();
+			textIn.forceFocus();
+			comboTo.setVisible(true);
+			translateThread.schedule();
+			return;
+		}
+		if(e.widget == inLangsList) {
+			comboReset();
+			Languages.setLastSelected(in = Languages.getSelectedIndex(inLangsList.getSelection()[0]), out = comboTo.getSelectionIndex());
+			to = Languages.getSelectedLang(in)[1];
+			from = Languages.getSelectedLang(out)[1];
+			comboFrom.select(in);
+			Languages.save();
+			translateThread.clearLastInput();
+			inLangsList.dispose();
+			inLangsList = null;
+			inLangsShell.setVisible(false);
+			inLangsShell.dispose();
+			inLangsShell = null;
+			inLangsDoneCmd.dispose();
+			inLangsDoneCmd = null;
+			shell.forceActive();
+			shell.forceFocus();
+			textIn.forceFocus();
+			comboFrom.setVisible(true);
+			translateThread.schedule();
+			return;
 		}
 	}
 
@@ -227,8 +275,7 @@ public class TranslateSWTUI implements Runnable, SelectionListener, ITranslateUI
 			reinit(-1);
 			return;
 		}
-		int in;
-		int out;
+		int in, out;
 		if(ev.widget instanceof Combo) {
 			Languages.setLastSelected(in = comboFrom.getSelectionIndex(), out = comboTo.getSelectionIndex());
 			to = Languages.getSelectedLang(in)[1];
@@ -771,6 +818,7 @@ public class TranslateSWTUI implements Runnable, SelectionListener, ITranslateUI
 				outLangsShell.forceActive();
 				outLangsList.showSelection();
 				outLangsList.forceFocus();
+				outLangsList.addSelectionListener(this);
 			} else if(e.widget == comboFrom) {
 				if(inLangsShell == null) {
 					inLangsShell = new Shell(shell, SWT.BORDER | SWT.TITLE | SWT.MODELESS);
@@ -788,6 +836,7 @@ public class TranslateSWTUI implements Runnable, SelectionListener, ITranslateUI
 				inLangsShell.forceActive();
 				inLangsList.showSelection();
 				inLangsList.forceFocus();
+				inLangsList.addSelectionListener(this);
 			}
 			((Combo)e.widget).setVisible(false);
 		}
