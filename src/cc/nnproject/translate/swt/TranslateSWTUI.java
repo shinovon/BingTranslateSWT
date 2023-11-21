@@ -166,6 +166,10 @@ public class TranslateSWTUI implements Runnable, SelectionListener, ITranslateUI
 		}
 		if(ev.widget == copyBtn || ev.widget == copyMenuItem) {
 			textOut.copy();
+			try {
+				Clipboard.copyToClipboard(textOut.getText());
+			} catch (Throwable e) {
+			}
 			return;
 		}
 		if(ev.widget == pasteBtn || ev.widget == pasteMenuItem) {
