@@ -1,5 +1,10 @@
+package nntranslate;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Vector;
+
+import cc.nnproject.json.JSON;
+import cc.nnproject.json.JSONObject;
 
 public class TranslateThread extends AbstractTranslateThread {
 
@@ -70,9 +75,9 @@ public class TranslateThread extends AbstractTranslateThread {
 					r = r.substring(2, r.length() - 1);
 				else if(r.charAt(0) == '"' && r.charAt(r.length() - 1) == '"')
 					r = r.substring(1, r.length() - 1);
-				r = StringUtils.replace(r, "\\u2029", "\n");
-				r = StringUtils.replace(r, "\\n", "\n");
-				r = StringUtils.cut(r, "\\r");
+				r = Util.replace(r, "\\u2029", "\n");
+				r = Util.replace(r, "\\n", "\n");
+				r = Util.cut(r, "\\r");
 				lastTranslated = r;
 				ui.setText(r);
 				ui.sync();
@@ -83,11 +88,20 @@ public class TranslateThread extends AbstractTranslateThread {
 			}
 		} else {
 			String req = "https://" + instance + "/api/translate/?engine="+engine+"&from=" + from + "&to=" + to + "&text=" + Util.encodeURL(s);
+			//System.out.println(req);
 			if(proxy != null && proxy.length() > 0) {
 				req = proxy + Util.encodeURL(req);
 			}
 		    try {
 				String r = Util.get(req);
+				if(r.startsWith("{")) {
+					JSONObject j = JSON.getObject(r);
+					if(j.has("translated-text")) {
+						r = j.getString("translated-text");
+					} else {
+						r = j.getString("translated_text");
+					}
+				}
 				lastTranslated = r;
 				ui.setText(r);
 				ui.sync();
@@ -127,16 +141,46 @@ public class TranslateThread extends AbstractTranslateThread {
 			if(proxy != null && proxy.length() > 0) {
 				req = proxy + Util.encodeURL(req);
 			}
-			return parseLanguages(Util.get(req));
+			String r = Util.get(req);
+			if(r.indexOf("Not Found") != -1) {
+				req = "https://" + instance + "/api/get_languages/?engine="+engine;
+				if(proxy != null && proxy.length() > 0) {
+					req = proxy + Util.encodeURL(req);
+				}
+				r = Util.get(req);
+			}
+			return parseLanguages(r);
 		}
 	}
 	
 	private String[][] parseLanguages(String s) {
+		s = s.trim();
+		//System.out.println(s);
+		if(s.startsWith("{")) {
+			JSONObject r = JSON.getObject(s);
+			int l = r.size();
+			String[][] res = new String[l][2];
+			int i = 0;
+			for(Enumeration en = r.keys(); en.hasMoreElements(); ) {
+				String k = (String)en.nextElement();
+				res[i++] = new String[] { k, r.getString(k) };
+			}
+			
+			return res;
+		}
 		Vector v = new Vector();
-		String[] sr = StringUtils.split(StringUtils.cut(s, "\r"), '\n');
+		String[] sr = Util.split(Util.cut(s, "\r"), '\n');
 		for(int i = 0; i < sr.length; i++) {
-			System.out.println(sr[i]);
+			//System.out.println(sr[i]);
 			if(sr[i].length() == 0) continue;
+			if(sr[i].indexOf("<script") != -1) {
+				if(sr[i].indexOf("</script>") == -1) continue;
+				while(sr[i].indexOf("</script>") != -1) {
+					sr[i] = sr[i].substring(sr[i].indexOf("</script>")+9);
+				}
+				//System.out.println("R: " + sr[i]);
+				if(sr[i].length() == 0) continue;
+			}
 			v.addElement(new String[] { sr[i+1], sr[i] });
 			i++;
 		}

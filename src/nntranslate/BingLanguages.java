@@ -1,3 +1,4 @@
+package nntranslate;
 
 public class BingLanguages {
 	public static final String[][] SUPPORTED_LANGUAGES = new String[][] {

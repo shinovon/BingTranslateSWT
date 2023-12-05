@@ -1,10 +1,11 @@
-package lcdui;
+package nntranslate.lcdui;
 
 import javax.microedition.lcdui.*;
-import ITranslateUI;
-import Languages;
-import TranslateThread;
-import nnproject.translatev2.TranslateMIDlet;
+
+import nntranslate.ITranslateUI;
+import nntranslate.Languages;
+import nntranslate.v2.TranslateMIDlet;
+import nntranslate.TranslateThread;
 
 public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, ItemCommandListener {
 

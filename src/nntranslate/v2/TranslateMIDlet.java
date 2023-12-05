@@ -1,12 +1,9 @@
-package nnproject.translatev2;
-
-
+package nntranslate.v2;
 import javax.microedition.midlet.MIDlet;
 
-import ITranslateUI;
-import Languages;
-import lcdui.TranslateLCDUI;
-import swt.ClassInvoker;
+import nntranslate.ITranslateUI;
+import nntranslate.Languages;
+import nntranslate.swt.ClassInvoker;
 
 public class TranslateMIDlet extends MIDlet {
 
@@ -32,7 +29,6 @@ public class TranslateMIDlet extends MIDlet {
 		started = true;
 		Languages.init(true);
 		try {
-			Class.forName("swt.TranslateSWTUI");
 			Class.forName("org.eclipse.ercp.swt.mobile.MobileShell");
 			ClassInvoker.init();
 		} catch (Throwable e) {

@@ -1,6 +1,6 @@
-package swt;
+package nntranslate.swt;
 
-import ITranslateUI;
+import nntranslate.ITranslateUI;
 
 public class ClassInvoker {
 	

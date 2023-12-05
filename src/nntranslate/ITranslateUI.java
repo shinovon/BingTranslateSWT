@@ -1,3 +1,4 @@
+package nntranslate;
 
 public interface ITranslateUI {
 

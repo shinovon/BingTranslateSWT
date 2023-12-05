@@ -1,3 +1,4 @@
+package nntranslate;
 
 public abstract class AbstractTranslateThread extends Thread {
 	

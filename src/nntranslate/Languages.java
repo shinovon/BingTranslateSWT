@@ -1,3 +1,4 @@
+package nntranslate;
 
 import javax.microedition.rms.RecordStore;
 
@@ -15,7 +16,7 @@ public class Languages {
 
 	private static String instance = "simplytranslate.org";
 
-	private static String proxy = "";
+	private static String proxy = "http://nnp.nnchan.ru/glype/browse.php?u=";
 
 	private static String[] langNames;
 
@@ -73,7 +74,7 @@ public class Languages {
 				RecordStore r = RecordStore.openRecordStore("gtsl", false);
 				String t = new String(r.getRecord(1), "UTF-8");
 				r.closeRecordStore();
-				String[] a = StringUtils.split(t, ',');
+				String[] a = Util.split(t, ',');
 				currentEngine = a[0];
 				lastFrom = new String[] { a[1], null };
 				lastTo = new String[] { a[2], null };
@@ -131,11 +132,11 @@ public class Languages {
 			RecordStore r = RecordStore.openRecordStore("gt_"+currentEngine, false);
 			String t = new String(r.getRecord(1), "UTF-8");
 			r.closeRecordStore();
-			String[] a = StringUtils.split(t, ';');
+			String[] a = Util.split(t, ';');
 			langs = new String[a.length][2];
 			for(int i = 0; i < a.length; i++) {
 				if(a[i].length() == 0) continue;
-				langs[i] = StringUtils.split(a[i], ',');
+				langs[i] = Util.split(a[i], ',');
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -178,8 +179,20 @@ public class Languages {
 		return i;
 	}
 
-	public static void setDownloaded(String[][] l) {
-		langs = l;
+	public static void setDownloaded(String[][] arr) {
+		int l = arr.length;
+		// sort
+		for (int i = 0; i < l; i++) {
+			for (int j = i + 1; j < l; j++) {
+				if (arr[i][1] != null && arr[j][1] != null && arr[i][1].compareTo(arr[j][1]) > 0) {
+					String[] tmp = arr[i];
+					arr[i] = arr[j];
+					arr[j] = tmp;
+				}
+			}
+		}
+		
+		langs = arr;
 		updateLangs();
 		saveLangs();
 		save();
