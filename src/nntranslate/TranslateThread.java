@@ -6,18 +6,74 @@ import java.util.Vector;
 import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONObject;
 
-public class TranslateThread extends AbstractTranslateThread {
+public class TranslateThread extends Thread {
+	
+
+	protected ITranslateUI ui;
+	protected boolean r;
+	private boolean b;
+	private int i;
+	protected boolean d;
+
+	public TranslateThread(ITranslateUI ui) {
+		super("Translate Thread");
+		this.ui = ui;
+		this.engine = "google";
+	}
+
+	public final void run() {
+		try {
+			while(ui.running()) {
+				if(b) {
+					if(i > 0) i--;
+					else {
+						action();
+						b = false;
+					}
+				}
+				Thread.sleep(500L);
+				Thread.yield();
+			}
+		} catch (InterruptedException e) {
+		}
+	}
+
+	/** Поставить таймер на 2.5 секунд */
+	public final void schedule() {
+		schedule(5);
+	}
+	
+	public final void scheduleRetext() {
+		schedule(1);
+		r = true;
+	}
+	
+	public final void setDownload() {
+		d = true;
+	}
+
+	/** Поставить таймер на 0 секунд <br>
+	 * перевод осуществится при следующем шаге */
+	public final void now() {
+		schedule(0);
+	}
+
+	/** Выполнить перевод через i*0.5 секунд */
+	public final void schedule(int i) {
+		b = true;
+		this.i = i;
+	}
+
+	public void stop() {
+		b = false;
+		i = 0;
+	}
 
 	private String lastInput;
 	private String lastTranslated;
 	private String engine;
 	private String instance;
 	private String proxy;
-
-	public TranslateThread(ITranslateUI ui) {
-		super(ui);
-		this.engine = "google";
-	}
 	
 	public void setEngine(String e) {
 		engine = e;
@@ -31,7 +87,7 @@ public class TranslateThread extends AbstractTranslateThread {
 		proxy = s;
 	}
 
-	protected void translate() {
+	protected void action() {
 		if(d) {
 			d = false;
 			engine = Languages.getCurrentEngine();

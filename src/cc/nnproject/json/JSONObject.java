@@ -32,8 +32,18 @@ public class JSONObject extends AbstractJSON {
 		table = new Hashtable();
 	}
 
+	/**
+	 * @deprecated Doesn't adapt nested elements
+	 */
 	public JSONObject(Hashtable table) {
 		this.table = table;
+	}
+
+	/**
+	 * @deprecated Compatibility with org.json
+	 */
+	public JSONObject(String str) {
+		table = JSON.getObject(str).table; // FIXME
 	}
 	
 	public Object get(String name) throws JSONException {
@@ -41,8 +51,8 @@ public class JSONObject extends AbstractJSON {
 			if (has(name)) {
 				Object o = table.get(name);
 				if (o instanceof JSONString)
-					table.put(name, o = JSON.parseJSON(o.toString()));
-				if (JSON.isNull(o))
+					table.put(name, o = JSON.parseJSON(((JSONString) o).str));
+				if (o == JSON.json_null)
 					return null;
 				return o;
 			}
@@ -52,6 +62,8 @@ public class JSONObject extends AbstractJSON {
 		}
 		throw new JSONException("No value for name: " + name);
 	}
+	
+	// unused methods should be removed by proguard shrinking
 	
 	public Object get(String name, Object def) {
 		if (!has(name)) return def;
@@ -67,15 +79,17 @@ public class JSONObject extends AbstractJSON {
 	}
 	
 	public String getString(String name) throws JSONException {
-		return String.valueOf(get(name));
+		Object o = get(name);
+		if (o == null || o instanceof String)
+			return (String) o;
+		return String.valueOf(o);
 	}
 	
 	public String getString(String name, String def) {
 		try {
 			Object o = get(name, def);
-			if (o == null || o instanceof String) {
+			if (o == null || o instanceof String)
 				return (String) o;
-			}
 			return String.valueOf(o);
 		} catch (Exception e) {
 			return def;
@@ -131,7 +145,7 @@ public class JSONObject extends AbstractJSON {
 	}
 	
 	public int getInt(String name) throws JSONException {
-		return (int) JSON.getLong(get(name));
+		return JSON.getInt(get(name));
 	}
 	
 	public int getInt(String name, int def) {
@@ -193,11 +207,24 @@ public class JSONObject extends AbstractJSON {
 	}
 	
 	public boolean isNull(String name) {
-		return get(name) == null;
+		if (!has(name))
+			throw new JSONException("No value for name: " + name);
+		return table.get(name) == JSON.json_null;
 	}
 	
+	/**
+	 * @deprecated
+	 */
 	public void put(String name, Object obj) {
 		table.put(name, JSON.getJSON(obj));
+	}
+	
+	public void put(String name, AbstractJSON json) {
+		table.put(name, json);
+	}
+	
+	public void put(String name, String s) {
+		table.put(name, s);
 	}
 
 	public void put(String name, int i) {
@@ -246,10 +273,7 @@ public class JSONObject extends AbstractJSON {
 	}
 	
 	public boolean equals(Object obj) {
-		if (this == obj || super.equals(obj)) {
-			return true;
-		}
-		return similar(obj);
+		return this == obj || super.equals(obj) || similar(obj);
 	}
 	
 	public boolean similar(Object obj) {
@@ -291,7 +315,7 @@ public class JSONObject extends AbstractJSON {
 		StringBuffer s = new StringBuffer("{");
 		Enumeration keys = table.keys();
 		while (true) {
-			String k = keys.nextElement().toString();
+			String k = (String) keys.nextElement();
 			s.append("\"").append(k).append("\":");
 			Object v = table.get(k);
 			if (v instanceof AbstractJSON) {
@@ -326,12 +350,11 @@ public class JSONObject extends AbstractJSON {
 		Enumeration keys = table.keys();
 		int i = 0;
 		while (keys.hasMoreElements()) {
-			String k = keys.nextElement().toString();
+			String k = (String) keys.nextElement();
 			s.append("\"").append(k).append("\": ");
 			Object v = get(k);
-			if (v instanceof JSONString) {
-				table.put(k, v = JSON.parseJSON(v.toString()));
-			}
+			if (v instanceof JSONString)
+				table.put(k, v = JSON.parseJSON(((JSONString) v).str));
 			if (v instanceof AbstractJSON) {
 				s.append(((AbstractJSON) v).format(l + 1));
 			} else if (v instanceof String) {
@@ -362,13 +385,13 @@ public class JSONObject extends AbstractJSON {
 		JSONArray array = new JSONArray(table.size());
 		Enumeration keys = table.keys();
 		while (keys.hasMoreElements()) {
-			array.add(keys.nextElement());
+			array.addElement(keys.nextElement());
 		}
 		return array;
 	}
 	
 	/**
-	 * @deprecated
+	 * @deprecated Use {@link JSONObject#toTable()} instead
 	 */
 	public Hashtable getTable() {
 		return table;
@@ -380,9 +403,8 @@ public class JSONObject extends AbstractJSON {
 		while (keys.hasMoreElements()) {
 			String k = (String) keys.nextElement();
 			Object v = table.get(k);
-			if (v instanceof JSONString) {
-				table.put(k, v = JSON.parseJSON(v.toString()));
-			}
+			if (v instanceof JSONString)
+				table.put(k, v = JSON.parseJSON(((JSONString) v).str));
 			if (v instanceof JSONObject) {
 				v = ((JSONObject) v).toTable();
 			} else if (v instanceof JSONArray) {
@@ -392,5 +414,12 @@ public class JSONObject extends AbstractJSON {
 		}
 		return copy;
 	}
+	
+	void _put(String name, Object obj) {
+		table.put(name, obj);
+	}
+	
+	// TODO: Enumeration elements()
+	// TODO: String keyOf(Object)
 
 }

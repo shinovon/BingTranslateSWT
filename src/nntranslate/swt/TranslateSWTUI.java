@@ -27,12 +27,15 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -43,6 +46,7 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Menu;
@@ -60,38 +64,29 @@ import nntranslate.TranslateThread;
 import nntranslate.Util;
 
 public class TranslateSWTUI
-		implements Runnable, SelectionListener, ITranslateUI, ScreenListener, ControlListener, FocusListener, TraverseListener {
+		implements Runnable, SelectionListener, ITranslateUI, ScreenListener, ControlListener, FocusListener, TraverseListener, PaintListener, ModifyListener {
 	
 	public static final String name = "nntranslate";
 	public static final String setsrms = "gtsets";
-	
-	private static final String[] engines = new String[] {
-			"Google",
-			"Deepl",
-			"Reverso",
-			"Libre",
-			"Bing"
-	};
 
 	private static final String model = System.getProperty("microedition.platform");
-	// private static final boolean is93 = model.indexOf("n=3.2") != -1;
+	private static final boolean is93 = model.indexOf("n=3.2") != -1;
 	private static final boolean is94 = model.indexOf("n=5.0") != -1;
 
-	private final ModifyListener modifyListener = new ModifyListener() {
-		public void modifyText(ModifyEvent ev) {
-			to = Languages.getLangFromIndex(comboTo.getSelectionIndex())[0];
-			from = Languages.getLangFromIndex(comboFrom.getSelectionIndex())[0];
-			try {
-				inputText = textIn.getText();
-			} catch (Throwable e) {
-			}
-			translateThread.schedule();
+	public void modifyText(ModifyEvent ev) {
+		to = Languages.getLangFromIndex(comboTo.getSelectionIndex())[0];
+		from = Languages.getLangFromIndex(comboFrom.getSelectionIndex())[0];
+		try {
+			inputString = textIn.getText();
+		} catch (Throwable e) {
 		}
-	};
+		textIn.redraw();
+		translateThread.schedule();
+	}
 
 	private final SelectionListener selectionListener = new SelectionListener() {
 		public void widgetDefaultSelected(SelectionEvent ev) {
-			if(fullscreenLangs) {
+			if(fullscreenLangs && !is93) {
 
 				int in;
 				int out;
@@ -220,7 +215,7 @@ public class TranslateSWTUI
 		}
 	};
 
-	protected String inputText;
+	protected String inputString;
 
 	private Display display;
 	private MobileShell shell;
@@ -295,6 +290,7 @@ public class TranslateSWTUI
 
 	private boolean ttsPlaying;
 	private Player ttsplayer;
+	private String outString;
 
 
 	public TranslateSWTUI() {
@@ -418,7 +414,7 @@ public class TranslateSWTUI
 			String outText = "";
 			try {
 				outText = textOut.getText();
-				inputText = outText;
+				inputString = outText;
 			} catch (Exception e) {
 			}
 			try {
@@ -436,9 +432,9 @@ public class TranslateSWTUI
 				mb.setMessage("TTS is only available for Google");
 				mb.open();
 			} else {*/
-			String ss = inputText;
+			String ss = inputString;
 			try {
-				inputText = ss = textIn.getText();
+				inputString = ss = textIn.getText();
 			} catch (Exception e) {
 			}
 			if(ss != null) playTts(from, ss);
@@ -735,6 +731,7 @@ public class TranslateSWTUI
 		engineMenuItem.setText("Translate engine");
 		Menu enginesMenu = new Menu(shell, SWT.DROP_DOWN);
 		engineMenuItem.setMenu(enginesMenu);
+		String[] engines = Languages.engines;
 		menuEngines = new MenuItem[engines.length];
 		for(int i = 0; i < engines.length; i++) {
 			MenuItem mi = createEngineItem(engines[i], enginesMenu);
@@ -795,14 +792,16 @@ public class TranslateSWTUI
 		 * display.syncExec(new Runnable() { public void run() { try { inputText =
 		 * textIn.getText(); } catch (Throwable e) { } } });
 		 */
-		return inputText;
+		return inputString;
 	}
 
 	public void setText(final String s) {
+		outString = s;
 		display.syncExec(new Runnable() {
 			public void run() {
 				try {
 					textOut.setText(s);
+					textOut.redraw();
 				} catch (Throwable e) {
 					translateThread.scheduleRetext();
 				}
@@ -992,8 +991,8 @@ public class TranslateSWTUI
 			if (textIn != null)
 				ti = textIn.getText();
 		} catch (Throwable e) {
-			if (inputText != null)
-				ti = inputText;
+			if (inputString != null)
+				ti = inputString;
 		}
 		// dispose all
 		if (textIn != null)
@@ -1057,11 +1056,6 @@ public class TranslateSWTUI
 			if (w > h && w > 500) {
 				// 640x360 (album)
 	
-				final GridData fill = new GridData();
-				fill.horizontalAlignment = GridData.FILL;
-				fill.grabExcessHorizontalSpace = true;
-				fill.grabExcessVerticalSpace = true;
-				fill.verticalAlignment = GridData.FILL;
 				GridData fillVertical = new GridData();
 				fillVertical.horizontalAlignment = GridData.CENTER;
 				fillVertical.grabExcessVerticalSpace = true;
@@ -1071,10 +1065,10 @@ public class TranslateSWTUI
 				layout.numColumns = 3;
 				textComp = new Composite(parent, SWT.NONE);
 				textComp.setLayout(layout);
-				textComp.setLayoutData(fill);
+				fill(textComp);
 	
 				textIn = new Text(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.MULTI);
-				textIn.setLayoutData(fill);
+				fill(textIn);
 	
 				textCenterComp = new Composite(textComp, SWT.NONE);
 				textCenterComp.setLayoutData(fillVertical);
@@ -1084,26 +1078,10 @@ public class TranslateSWTUI
 				textCenterComp.setLayout(rowLayout);
 	
 				textOut = new Text(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
-				textOut.setLayoutData(fill);
+				fill(textOut);
 	
 				textIn.moveAbove(textCenterComp);
 				textOut.moveBelow(textCenterComp);
-	
-				RowData centerButtonLayout = new RowData(40, 44);
-				clearBtn = new Button(textCenterComp, SWT.CENTER);
-				clearBtn.setText("x");
-				clearBtn.setLayoutData(centerButtonLayout);
-				clearBtn.addSelectionListener(this);
-	
-				copyOutBtn = new Button(textCenterComp, SWT.CENTER);
-				copyOutBtn.setText("C");
-				copyOutBtn.setLayoutData(centerButtonLayout);
-				copyOutBtn.addSelectionListener(this);
-	
-				pasteInBtn = new Button(textCenterComp, SWT.CENTER);
-				pasteInBtn.setText("V");
-				pasteInBtn.setLayoutData(centerButtonLayout);
-				pasteInBtn.addSelectionListener(this);
 	
 				RowData comboLayout = new RowData();
 				if (is94) {
@@ -1120,17 +1098,11 @@ public class TranslateSWTUI
 			} else if (w > h && w > 300) {
 				// 320x240 (album) 9.3*
 	
-				final GridData fill = new GridData();
-				fill.horizontalAlignment = GridData.FILL;
-				fill.grabExcessHorizontalSpace = true;
-				fill.grabExcessVerticalSpace = true;
-				fill.verticalAlignment = GridData.FILL;
-	
 				textIn = new Text(parent, SWT.BORDER);
-				textIn.setLayoutData(fill);
+				fill(textIn);
 	
 				textOut = new Text(parent, SWT.BORDER | SWT.READ_ONLY);
-				textOut.setLayoutData(fill);
+				fill(textOut);
 	
 				RowData comboLayout = new RowData();
 				comboLayout.width = 120;
@@ -1141,18 +1113,13 @@ public class TranslateSWTUI
 				centerComp.moveBelow(textIn);
 			} else if (w < 300) {
 				// 240x320 (portrait) 9.3*
-	
-				final GridData fill = new GridData();
-				fill.horizontalAlignment = GridData.FILL;
-				fill.grabExcessHorizontalSpace = true;
-				fill.grabExcessVerticalSpace = true;
-				fill.verticalAlignment = GridData.FILL;
+
 	
 				textIn = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.MULTI);
-				textIn.setLayoutData(fill);
+				fill(textIn);
 	
 				textOut = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.READ_ONLY);
-				textOut.setLayoutData(fill);
+				fill(textOut);
 				try {
 					if (ti != null)
 						textIn.setText(ti);
@@ -1171,17 +1138,11 @@ public class TranslateSWTUI
 			} else {
 				// 360x640 (portrait) and others
 	
-				final GridData fill = new GridData();
-				fill.horizontalAlignment = GridData.FILL;
-				fill.grabExcessHorizontalSpace = true;
-				fill.grabExcessVerticalSpace = true;
-				fill.verticalAlignment = GridData.FILL;
-	
 				textIn = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.MULTI);
-				textIn.setLayoutData(fill);
+				fill(textIn);
 	
 				textOut = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
-				textOut.setLayoutData(fill);
+				fill(textOut);
 	
 				RowData comboLayout = new RowData();
 				comboLayout.width = 150;
@@ -1199,11 +1160,6 @@ public class TranslateSWTUI
 			if (w > h && w > 500) {
 				// 640x360 (album)
 	
-				final GridData fill = new GridData();
-				fill.horizontalAlignment = GridData.FILL;
-				fill.grabExcessHorizontalSpace = true;
-				fill.grabExcessVerticalSpace = true;
-				fill.verticalAlignment = GridData.FILL;
 				GridData fillVertical = new GridData();
 				fillVertical.horizontalAlignment = GridData.CENTER;
 				fillVertical.grabExcessVerticalSpace = true;
@@ -1213,10 +1169,10 @@ public class TranslateSWTUI
 				layout.numColumns = 3;
 				textComp = new Composite(parent, SWT.NONE);
 				textComp.setLayout(layout);
-				textComp.setLayoutData(fill);
+				fill(textComp);
 	
 				textIn = new Text(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.MULTI);
-				textIn.setLayoutData(fill);
+				fill(textIn);
 	
 				textCenterComp = new Composite(textComp, SWT.NONE);
 				textCenterComp.setLayoutData(fillVertical);
@@ -1226,27 +1182,11 @@ public class TranslateSWTUI
 				textCenterComp.setLayout(rowLayout);
 	
 				textOut = new Text(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
-				textOut.setLayoutData(fill);
+				fill(textOut);
 	
 				textIn.moveAbove(textCenterComp);
 				textOut.moveBelow(textCenterComp);
-	
-				RowData centerButtonLayout = new RowData(40, 44);
-				clearBtn = new Button(textCenterComp, SWT.CENTER);
-				clearBtn.setText("x");
-				clearBtn.setLayoutData(centerButtonLayout);
-				clearBtn.addSelectionListener(this);
-	
-				copyOutBtn = new Button(textCenterComp, SWT.CENTER);
-				copyOutBtn.setText("C");
-				copyOutBtn.setLayoutData(centerButtonLayout);
-				copyOutBtn.addSelectionListener(this);
-	
-				pasteInBtn = new Button(textCenterComp, SWT.CENTER);
-				pasteInBtn.setText("V");
-				pasteInBtn.setLayoutData(centerButtonLayout);
-				pasteInBtn.addSelectionListener(this);
-	
+				
 				RowData comboLayout = new RowData();
 				if (is94) {
 					comboLayout.width = 210;
@@ -1262,17 +1202,11 @@ public class TranslateSWTUI
 			} else if (w > h && w > 300) {
 				// 320x240 (album) 9.3*
 	
-				final GridData fill = new GridData();
-				fill.horizontalAlignment = GridData.FILL;
-				fill.grabExcessHorizontalSpace = true;
-				fill.grabExcessVerticalSpace = true;
-				fill.verticalAlignment = GridData.FILL;
-	
 				textIn = new Text(parent, SWT.BORDER);
-				textIn.setLayoutData(fill);
+				fill(textIn);
 	
 				textOut = new Text(parent, SWT.BORDER | SWT.READ_ONLY);
-				textOut.setLayoutData(fill);
+				fill(textOut);
 	
 				RowData comboLayout = new RowData();
 				comboLayout.width = 120;
@@ -1284,17 +1218,11 @@ public class TranslateSWTUI
 			} else if (w < 300) {
 				// 240x320 (portrait) 9.3*
 	
-				final GridData fill = new GridData();
-				fill.horizontalAlignment = GridData.FILL;
-				fill.grabExcessHorizontalSpace = true;
-				fill.grabExcessVerticalSpace = true;
-				fill.verticalAlignment = GridData.FILL;
-	
 				textIn = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.MULTI);
-				textIn.setLayoutData(fill);
+				fill(textIn);
 	
 				textOut = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.READ_ONLY);
-				textOut.setLayoutData(fill);
+				fill(textOut);
 				try {
 					if (ti != null)
 						textIn.setText(ti);
@@ -1312,17 +1240,12 @@ public class TranslateSWTUI
 			} else {
 				// 360x640 (portrait) and others
 	
-				final GridData fill = new GridData();
-				fill.horizontalAlignment = GridData.FILL;
-				fill.grabExcessHorizontalSpace = true;
-				fill.grabExcessVerticalSpace = true;
-				fill.verticalAlignment = GridData.FILL;
 	
 				textIn = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.MULTI);
-				textIn.setLayoutData(fill);
+				fill(textIn);
 	
 				textOut = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
-				textOut.setLayoutData(fill);
+				fill(textOut);
 	
 				GridData comboLayout = new GridData();
 				//comboLayout.width = pc ? 120 : 150;
@@ -1330,6 +1253,7 @@ public class TranslateSWTUI
 				comboLayout.grabExcessHorizontalSpace = true;
 				comboLayout.horizontalAlignment = GridData.FILL;
 				comboFrom.setLayoutData(comboLayout);
+				
 				comboTo.setLayoutData(comboLayout);
 /*
 				copyInBtn = new Button(fromComp, SWT.PUSH);
@@ -1403,8 +1327,11 @@ public class TranslateSWTUI
 		ttsoutcmd.setText("Listen");
 		ttsoutcmd.addSelectionListener(this);
 		
-		
-		textIn.addModifyListener(modifyListener);
+		if(is93) { //
+			textIn.addPaintListener(this);
+			textOut.addPaintListener(this);
+		}
+		textIn.addModifyListener(this);
 		// textIn.addSelectionListener(selectionListener);
 		comboReset();
 		try {
@@ -1421,6 +1348,28 @@ public class TranslateSWTUI
 			comboFrom.addFocusListener(this);
 			comboTo.addFocusListener(this);
 		}
+	}
+
+	// workaround for buggy text fields on 93
+	public void paintControl(PaintEvent e) {
+		GC gc = e.gc;
+		Rectangle b = ((Text)e.widget).getBounds();
+		gc.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+		gc.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+	    gc.fillRectangle(0,0,b.width-1,b.height-1);
+		gc.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
+	    String s = e.widget == textOut ? outString : e.widget == textIn ? inputString : null;
+	    if(s != null)
+	    	gc.drawText(s, 2, 0);
+	}
+
+	private void fill(Control c) {
+		final GridData fill = new GridData();
+		fill.horizontalAlignment = GridData.FILL;
+		fill.grabExcessHorizontalSpace = true;
+		fill.grabExcessVerticalSpace = true;
+		fill.verticalAlignment = GridData.FILL;
+		c.setLayoutData(fill);
 	}
 
 	private void upd() {

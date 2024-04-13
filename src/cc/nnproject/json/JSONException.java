@@ -23,11 +23,11 @@ package cc.nnproject.json;
 
 public class JSONException extends RuntimeException {
 	
-	JSONException() {
+	public JSONException() {
 	}
 	
-	JSONException(String string) {
-		super(string);
+	public JSONException(String msg) {
+		super(msg);
 	}
 	
 	public String toString() {

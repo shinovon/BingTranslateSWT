@@ -3,6 +3,14 @@ package nntranslate;
 import javax.microedition.rms.RecordStore;
 
 public class Languages {
+	
+	public static final String[] engines = new String[] {
+			"Google",
+			"Deepl",
+			"Reverso",
+			"Libre",
+			"Bing"
+	};
 
 	private static String[][] langs = new String[][] {
 		{"ru", "Russian"},

@@ -1,13 +1,27 @@
 package nntranslate.lcdui;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
+import javax.microedition.io.Connector;
+import javax.microedition.io.HttpConnection;
 import javax.microedition.lcdui.*;
+import javax.microedition.media.Manager;
+import javax.microedition.media.Player;
+import javax.microedition.media.PlayerListener;
+import javax.microedition.media.control.VolumeControl;
+
+import org.eclipse.ercp.swt.mobile.TaskTip;
+import org.eclipse.swt.SWT;
 
 import nntranslate.ITranslateUI;
 import nntranslate.Languages;
 import nntranslate.v2.TranslateMIDlet;
 import nntranslate.TranslateThread;
+import nntranslate.Util;
 //TODO: lcdui part
-public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, ItemCommandListener {
+public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, ItemCommandListener, ItemStateListener {
 
 	private Display display;
 	private Form form;
@@ -18,80 +32,87 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	private Command listChangeCmd = new Command("Change", Command.OK, 1);
 	private Command langsDoneCmd = new Command("Done", Command.OK, 1);
 	private Command exitCmd = new Command("Exit", Command.EXIT, 1);
-	private Command langsCmd = new Command("Edit visible languages", Command.SCREEN, 23);
+	private Command settingsCmd = new Command("Settings", Command.SCREEN, 3);
+	private Command aboutCmd = new Command("About", Command.SCREEN, 5);
+	private Command ttsCmd = new Command("Listen", Command.ITEM, 4);
 
 	private TranslateThread translateThread = new TranslateThread(this);
 
 	private boolean exiting;
-	private TextField textIn;
-	private TextField textOut;
+	private TextField inField;
+	private TextField outField;
 	private List listLangIn;
 	private List listLangOut;
 	private StringItem setLangInBtn;
 	private StringItem setLangOutBtn;
-	private List listLangs;
 	
 	private String from;
 	private String to;
+	private String inputText;
+	private String outText;
+	
+	private boolean ttsPlaying;
+	private Player ttsplayer;
 	
 	public TranslateLCDUI() {
-		new Thread(this, "Main LCDUI Thread").start();
+		new Thread(this).start();
 	}
 
 	public void run() {
 		listLangIn = new List("Input language", List.EXCLUSIVE);
 		listLangOut = new List("Output language", List.EXCLUSIVE);
-		listLangs = new List("Languages", List.MULTIPLE);
-		/*
 		String[] a = Languages.getLangNames();
 		for(int i = 0; i < a.length; i++) {
 			listLangIn.append(a[i], null);
 			listLangOut.append(a[i], null);
 		}
-		a = Languages.SUPPORTED_LANGUAGE_NAMES;
-		for(int i = 0; i < a.length; i++) {
-			listLangs.append(a[i], null);
-		}
-		listLangs.setSelectedFlags(Languages.getSelected());
-		listLangs.addCommand(langsDoneCmd);
 		listLangIn.addCommand(listChangeCmd);
 		listLangOut.addCommand(listChangeCmd);
 		listLangIn.setSelectedIndex(Languages.getFromIndex(), true);
 		listLangOut.setSelectedIndex(Languages.getToIndex(), true);
-		from = Languages.getSelectedLang(Languages.getFromIndex())[1];
-		to = Languages.getSelectedLang(Languages.getToIndex())[1];
-		listLangs.setCommandListener(this);
+		from = Languages.getLangFromIndex(Languages.getFromIndex())[1];
+		to = Languages.getLangFromIndex(Languages.getToIndex())[1];
 		listLangIn.setCommandListener(this);
 		listLangOut.setCommandListener(this);
+		
 		display = Display.getDisplay(TranslateMIDlet.midlet);
 		translateThread.start();
-		form = new Form("Bing Translate");
+		
+		form = new Form("Bing Translate v2");
 		form.addCommand(translateCmd);
 		form.addCommand(exitCmd);
-		form.addCommand(langsCmd);
+		form.addCommand(settingsCmd);
+		form.addCommand(aboutCmd);
 		form.setCommandListener(this);
-		form.append(textIn = new TextField("", "", 512, TextField.ANY));
-		textIn.setLabel("Input");
-		form.append(textOut = new TextField("", "", 512, TextField.ANY | TextField.UNEDITABLE));
-		textOut.setLabel("Output");
+		
+		form.append(inField = new TextField("", "", 512, TextField.ANY));
+		inField.setLabel("Input");
+		inField.addCommand(ttsCmd);
+		
+		form.append(outField = new TextField("", "", 512, TextField.ANY | TextField.UNEDITABLE));
+		outField.setLabel("Output");
+		outField.addCommand(ttsCmd);
+		
 		form.append(setLangInBtn = new StringItem("", "", StringItem.BUTTON));
-		setLangInBtn.setText("In: " + Languages.getSelectedLang(listLangIn.getSelectedIndex())[0]);
+		setLangInBtn.setText("In: " + Languages.getLangFromIndex(listLangIn.getSelectedIndex())[0]);
 		setLangInBtn.setDefaultCommand(setLangInCmd);
 		setLangInBtn.setItemCommandListener(this);
 		form.append(setLangOutBtn = new StringItem("", "", StringItem.BUTTON));
-		setLangOutBtn.setText("Out: " + Languages.getSelectedLang(listLangOut.getSelectedIndex())[0]);
+		setLangOutBtn.setText("Out: " + Languages.getLangFromIndex(listLangOut.getSelectedIndex())[0]);
 		setLangOutBtn.setDefaultCommand(setLangOutCmd);
 		setLangOutBtn.setItemCommandListener(this);
-		form.append("\nMade by Shinovon (nnproject.cc)");
-		display.setCurrent(form);*/
+		display.setCurrent(form);
 	}
 
 	public String getText() {
-		return textIn.getString();
+		if(inputText == null) {
+			inputText = inField.getString();
+		}
+		return inputText;
 	}
 
 	public void setText(String s) {
-		textOut.setString(s);
+		outField.setString(outText = s);
 	}
 
 	public String getFromLang() {
@@ -122,70 +143,116 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 		TranslateMIDlet.midlet.notifyDestroyed();
 	}
 
+	public void itemStateChanged(Item item) {
+		if(item == inField) {
+			inputText = inField.getString();
+			translateThread.schedule();
+		}
+	}
+
 	public void commandAction(Command c, Displayable d) {
-		/*
-		if(c == translateCmd) translateThread.now();
-		if(c == exitCmd) exit();
-		if(c == langsCmd) {
-			display.setCurrent(listLangs);
+		if(c == translateCmd) {
+			inputText = inField.getString();
+			translateThread.now();
+			return;
 		}
-		if(c == langsDoneCmd) {
-			boolean[] b = new boolean[listLangs.size()];
-			int size = listLangs.getSelectedFlags(b);
-			Languages.setSelected(b, size);
-			Languages.save();
-			listLangIn.deleteAll();
-			listLangOut.deleteAll();
-			String[] a = Languages.getLangNames();
-			for(int i = 0; i < a.length; i++) {
-				listLangIn.append(a[i], null);
-				listLangOut.append(a[i], null);
-			}
-			display.setCurrent(form);
+		if(c == exitCmd) {
+			exit();
+			return;
 		}
-		if(c == listChangeCmd) {
-			Languages.setSelected(listLangIn.getSelectedIndex(), listLangOut.getSelectedIndex());
-			Languages.save();
-			setLangInBtn.setText("In: " + Languages.getSelectedLang(listLangIn.getSelectedIndex())[0]);
-			setLangOutBtn.setText("Out: " + Languages.getSelectedLang(listLangOut.getSelectedIndex())[0]);
-			from = Languages.getSelectedLang(listLangIn.getSelectedIndex())[1];
-			to = Languages.getSelectedLang(listLangOut.getSelectedIndex())[1];
-			display.setCurrent(form);
-		}*/
 	}
 
 	public void commandAction(Command c, Item item) {
 		if(c == setLangInCmd) {
 			display.setCurrent(listLangIn);
-		} else if(c == setLangOutCmd) {
-			display.setCurrent(listLangOut);
+			return;
 		}
-		
+		if(c == setLangOutCmd) {
+			display.setCurrent(listLangOut);
+			return;
+		}
+		if(c == ttsCmd) {
+			String s = ((TextField)item).getString();
+			if(s == null) return;
+			playTts(item == inField ? from : to, s);
+			return;
+		}
 	}
 
 	public void setDownloading(boolean b) {
-		// TODO Auto-generated method stub
-		
+		form.setTicker(b ? new Ticker("Loading languages..") : null);
 	}
 
 	public void downloadingError(String s) {
-		// TODO Auto-generated method stub
-		
+		Alert a = new Alert("Downloading error");
+		a.setType(AlertType.ERROR);
+		a.setString(s);
+		a.setTimeout(3000);
+		display.setCurrent(a);
 	}
 
 	public void setLanguages(String[][] l) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void downloadingDone() {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void setTranslating(boolean b) {
-		// TODO Auto-generated method stub
-		
+		form.setTicker(b ? new Ticker("Translating..") : null);
+	}
+	
+	private void playTts(String lang, String s) {
+		if(s.trim().length() == 0) return;
+		if(ttsPlaying) return;
+		ttsPlaying = true;
+		form.setTicker(new Ticker("Listening"));
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			String url = "https://" + Languages.getInstance() + "/api/tts/?engine="
+			//+ Languages.getCurrentEngine()
+					+ "google"
+			+ "&lang=" + lang + "&text=" + Util.encodeURL(s);
+			if(Languages.getProxy() != null && Languages.getProxy().length() > 0) {
+				url = Languages.getProxy() + Util.encodeURL(url);
+			}
+			HttpConnection hc = (HttpConnection) Connector.open(url);
+			hc.setRequestMethod("GET");
+			InputStream is = hc.openInputStream();
+			byte[] b = new byte[1024];
+			int i;
+			while ((i = is.read(b)) != -1) {
+				bos.write(b, 0, i);
+			}
+			is.close();
+			hc.close();
+			ttsplayer = Manager.createPlayer(new ByteArrayInputStream(bos.toByteArray()), "audio/mpeg");
+			bos.close();
+			ttsplayer.realize();
+			ttsplayer.prefetch();
+			((VolumeControl) ttsplayer.getControl("VolumeControl")).setLevel(100);
+			ttsplayer.start();
+			ttsplayer.addPlayerListener(new PlayerListener() {
+				public void playerUpdate(Player p, String event, Object eventData) {
+					if(END_OF_MEDIA.equals(event) || STOPPED.equals(event)) {
+						if(ttsplayer == null) return;
+						if(ttsPlaying) {
+							form.setTicker(null);
+						}
+						ttsPlaying = false;
+						ttsplayer.deallocate();
+						ttsplayer.close();
+						ttsplayer = null;
+					}
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+			ttsPlaying = false;
+			form.setTicker(null);
+			downloadingError(e.toString());
+		}
 	}
 
 }

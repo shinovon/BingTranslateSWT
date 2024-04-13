@@ -1,12 +1,12 @@
-MIDlet-Version: 2.0.8
+MIDlet-Version: 2.0.9
 MIDlet-Vendor: nnproject
 MIDlet-Info-URL: http://nnp.nnchan.ru
 Nokia-UI-Enhancement: IgnoreProfilesBasedSoundMuting
 MIDlet-Icon: /icon.png
 MicroEdition-Configuration: CLDC-1.1
-MIDlet-Name: nntranslate
+MIDlet-Name: Bing Translate v2
 MIDlet-1: nntranslate,/icon.png,nntranslate.v2.TranslateMIDlet
 MicroEdition-Profile: MIDP-2.0
-MIDlet-Jar-URL: nntranslate.jar
+MIDlet-Jar-URL: BingTranslate.jar
 Nokia-Scalable-Icon: /icon.svg
 Nokia-Scalable-Icon-MIDlet-1: /icon.svg
