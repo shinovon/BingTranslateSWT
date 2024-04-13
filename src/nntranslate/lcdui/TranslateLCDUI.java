@@ -311,20 +311,16 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 			return;
 		}
 		if(c == reverseCmd) {
-			int newIn = listLangIn.getSelectedIndex();
-			int newOut = listLangOut.getSelectedIndex();
-			listLangIn.setSelectedIndex(newOut, true);
-			listLangOut.setSelectedIndex(newIn, true);
-			to = Languages.getLangFromIndex(newIn)[0];
-			from = Languages.getLangFromIndex(newOut)[0];
-			String outText = "";
-			try {
-				outText = outField.getString();
-				inputText = outText;
-			} catch (Exception e) {
-			}
-			inField.setString(outText);
+			int n1 = listLangIn.getSelectedIndex();
+			int n2 = listLangOut.getSelectedIndex();
+			listLangIn.setSelectedIndex(n2, true);
+			listLangOut.setSelectedIndex(n1, true);
+			from = Languages.getLangFromIndex(n2)[0];
+			to = Languages.getLangFromIndex(n1)[0];
+			inField.setString(inputText = outField.getString());
 			outField.setString("");
+			setLangInBtn.setText("In: " + Languages.getLangFromIndex(n2)[1]);
+			setLangOutBtn.setText("Out: " + Languages.getLangFromIndex(n1)[1]);
 			translateThread.schedule();
 			return;
 		}
