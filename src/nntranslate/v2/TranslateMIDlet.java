@@ -1,24 +1,26 @@
-package cc.nnproject.translate.bing.app;
-
+/*
+ * Copyright (c) 2021-2024 Arman Jussupgaliyev
+ */
+package nntranslate.v2;
 import javax.microedition.midlet.MIDlet;
 
-import cc.nnproject.translate.ITranslateUI;
-import cc.nnproject.translate.Languages;
-import cc.nnproject.translate.lcdui.TranslateLCDUI;
-import cc.nnproject.translate.swt.ClassInvoker;
+import nntranslate.ITranslateUI;
+import nntranslate.Languages;
+import nntranslate.lcdui.TranslateLCDUI;
+import nntranslate.swt.ClassInvoker;
 
-public class TranslateBingMIDlet extends MIDlet {
+public class TranslateMIDlet extends MIDlet {
 
-	public static TranslateBingMIDlet midlet;
+	public static TranslateMIDlet midlet;
 	private boolean started;
 	private ITranslateUI ui;
 
-	public TranslateBingMIDlet() {
+	public TranslateMIDlet() {
 		midlet = this;
 	}
 
 	public void destroyApp(boolean b) {
-		ui.exit();
+		if(ui != null) ui.exit();
 	}
 
 	protected void pauseApp() {
@@ -29,12 +31,11 @@ public class TranslateBingMIDlet extends MIDlet {
 		if(started)
 			return;
 		started = true;
-		Languages.init(true);
+		Languages.init();
 		try {
 			Class.forName("org.eclipse.ercp.swt.mobile.MobileShell");
-			ClassInvoker.init();
+			ui = ClassInvoker.init();
 		} catch (Throwable e) {
-			//Languages.init(false);
 			ui = new TranslateLCDUI();
 			/*
 			final Command exit = new Command("Exit", Command.EXIT, 1);

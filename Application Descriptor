@@ -1,12 +1,13 @@
-MIDlet-Version: 1.2.8
-MIDlet-Vendor: nnproject
-MIDlet-Info-URL: http://nnp.nnchan.ru/bingt
-MIDlet-Icon: /page_exported.png
+MIDlet-Version: 2.0.9
+MIDlet-Info-URL: http://nnp.nnchan.ru
+Nokia-UI-Enhancement: IgnoreProfilesBasedSoundMuting
 MicroEdition-Configuration: CLDC-1.1
 Nokia-MIDlet-UID-1: 0xA1F739D3
 MIDlet-Name: Bing Translate
-MIDlet-1: Bing Translate,/page_exported.png,cc.nnproject.translate.bing.app.TranslateBingMIDlet
+Nokia-Scalable-Icon: /icon.svg
+MIDlet-Vendor: nnproject
+MIDlet-Icon: /icon.png
+MIDlet-1: Translate,/icon.png,nntranslate.v2.TranslateMIDlet
 MicroEdition-Profile: MIDP-2.0
 MIDlet-Jar-URL: BingTranslate.jar
-Nokia-Scalable-Icon: /bing_translate_opt.svg
-Nokia-Scalable-Icon-MIDlet-1: /bing_translate_opt.svg
+Nokia-Scalable-Icon-MIDlet-1: /icon.svg
