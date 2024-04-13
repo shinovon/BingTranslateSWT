@@ -74,8 +74,8 @@ public class TranslateSWTUI
 	public static final String setsrms = "gtsets";
 
 	private static final String model = System.getProperty("microedition.platform");
-	private static final boolean is93 = model.indexOf("n=3.2") != -1;
-	private static final boolean is94 = model.indexOf("n=5.0") != -1;
+	private static final boolean is93 = model != null && model.indexOf("platform_version=3.2") != -1;
+	private static final boolean is94 = model != null && model.indexOf("platform_version=5.0") != -1;
 
 	public void modifyText(ModifyEvent ev) {
 		to = Languages.getLangFromIndex(comboTo.getSelectionIndex())[0];
@@ -741,7 +741,7 @@ public class TranslateSWTUI
 		setsMenuItem.setText("Settings");
 		Menu setsMenu = new Menu(shell, SWT.DROP_DOWN);
 		setsMenuItem.setMenu(setsMenu);
-		if(is93) {
+		if(!is93) {
 			fullListMenuItem = new MenuItem(setsMenu, SWT.CHECK);
 			fullListMenuItem.addSelectionListener(this);
 			fullListMenuItem.setText("Fullscreen lang. list");
@@ -887,6 +887,10 @@ public class TranslateSWTUI
 			comboFrom.dispose();
 			comboFrom = null;
 		}
+		if(reverseBtn != null) {
+			reverseBtn.dispose();
+			reverseBtn = null;
+		}
 		if(bingDesign || forceBing) {
 			if(centerComp == null) {
 				if(toComp != null) {
@@ -932,7 +936,7 @@ public class TranslateSWTUI
 			comboTo = new Combo(centerComp, comboStyle);
 			comboTo.setLayoutData(comboLayout);
 		} else {
-			if(centerComp != null ) {
+			if(centerComp != null) {
 				centerComp.dispose();
 				centerComp = null;
 			}
@@ -974,14 +978,14 @@ public class TranslateSWTUI
 			comboTo.setLayoutData(comboLayout);
 		}
 		try {
-			if(reverseBtn != null)
-				reverseBtn.addSelectionListener(this);
 			comboFrom.setItems(Languages.getLangNames());
-			comboFrom.select(Languages.getFromIndex());
 			comboFrom.addSelectionListener(selectionListener);
 			comboTo.setItems(Languages.getLangNames());
-			comboTo.select(Languages.getToIndex());
 			comboTo.addSelectionListener(selectionListener);
+			comboFrom.select(Languages.getFromIndex());
+			comboTo.select(Languages.getToIndex());
+			if(reverseBtn != null)
+				reverseBtn.addSelectionListener(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
