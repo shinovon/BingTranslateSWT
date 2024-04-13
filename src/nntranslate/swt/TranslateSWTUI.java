@@ -1322,19 +1322,21 @@ public class TranslateSWTUI
 			}
 		}
 
-		
-		copyincmd = new Command(textIn, Command.GENERAL, 3);
-		copyincmd.setText("Copy");
-		copyincmd.addSelectionListener(this);
+		if(!is93) {
+			copyincmd = new Command(textIn, Command.GENERAL, 3);
+			copyincmd.setText("Copy");
+			copyincmd.addSelectionListener(this);
+		}
 		
 		pasteincmd = new Command(textIn, Command.GENERAL, 2);
 		pasteincmd.setText("Paste");
 		pasteincmd.addSelectionListener(this);
 		
-		
-		copyoutcmd = new Command(textOut, Command.GENERAL, 3);
-		copyoutcmd.setText("Copy");
-		copyoutcmd.addSelectionListener(this);
+		if(!is93) {
+			copyoutcmd = new Command(textOut, Command.GENERAL, 3);
+			copyoutcmd.setText("Copy");
+			copyoutcmd.addSelectionListener(this);
+		}
 		
 		clearoutcmd  = new Command(textOut, Command.GENERAL, 2);
 		clearoutcmd.setText("Clear");
