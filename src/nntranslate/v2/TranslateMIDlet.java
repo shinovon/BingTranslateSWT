@@ -31,7 +31,7 @@ public class TranslateMIDlet extends MIDlet {
 		Languages.init();
 		try {
 			Class.forName("org.eclipse.ercp.swt.mobile.MobileShell");
-			ClassInvoker.init();
+			ui = ClassInvoker.init();
 		} catch (Throwable e) {
 			ui = new TranslateLCDUI();
 			/*

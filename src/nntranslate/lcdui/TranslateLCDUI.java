@@ -21,7 +21,7 @@ import nntranslate.v2.TranslateMIDlet;
 import nntranslate.TranslateThread;
 import nntranslate.Util;
 
-public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, ItemCommandListener, ItemStateListener {
+public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, ItemCommandListener, ItemStateListener, PlayerListener {
 
 	private Display display;
 	private Form mainForm;
@@ -98,7 +98,7 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 			translateThread.now();
 		}
 		
-		mainForm = new Form("Bing Translate v2");
+		mainForm = new Form("Translate v2");
 		mainForm.addCommand(translateCmd);
 		mainForm.addCommand(exitCmd);
 		mainForm.addCommand(settingsCmd);
@@ -429,25 +429,25 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 			ttsplayer.prefetch();
 			((VolumeControl) ttsplayer.getControl("VolumeControl")).setLevel(100);
 			ttsplayer.start();
-			ttsplayer.addPlayerListener(new PlayerListener() {
-				public void playerUpdate(Player p, String event, Object eventData) {
-					if(END_OF_MEDIA.equals(event) || STOPPED.equals(event)) {
-						if(ttsplayer == null) return;
-						if(ttsPlaying) {
-							mainForm.setTicker(null);
-						}
-						ttsPlaying = false;
-						ttsplayer.deallocate();
-						ttsplayer.close();
-						ttsplayer = null;
-					}
-				}
-			});
+			ttsplayer.addPlayerListener(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 			ttsPlaying = false;
 			mainForm.setTicker(null);
 			downloadingError(e.toString());
+		}
+	}
+	
+	public void playerUpdate(Player p, String event, Object eventData) {
+		if(END_OF_MEDIA.equals(event) || STOPPED.equals(event)) {
+			if(ttsplayer == null) return;
+			if(ttsPlaying) {
+				mainForm.setTicker(null);
+			}
+			ttsPlaying = false;
+			ttsplayer.deallocate();
+			ttsplayer.close();
+			ttsplayer = null;
 		}
 	}
 

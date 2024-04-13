@@ -64,9 +64,9 @@ import nntranslate.TranslateThread;
 import nntranslate.Util;
 
 public class TranslateSWTUI
-		implements Runnable, SelectionListener, ITranslateUI, ScreenListener, ControlListener, FocusListener, TraverseListener, PaintListener, ModifyListener {
+		implements Runnable, SelectionListener, ITranslateUI, ScreenListener, ControlListener, FocusListener, TraverseListener, PaintListener, ModifyListener, PlayerListener {
 	
-	public static final String name = "nntranslate";
+	public static final String name = "Translate v2";
 	public static final String setsrms = "gtsets";
 
 	private static final String model = System.getProperty("microedition.platform");
@@ -217,82 +217,94 @@ public class TranslateSWTUI
 
 	protected String inputString;
 
-	private Display display;
-	private MobileShell shell;
+	Display display;
+	MobileShell shell;
 
 	public boolean exiting;
 
-	private Composite parent;
+	Composite parent;
 
-	private Command exitcmd;
+	Command exitcmd;
 
-	private Combo comboFrom;
-	private Combo comboTo;
+	Combo comboFrom;
+	Combo comboTo;
 
-	private Text textIn;
-	private Text textOut;
+	Text textIn;
+	Text textOut;
 
-	private Button reverseBtn;
+	Button reverseBtn;
 
-	private Composite centerComp;
-	private Button clearBtn;
-	private Button copyOutBtn;
-	private Button pasteInBtn;
+	Composite centerComp;
+	Button clearBtn;
+	Button copyOutBtn;
+	Button pasteInBtn;
 
-	private TranslateThread translateThread = new TranslateThread(this);
+	TranslateThread translateThread = new TranslateThread(this);
 
-	private String from;
-	private String to;
+	String from;
+	String to;
 
-	private Composite textComp;
-	private Composite textCenterComp;
+	Composite textComp;
+	Composite textCenterComp;
 	
-	private Composite fromComp;
-	private Composite toComp;
-	private Button ttsFromBtn;
-	private Button ttsToBtn;
-	private Button clearOutBtn;
-	private Button clearInBtn;
+	Composite fromComp;
+	Composite toComp;
+	Button ttsFromBtn;
+	Button ttsToBtn;
+	Button clearOutBtn;
+	Button clearInBtn;
 
-	//private Shell langsShell;
-	//private SortedList langsList;
+	//Shell langsShell;
+	//SortedList langsList;
 
-	// private boolean landscape;
+	// boolean landscape;
 
-	//private Command langsDoneCmd;
+	//Command langsDoneCmd;
 
-	private MenuItem aboutMenuItem;
-	private MenuItem fullListMenuItem;
-	//private MenuItem langsMenuItem;
-	private boolean fullscreenLangs;
-	private boolean bingDesign = true;
-	private MenuItem engineMenuItem;
-	private MenuItem[] menuEngines;
-	private MenuItem instMenuItem;
-	private MenuItem proxyMenuItem;
-	private MenuItem reverseMenuItem;
-	private MenuItem uiMenuItem;
-	private MenuItem fontMenuItem;
-	private MenuItem clearLangsMenuItem;
+	MenuItem aboutMenuItem;
+	MenuItem fullListMenuItem;
+	//MenuItem langsMenuItem;
+	boolean fullscreenLangs;
+	boolean bingDesign = true;
+	MenuItem engineMenuItem;
+	MenuItem[] menuEngines;
+	MenuItem instMenuItem;
+	MenuItem proxyMenuItem;
+	MenuItem reverseMenuItem;
+	MenuItem uiMenuItem;
+	MenuItem fontMenuItem;
+	MenuItem clearLangsMenuItem;
 	
-	private Command ttsincmd;
-	private Command ttsoutcmd;
-	private Command copyincmd;
-	private Command pasteincmd;
-	private Command copyoutcmd;
-	private Command clearoutcmd;
+	Command ttsincmd;
+	Command ttsoutcmd;
+	Command copyincmd;
+	Command pasteincmd;
+	Command copyoutcmd;
+	Command clearoutcmd;
 
-	private boolean pc;
+	boolean pc;
 
-	private Button copyInBtn;
+	Button copyInBtn;
 
-	private FontData font;
+	FontData font;
 
-	private boolean ttsPlaying;
-	private Player ttsplayer;
-	private String outString;
+	boolean ttsPlaying;
+	Player ttsplayer;
+	String outString;
 
+	Shell outLangsShell;
+	SortedList outLangsList;
+	Shell inLangsShell;
+	SortedList inLangsList;
+	Command inLangsDoneCmd;
+	Command outLangsDoneCmd;
+	
+	long comboInitTime;
 
+	TaskTip dlTask;
+	protected TaskTip errorTask;
+	TaskTip ttstask;
+	
 	public TranslateSWTUI() {
 		new Thread(this, "Main SWT Thread").start();
 	}
@@ -593,26 +605,7 @@ public class TranslateSWTUI
 			ttsplayer.prefetch();
 			((VolumeControl) ttsplayer.getControl("VolumeControl")).setLevel(100);
 			ttsplayer.start();
-			ttsplayer.addPlayerListener(new PlayerListener() {
-				public void playerUpdate(Player p, String event, Object eventData) {
-					if(END_OF_MEDIA.equals(event) || STOPPED.equals(event)) {
-						if(ttsplayer == null) return;
-						if(ttstask != null) {
-							display.asyncExec(new Runnable() {
-
-								public void run() {
-							ttstask.setVisible(false);
-							ttstask.dispose();
-							ttstask = null;
-								}});
-						}
-						ttsPlaying = false;
-						ttsplayer.deallocate();
-						ttsplayer.close();
-						ttsplayer = null;
-					}
-				}
-			});
+			ttsplayer.addPlayerListener(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 			ttstask.setVisible(false);
@@ -620,6 +613,25 @@ public class TranslateSWTUI
 			ttstask = null;
 			downloadingError(e.toString());
 			ttsPlaying = false;
+		}
+	}
+	
+	public void playerUpdate(Player p, String event, Object eventData) {
+		if(END_OF_MEDIA.equals(event) || STOPPED.equals(event)) {
+			if(ttsplayer == null) return;
+			if(ttstask != null) {
+				display.asyncExec(new Runnable() {
+					public void run() {
+						ttstask.setVisible(false);
+						ttstask.dispose();
+						ttstask = null;
+					}
+				});
+			}
+			ttsPlaying = false;
+			ttsplayer.deallocate();
+			ttsplayer.close();
+			ttsplayer = null;
 		}
 	}
 
@@ -1427,19 +1439,6 @@ public class TranslateSWTUI
 	public void controlResized(ControlEvent e) {
 		updateLangsPosition();
 	}
-
-	private Shell outLangsShell;
-	private SortedList outLangsList;
-	private Shell inLangsShell;
-	private SortedList inLangsList;
-	private Command inLangsDoneCmd;
-	private Command outLangsDoneCmd;
-	
-	private long comboInitTime;
-
-	private TaskTip dlTask;
-	protected TaskTip errorTask;
-	private TaskTip ttstask;
 
     public void keyTraversed(TraverseEvent e) {
     	if (fullscreenLangs && e.doit) {
