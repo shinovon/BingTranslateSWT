@@ -76,27 +76,24 @@ public class Languages {
 		return -1;
 	}
 
-	public static void init(boolean b) {
-		if(b) {
-			try {
-				RecordStore r = RecordStore.openRecordStore("gtsl", false);
-				String t = new String(r.getRecord(1), "UTF-8");
-				r.closeRecordStore();
-				String[] a = Util.split(t, ',');
-				currentEngine = a[0];
-				lastFrom = new String[] { a[1], null };
-				lastTo = new String[] { a[2], null };
-				instance = a[3];
-				proxy = a[4];
-				loadCachedLangs();
-				updateLangs();
-				getFromIndex();
-				getToIndex();
-			} catch (Exception e) {
-				e.printStackTrace();
-				updateLangs();
-			}
-		} else {
+	public static void init() {
+		try {
+			RecordStore r = RecordStore.openRecordStore("gtsl", false);
+			String t = new String(r.getRecord(1), "UTF-8");
+			r.closeRecordStore();
+			String[] a = Util.split(t, ',');
+			currentEngine = a[0];
+			lastFrom = new String[] { a[1], null };
+			lastTo = new String[] { a[2], null };
+			instance = a[3];
+			proxy = a[4];
+			loadCachedLangs();
+			updateLangs();
+			getFromIndex();
+			getToIndex();
+		} catch (Exception e) {
+			e.printStackTrace();
+			updateLangs();
 		}
 	}
 

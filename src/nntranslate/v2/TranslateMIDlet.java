@@ -3,6 +3,7 @@ import javax.microedition.midlet.MIDlet;
 
 import nntranslate.ITranslateUI;
 import nntranslate.Languages;
+import nntranslate.lcdui.TranslateLCDUI;
 import nntranslate.swt.ClassInvoker;
 
 public class TranslateMIDlet extends MIDlet {
@@ -27,14 +28,12 @@ public class TranslateMIDlet extends MIDlet {
 		if(started)
 			return;
 		started = true;
-		Languages.init(true);
+		Languages.init();
 		try {
 			Class.forName("org.eclipse.ercp.swt.mobile.MobileShell");
 			ClassInvoker.init();
 		} catch (Throwable e) {
-			//Languages.init(false);
-			//ui = new TranslateLCDUI();
-			notifyDestroyed();
+			ui = new TranslateLCDUI();
 			/*
 			final Command exit = new Command("Exit", Command.EXIT, 1);
 			Alert a = new Alert("", "", null, null);
