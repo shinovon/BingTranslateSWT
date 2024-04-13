@@ -270,7 +270,7 @@ public class TranslateSWTUI
 	private MenuItem fullListMenuItem;
 	//private MenuItem langsMenuItem;
 	private boolean fullscreenLangs;
-	private boolean bingDesign;
+	private boolean bingDesign = true;
 	private MenuItem engineMenuItem;
 	private MenuItem[] menuEngines;
 	private MenuItem instMenuItem;
@@ -436,12 +436,12 @@ public class TranslateSWTUI
 				mb.setMessage("TTS is only available for Google");
 				mb.open();
 			} else {*/
-				String ss = inputText;
-				try {
-					inputText = ss = textIn.getText();
-				} catch (Exception e) {
-				}
-				playTts(from, ss);
+			String ss = inputText;
+			try {
+				inputText = ss = textIn.getText();
+			} catch (Exception e) {
+			}
+			if(ss != null) playTts(from, ss);
 				
 			//}
 			return;
@@ -455,13 +455,12 @@ public class TranslateSWTUI
 				mb.open();
 			} else {
 			*/
-				String ss = null;
-				try {
-					ss = textOut.getText();
-				} catch (Exception e) {
-				}
-				if(ss != null)
-				playTts(to, ss);
+			String ss = null;
+			try {
+				ss = textOut.getText();
+			} catch (Exception e) {
+			}
+			if(ss != null) playTts(to, ss);
 			//}
 			return;
 		}

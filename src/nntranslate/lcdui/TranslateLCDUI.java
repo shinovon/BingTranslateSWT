@@ -6,7 +6,7 @@ import nntranslate.ITranslateUI;
 import nntranslate.Languages;
 import nntranslate.v2.TranslateMIDlet;
 import nntranslate.TranslateThread;
-
+//TODO: lcdui part
 public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, ItemCommandListener {
 
 	private Display display;
