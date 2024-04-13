@@ -1,4 +1,8 @@
+/*
+ * Copyright (c) 2021-2024 Arman Jussupgaliyev
+ */
 package nntranslate;
+
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;

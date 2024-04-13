@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2021-2024 Arman Jussupgaliyev
+ */
 package nntranslate.v2;
 import javax.microedition.midlet.MIDlet;
 

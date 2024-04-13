@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2021-2024 Arman Jussupgaliyev
+ * Copyright (c) 2021 Fyodor Ryzhov
+ */
 package nntranslate.swt;
 
 import java.io.ByteArrayInputStream;

@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2021-2024 Arman Jussupgaliyev
+ */
 package nntranslate.lcdui;
 
 import java.io.ByteArrayInputStream;

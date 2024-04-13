@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022-2024 Arman Jussupgaliyev
+ */
 package nntranslate;
 
 public class BingLanguages {

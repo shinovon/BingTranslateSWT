@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2021-2024 Arman Jussupgaliyev
+ */
 package nntranslate;
 
 import java.io.ByteArrayOutputStream;
@@ -9,10 +12,6 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.ContentConnection;
 import javax.microedition.io.HttpConnection;
 
-/**
- * @author Shinovon
- *
- */
 public final class Util {
 
 	public static String encodeURL(String s) {
