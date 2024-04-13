@@ -380,7 +380,7 @@ public class TranslateSWTUI
 		}
 		*/
 		if (/* ev.widget == aboutcmd || */ev.widget == aboutMenuItem) {
-			msg(name + " v"+TranslateMIDlet.midlet.getAppProperty("MIDlet-Version")+"\nBy shinovon (nnproject)");
+			msg("Translate v"+TranslateMIDlet.midlet.getAppProperty("MIDlet-Version")+"\nBy shinovon (nnproject)");
 			return;
 		}
 		if (ev.widget == copyOutBtn || ev.widget == copyoutcmd) {
@@ -406,14 +406,18 @@ public class TranslateSWTUI
 		if (ev.widget == clearBtn) {
 			textIn.setText("");
 			textOut.setText("");
+			textIn.redraw();
+			textOut.redraw();
 			return;
 		}
 		if (ev.widget == clearInBtn) {
 			textIn.setText("");
+			textIn.redraw();
 			return;
 		}
 		if (ev.widget == clearOutBtn || ev.widget == clearoutcmd) {
 			textOut.setText("");
+			textOut.redraw();
 			return;
 		}
 		if (ev.widget == reverseBtn || ev.widget == reverseMenuItem) {
@@ -434,6 +438,8 @@ public class TranslateSWTUI
 				textOut.setText("");
 			} catch (Exception e) {
 			}
+			textIn.redraw();
+			textOut.redraw();
 			translateThread.schedule();
 			return;
 		}
@@ -472,12 +478,12 @@ public class TranslateSWTUI
 			//}
 			return;
 		}
-		if (ev.widget == fullListMenuItem) {
+		if (!is93 && ev.widget == fullListMenuItem) {
 			fullscreenLangs = fullListMenuItem.getSelection();
 			saveSets();
 			comboFrom.dispose();
 			comboFrom = null;
-				if(reverseBtn != null) {
+			if(reverseBtn != null) {
 				reverseBtn.dispose();
 				reverseBtn = null;
 			}
@@ -669,7 +675,7 @@ public class TranslateSWTUI
 			RecordStore r = RecordStore.openRecordStore(setsrms, false);
 			byte[] b = r.getRecord(1);
 			r.closeRecordStore();
-			if (b.length >= 1) fullscreenLangs = b[0] == 1;
+			if (b.length >= 1 && !is93) fullscreenLangs = b[0] == 1;
 			if (b.length >= 2) bingDesign = b[1] == 1;
 		} catch (Exception e) {
 		}
@@ -731,10 +737,12 @@ public class TranslateSWTUI
 		setsMenuItem.setText("Settings");
 		Menu setsMenu = new Menu(shell, SWT.DROP_DOWN);
 		setsMenuItem.setMenu(setsMenu);
-		fullListMenuItem = new MenuItem(setsMenu, SWT.CHECK);
-		fullListMenuItem.addSelectionListener(this);
-		fullListMenuItem.setText("Fullscreen lang. list");
-		fullListMenuItem.setSelection(fullscreenLangs);
+		if(is93) {
+			fullListMenuItem = new MenuItem(setsMenu, SWT.CHECK);
+			fullListMenuItem.addSelectionListener(this);
+			fullListMenuItem.setText("Fullscreen lang. list");
+			fullListMenuItem.setSelection(fullscreenLangs);
+		}
 		/*langsMenuItem = new MenuItem(setsMenu, SWT.PUSH);
 		langsMenuItem.addSelectionListener(this);
 		langsMenuItem.setText("Select languages");
@@ -962,6 +970,8 @@ public class TranslateSWTUI
 			comboTo.setLayoutData(comboLayout);
 		}
 		try {
+			if(reverseBtn != null)
+				reverseBtn.addSelectionListener(this);
 			comboFrom.setItems(Languages.getLangNames());
 			comboFrom.select(Languages.getFromIndex());
 			comboFrom.addSelectionListener(selectionListener);
@@ -1362,11 +1372,10 @@ public class TranslateSWTUI
 		}
 	}
 
-	// workaround for buggy text fields on 93
+	// workaround for buggy text fields on 9.3
 	public void paintControl(PaintEvent e) {
 		GC gc = e.gc;
 		Rectangle b = ((Text)e.widget).getBounds();
-		gc.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 		gc.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 	    gc.fillRectangle(0,0,b.width-1,b.height-1);
 		gc.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
