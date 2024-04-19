@@ -79,8 +79,10 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 		
 		boolean clipboard = false;
 		try {
-			Class.forName("com.nokia.mid.ui.Clipboard");
-			clipboard = true;
+			if(System.getProperty("com.nokia.mid.ui.version") != null) {
+				Class.forName("com.nokia.mid.ui.Clipboard");
+				clipboard = true;
+			}
 		} catch (Throwable e) {}
 		
 		listLangIn = new List("Input language", List.EXCLUSIVE);
@@ -197,6 +199,8 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 			Languages.setSelected(listLangIn.getSelectedIndex(), listLangOut.getSelectedIndex());
 			from = Languages.getLangFromIndex(Languages.getFromIndex())[0];
 			to = Languages.getLangFromIndex(Languages.getToIndex())[0];
+			setLangInBtn.setText("In: " + Languages.getLangFromIndex(Languages.getFromIndex())[1]);
+			setLangOutBtn.setText("Out: " + Languages.getLangFromIndex(Languages.getToIndex())[1]);
 			display.setCurrent(mainForm);
 			return;
 		}
@@ -341,19 +345,37 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 			playTts(item == inField ? from : to, s);
 			return;
 		}
+		if(c == hyperlinkCmd) {
+			try {
+				if(TranslateMIDlet.midlet.platformRequest("http://" + ((StringItem) item).getText()))
+					TranslateMIDlet.midlet.notifyDestroyed();
+			} catch (Exception e) {}
+			return;
+		}
 		if(c == copyCmd) {
+			try {
+				clipboard((TextField) item, true);
+			} catch (Throwable e) {}
+		}
+		if(c == pasteCmd) {
+			try {
+				clipboard((TextField) item, false);
+			} catch (Throwable e) {}
+			return;
+		}
+	}
+	
+	private void clipboard(TextField item, boolean b) {
+		if(b) {
 			String s = ((TextField)item).getString();
 			try {
 				Clipboard.copyToClipboard(s);
 			} catch (Throwable e) {}
 			return;
 		}
-		if(c == pasteCmd) {
-			try {
-				((TextField)item).setString(Clipboard.copyFromClipboard());
-			} catch (Throwable e) {}
-			return;
-		}
+		try {
+			((TextField)item).setString(Clipboard.copyFromClipboard());
+		} catch (Throwable e) {}
 	}
 	
 	private void updateLangs() {
