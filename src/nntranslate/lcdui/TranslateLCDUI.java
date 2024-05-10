@@ -48,6 +48,8 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	private static final Command backCmd = new Command("Back", Command.BACK, 1);
 	
 	private static final Command hyperlinkCmd = new Command("Open", Command.ITEM, 2);
+	
+	private static boolean clipboard;
 
 	private TranslateThread translateThread = new TranslateThread(this);
 
@@ -77,7 +79,7 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	public void run() {
 		display = Display.getDisplay(TranslateMIDlet.midlet);
 		
-		boolean clipboard = false;
+		clipboard = false;
 		try {
 			if(System.getProperty("com.nokia.mid.ui.version") != null) {
 				Class.forName("com.nokia.mid.ui.Clipboard");
@@ -352,10 +354,12 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 			} catch (Exception e) {}
 			return;
 		}
+		if(!clipboard) return;
 		if(c == copyCmd) {
 			try {
 				clipboard((TextField) item, true);
 			} catch (Throwable e) {}
+			return;
 		}
 		if(c == pasteCmd) {
 			try {
@@ -365,7 +369,8 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 		}
 	}
 	
-	private void clipboard(TextField item, boolean b) {
+	private static void clipboard(TextField item, boolean b) {
+		if(!clipboard) return;
 		if(b) {
 			String s = ((TextField)item).getString();
 			try {

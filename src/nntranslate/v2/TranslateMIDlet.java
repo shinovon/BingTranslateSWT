@@ -32,6 +32,9 @@ public class TranslateMIDlet extends MIDlet {
 			return;
 		started = true;
 		Languages.init();
+		//#ifndef ESWT
+		//# ui = new TranslateLCDUI();
+		//#else
 		try {
 			Class.forName("org.eclipse.ercp.swt.mobile.MobileShell");
 			ui = ClassInvoker.init();
@@ -50,6 +53,7 @@ public class TranslateMIDlet extends MIDlet {
 			Display.getDisplay(this).setCurrent(a);
 			*/
 		}
+		//#endif
 	}
 
 }

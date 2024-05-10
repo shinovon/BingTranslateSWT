@@ -29,6 +29,8 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.PaintEvent;
@@ -37,6 +39,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
@@ -68,7 +71,7 @@ import nntranslate.TranslateThread;
 import nntranslate.Util;
 
 public class TranslateSWTUI
-		implements Runnable, SelectionListener, ITranslateUI, ScreenListener, ControlListener, FocusListener, TraverseListener, PaintListener, ModifyListener, PlayerListener {
+		implements Runnable, SelectionListener, ITranslateUI, ScreenListener, ControlListener, FocusListener, TraverseListener, PaintListener, ModifyListener, PlayerListener, KeyListener {
 	
 	public static final String name = "Translate v2";
 	public static final String setsrms = "gtsets";
@@ -308,6 +311,7 @@ public class TranslateSWTUI
 	TaskTip dlTask;
 	protected TaskTip errorTask;
 	TaskTip ttstask;
+	private float fontSize;
 	
 	public TranslateSWTUI() {
 		new Thread(this, "Main SWT Thread").start();
@@ -1107,7 +1111,7 @@ public class TranslateSWTUI
 				rowLayout.wrap = false;
 				textCenterComp.setLayout(rowLayout);
 	
-				textOut = new Text(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
+				textOut = new Text(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
 				fill(textOut);
 	
 				textIn.moveAbove(textCenterComp);
@@ -1128,10 +1132,10 @@ public class TranslateSWTUI
 			} else if (w > h && w > 300) {
 				// 320x240 (album) 9.3*
 	
-				textIn = new Text(parent, SWT.BORDER);
+				textIn = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.MULTI);
 				fill(textIn);
 	
-				textOut = new Text(parent, SWT.BORDER | SWT.READ_ONLY);
+				textOut = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
 				fill(textOut);
 	
 				RowData comboLayout = new RowData();
@@ -1148,7 +1152,7 @@ public class TranslateSWTUI
 				textIn = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.MULTI);
 				fill(textIn);
 	
-				textOut = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.READ_ONLY);
+				textOut = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
 				fill(textOut);
 				try {
 					if (ti != null)
@@ -1171,7 +1175,7 @@ public class TranslateSWTUI
 				textIn = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.MULTI);
 				fill(textIn);
 	
-				textOut = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
+				textOut = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
 				fill(textOut);
 	
 				RowData comboLayout = new RowData();
@@ -1211,7 +1215,7 @@ public class TranslateSWTUI
 				rowLayout.wrap = false;
 				textCenterComp.setLayout(rowLayout);
 	
-				textOut = new Text(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
+				textOut = new Text(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
 				fill(textOut);
 	
 				textIn.moveAbove(textCenterComp);
@@ -1232,10 +1236,10 @@ public class TranslateSWTUI
 			} else if (w > h && w > 300) {
 				// 320x240 (album) 9.3*
 	
-				textIn = new Text(parent, SWT.BORDER);
+				textIn = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.MULTI);
 				fill(textIn);
 	
-				textOut = new Text(parent, SWT.BORDER | SWT.READ_ONLY);
+				textOut = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
 				fill(textOut);
 	
 				RowData comboLayout = new RowData();
@@ -1251,7 +1255,7 @@ public class TranslateSWTUI
 				textIn = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.MULTI);
 				fill(textIn);
 	
-				textOut = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.READ_ONLY);
+				textOut = new Text(parent, SWT.BORDER | SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
 				fill(textOut);
 				try {
 					if (ti != null)
@@ -1274,7 +1278,7 @@ public class TranslateSWTUI
 				textIn = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.MULTI);
 				fill(textIn);
 	
-				textOut = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY | SWT.MULTI);
+				textOut = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
 				fill(textOut);
 	
 				GridData comboLayout = new GridData();
@@ -1362,6 +1366,8 @@ public class TranslateSWTUI
 		if(is93) { //
 			textIn.addPaintListener(this);
 			textOut.addPaintListener(this);
+			textIn.addKeyListener(this);
+			textOut.addKeyListener(this);
 		}
 		textIn.addModifyListener(this);
 		// textIn.addSelectionListener(selectionListener);
@@ -1384,14 +1390,58 @@ public class TranslateSWTUI
 
 	// workaround for buggy text fields on 9.3
 	public void paintControl(PaintEvent e) {
+		if(e.widget.getData("ignorePaint") != null) {
+			e.widget.setData("ignorePaint", null);
+			return;
+		}
 		GC gc = e.gc;
 		Rectangle b = ((Text)e.widget).getBounds();
-		gc.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+		Color bg = display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
+		Color fg = display.getSystemColor(SWT.COLOR_WIDGET_FOREGROUND);
+		if(bg.equals(fg) && bg.equals(fg = display.getSystemColor(SWT.COLOR_BLACK))) {
+			fg = display.getSystemColor(SWT.COLOR_WHITE);
+		}
+		gc.setBackground(bg);
+		gc.setForeground(bg);
 	    gc.fillRectangle(0,0,b.width-1,b.height-1);
-		gc.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
-	    String s = e.widget == textOut ? outString : e.widget == textIn ? inputString : null;
-	    if(s != null)
-	    	gc.drawText(s, 2, 0);
+//	    String s = e.widget == textOut ? outString : e.widget == textIn ? inputString : null;
+//	    if(s == null) return;
+//		gc.setForeground(fg);
+//    	gc.drawText(s, 2, 0, SWT.DRAW_DELIMITER);
+		e.widget.setData("ignorePaint", "");
+	    ((Control) e.widget).redraw();
+	}
+
+	public void keyPressed(KeyEvent e) {
+		if(e.keyCode == '*') {
+			// zoom in
+			e.doit = false;
+			if(font == null) {
+				font = ((Control) e.widget).getFont().getFontData()[0];
+				fontSize = font.getHeight();
+			}
+			font.setHeight((int) (fontSize *= 1.25f));
+			textIn.setFont(new Font(display, font));
+			textOut.setFont(new Font(display, font));
+			return;
+		}
+		if(e.keyCode == '#') {
+			// zoom out
+			e.doit = false;
+			if(font == null) {
+				font = ((Control) e.widget).getFont().getFontData()[0];
+				fontSize = font.getHeight();
+			}
+			font.setHeight((int) (fontSize *= 0.75f));
+			font.setHeight((int) fontSize);
+			textIn.setFont(new Font(display, font));
+			textOut.setFont(new Font(display, font));
+			return;
+		}
+		((Control) e.widget).redraw();
+	}
+
+	public void keyReleased(KeyEvent arg0) {
 	}
 
 	private void fill(Control c) {
