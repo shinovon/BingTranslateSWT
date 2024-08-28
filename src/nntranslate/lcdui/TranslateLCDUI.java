@@ -97,9 +97,9 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 		updateLangs();
 		
 		translateThread.start();
-		translateThread.setEngine(Languages.getCurrentEngine());
-		translateThread.setInstance(Languages.getInstance());
-		translateThread.setProxy(Languages.getProxy());
+		translateThread.setEngine(Languages.engine);
+		translateThread.setInstance(Languages.instance);
+		translateThread.setProxy(Languages.proxyUrl);
 		if(Languages.needDownload()) {
 			translateThread.setDownload();
 			translateThread.now();
@@ -217,7 +217,7 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 				settingsForm.setCommandListener(this);
 				
 				String[] engines = Languages.engines;
-				String curEngine = Languages.getCurrentEngine();
+				String curEngine = Languages.engine;
 				engineChoice = new ChoiceGroup("Translate engine", Choice.POPUP, engines, null);
 				for(int i = 0; i < engines.length; i++) {
 					if(engines[i].equalsIgnoreCase(curEngine)) {
@@ -227,10 +227,10 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 				}
 				settingsForm.append(engineChoice);
 				
-				instanceField = new TextField("Instance", Languages.getInstance(), 100, TextField.ANY);
+				instanceField = new TextField("Instance", Languages.instance, 100, TextField.ANY);
 				settingsForm.append(instanceField);
 				
-				proxyField = new TextField("Proxy URL", Languages.getProxy(), 100, TextField.ANY);
+				proxyField = new TextField("Proxy URL", Languages.proxyUrl, 100, TextField.ANY);
 				settingsForm.append(proxyField);
 			}
 			display.setCurrent(settingsForm);
@@ -288,11 +288,11 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 				String inst = instanceField.getString();
 				String proxy = proxyField.getString();
 				
-				if(!inst.equals(Languages.getInstance())) {
-					Languages.setInstance(inst);
+				if(!inst.equals(Languages.instance)) {
+					Languages.instance = inst;
 				    Languages.deleteAllLangs();
 					Languages.setCurrentEngine(engine);
-					Languages.setProxy(proxy);
+					Languages.proxyUrl = proxy;
 					translateThread.setInstance(inst);
 					translateThread.setEngine(engine);
 					translateThread.setProxy(proxy);
@@ -301,7 +301,7 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 				} else {
 					Languages.setSelected(listLangIn.getSelectedIndex(), listLangOut.getSelectedIndex());
 					Languages.setCurrentEngine(engine);
-					Languages.setProxy(proxy);
+					Languages.proxyUrl = proxy;
 					translateThread.setEngine(engine);
 					translateThread.setProxy(proxy);
 					if(Languages.needDownload()) {
@@ -432,12 +432,12 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 		mainForm.setTicker(new Ticker("Listening.."));
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			String url = "https://" + Languages.getInstance() + "/api/tts/?engine="
+			String url = "https://" + Languages.instance + "/api/tts/?engine="
 			//+ Languages.getCurrentEngine()
 					+ "google"
 			+ "&lang=" + lang + "&text=" + Util.encodeURL(s);
-			if(Languages.getProxy() != null && Languages.getProxy().length() > 0) {
-				url = Languages.getProxy() + Util.encodeURL(url);
+			if(Languages.proxyUrl != null && Languages.proxyUrl.length() > 0) {
+				url = Languages.proxyUrl + Util.encodeURL(url);
 			}
 			HttpConnection hc = (HttpConnection) Connector.open(url);
 			hc.setRequestMethod("GET");

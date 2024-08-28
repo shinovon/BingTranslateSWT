@@ -276,7 +276,8 @@ public class TranslateSWTUI
 	MenuItem engineMenuItem;
 	MenuItem[] menuEngines;
 	MenuItem instMenuItem;
-	MenuItem proxyMenuItem;
+	MenuItem proxyUrlMenuItem;
+	MenuItem useProxyMenuItem;
 	MenuItem reverseMenuItem;
 	MenuItem uiMenuItem;
 	MenuItem fontMenuItem;
@@ -506,13 +507,12 @@ public class TranslateSWTUI
 		if(ev.widget == instMenuItem) {
 			QueryDialog dialog = new QueryDialog(shell, SWT.NONE,
 					QueryDialog.STANDARD);
-			dialog.setPromptText("Instance:", Languages.getInstance());
+			dialog.setPromptText("Instance:", Languages.instance);
 			String s = dialog.open();
 			if (s == null) {
 				return;
 			}
-			Languages.setInstance(s);
-			translateThread.setInstance(s);
+			translateThread.setInstance(Languages.instance = s);
 		    Languages.save();
 		    Languages.deleteAllLangs();
 			translateThread.setDownload();
@@ -542,18 +542,17 @@ public class TranslateSWTUI
 			reinit(-1);
 			return;
 		}
-		if(ev.widget == proxyMenuItem) {
+		if(ev.widget == proxyUrlMenuItem) {
 			QueryDialog dialog = new QueryDialog(shell, SWT.NONE,
 					QueryDialog.STANDARD);
-			String s = Languages.getProxy();
+			String s = Languages.proxyUrl;
 			if(s == null) s = "";
 			dialog.setPromptText("Proxy URL:", s);
 			s = dialog.open();
 			if (s == null) {
 				return;
 			}
-			Languages.setProxy(s);
-			translateThread.setProxy(s);
+			translateThread.setProxy(Languages.proxyUrl = s);
 		    Languages.save();
 			return;
 		}
@@ -596,12 +595,12 @@ public class TranslateSWTUI
 		ttstask.setVisible(true);
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			String url = "https://" + Languages.getInstance() + "/api/tts/?engine="
+			String url = "https://" + Languages.instance + "/api/tts/?engine="
 			//+ Languages.getCurrentEngine()
 					+ "google"
 			+ "&lang=" + lang + "&text=" + Util.encodeURL(s);
-			if(Languages.getProxy() != null && Languages.getProxy().length() > 0) {
-				url = Languages.getProxy() + Util.encodeURL(url);
+			if(Languages.useProxy && Languages.proxyUrl != null && Languages.proxyUrl.length() > 0) {
+				url = Languages.proxyUrl + Util.encodeURL(url);
 			}
 			HttpConnection hc = (HttpConnection) Connector.open(url);
 			hc.setRequestMethod("GET");
@@ -689,9 +688,9 @@ public class TranslateSWTUI
 		}
 		display = new Display();
 		translateThread.start();
-		translateThread.setEngine(Languages.getCurrentEngine());
-		translateThread.setInstance(Languages.getInstance());
-		translateThread.setProxy(Languages.getProxy());
+		translateThread.setEngine(Languages.engine);
+		translateThread.setInstance(Languages.instance);
+		translateThread.setProxy(Languages.proxyUrl);
 		if(Languages.needDownload()) {
 			translateThread.setDownload();
 			translateThread.now();
@@ -769,9 +768,14 @@ public class TranslateSWTUI
 		instMenuItem.setText("Set ST Instance");
 		instMenuItem.addSelectionListener(this);
 		
-		proxyMenuItem = new MenuItem(setsMenu, SWT.PUSH);
-		proxyMenuItem.setText("Set proxy");
-		proxyMenuItem.addSelectionListener(this);
+		proxyUrlMenuItem = new MenuItem(setsMenu, SWT.PUSH);
+		proxyUrlMenuItem.setText("Set proxy URL");
+		proxyUrlMenuItem.addSelectionListener(this);
+
+		useProxyMenuItem = new MenuItem(setsMenu, SWT.CHECK);
+		useProxyMenuItem.addSelectionListener(this);
+		useProxyMenuItem.setText("Use proxy");
+		useProxyMenuItem.setSelection(Languages.useProxy);
 		
 		clearLangsMenuItem = new MenuItem(setsMenu, SWT.PUSH);
 		clearLangsMenuItem.setText("Refresh languages");
@@ -811,7 +815,7 @@ public class TranslateSWTUI
 		MenuItem i = new MenuItem(m, SWT.RADIO);
 		i.addSelectionListener(this);
 		i.setText(s);
-		i.setSelection(Languages.getCurrentEngine().equalsIgnoreCase(s));
+		i.setSelection(s.equalsIgnoreCase(Languages.engine));
 		return i;
 	}
 

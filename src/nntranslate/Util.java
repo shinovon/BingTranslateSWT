@@ -73,7 +73,7 @@ public final class Util {
 
 	private static ContentConnection open(String url) throws IOException {
 		ContentConnection con = (ContentConnection) Connector.open(url);
-//		if (con instanceof HttpConnection) ((HttpConnection) con).setRequestProperty("User-Agent", "Mozilla/5.0");
+		((HttpConnection) con).setRequestProperty("User-Agent", "Mozilla/5.0");
 		return con;
 	}
 	

@@ -23,16 +23,14 @@ public class Languages {
 	private static String[] lastFrom;
 	private static String[] lastTo;
 	
-	private static String currentEngine = "google";
+	public static String engine = "google";
 
-	private static String instance = "simplytranslate.org";
+	public static String instance = "simplytranslate.org";
 
-	private static String proxy = "http://nnp.nnchan.ru/glype/browse.php?u=";
+	public static String proxyUrl = "http://nnp.nnchan.ru/glype/browse.php?u=";
+	public static boolean useProxy = true;
 
 	private static String[] langNames;
-
-	static {
-	}
 	
 	public static void save() {
 		try {
@@ -40,7 +38,13 @@ public class Languages {
 		} catch (Exception e) {
 		}
 		try {
-			String s = currentEngine + "," + lastFrom[0] + "," + lastTo[0] + "," + instance + "," + proxy;
+			String s = engine + "," +
+				lastFrom[0] + "," +
+				lastTo[0] + "," +
+				instance + "," +
+				proxyUrl + "," +
+				useProxy + ","
+			;
 			RecordStore r = RecordStore.openRecordStore("gtsl", true);
 			byte[] b = s.getBytes("UTF-8");
 			r.addRecord(b, 0, b.length);
@@ -85,11 +89,12 @@ public class Languages {
 			String t = new String(r.getRecord(1), "UTF-8");
 			r.closeRecordStore();
 			String[] a = Util.split(t, ',');
-			currentEngine = a[0];
+			engine = a[0];
 			lastFrom = new String[] { a[1], null };
 			lastTo = new String[] { a[2], null };
 			instance = a[3];
-			proxy = a[4];
+			proxyUrl = a[4];
+			useProxy = a.length < 6 || a[5].equals("true");
 			loadCachedLangs();
 			updateLangs();
 			getFromIndex();
@@ -108,13 +113,9 @@ public class Languages {
 	public static String[] getLangFromIndex(int from) {
 		return langs[from];
 	}
-
-	public static String getCurrentEngine() {
-		return currentEngine;
-	}
 	
 	public static void setCurrentEngine(String e) {
-		currentEngine = e;
+		engine = e;
 		if(!needDownload()) {
 			loadCachedLangs();
 			updateLangs();
@@ -127,7 +128,7 @@ public class Languages {
 	
 	public static boolean needDownload() {
 		try {
-			RecordStore r = RecordStore.openRecordStore("gt_"+currentEngine, false);
+			RecordStore r = RecordStore.openRecordStore("gt_"+engine, false);
 			r.closeRecordStore();
 			return false;
 		} catch (Exception e) {
@@ -137,7 +138,7 @@ public class Languages {
 
 	private static void loadCachedLangs() {
 		try {
-			RecordStore r = RecordStore.openRecordStore("gt_"+currentEngine, false);
+			RecordStore r = RecordStore.openRecordStore("gt_"+engine, false);
 			String t = new String(r.getRecord(1), "UTF-8");
 			r.closeRecordStore();
 			String[] a = Util.split(t, ';');
@@ -153,7 +154,7 @@ public class Languages {
 
 	private static void saveLangs() {
 		try {
-			RecordStore.deleteRecordStore("gt_"+currentEngine);
+			RecordStore.deleteRecordStore("gt_"+engine);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -163,7 +164,7 @@ public class Languages {
 				s += langs[i][0] + "," + langs[i][1];
 				if(i != langs.length - 1) s += ";";
 			}
-			RecordStore r = RecordStore.openRecordStore("gt_"+currentEngine, true);
+			RecordStore r = RecordStore.openRecordStore("gt_"+engine, true);
 			byte[] b = s.getBytes("UTF-8");
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();
@@ -204,22 +205,6 @@ public class Languages {
 		updateLangs();
 		saveLangs();
 		save();
-	}
-
-	public static String getInstance() {
-		return instance;
-	}
-
-	public static String getProxy() {
-		return proxy;
-	}
-
-	public static void setInstance(String s) {
-		instance = s;
-	}
-
-	public static void setProxy(String s) {
-		proxy = s;
 	}
 	
 	public static void deleteAllLangs() {

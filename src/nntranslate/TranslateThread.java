@@ -94,7 +94,7 @@ public class TranslateThread extends Thread {
 	protected void action() {
 		if(d) {
 			d = false;
-			engine = Languages.getCurrentEngine();
+			engine = Languages.engine;
 			ui.setDownloading(true);
 			try {
 				ui.setLanguages(getTargetLanguages(engine));
@@ -148,7 +148,7 @@ public class TranslateThread extends Thread {
 		} else {
 			String req = "https://" + instance + "/api/translate/?engine="+engine+"&from=" + from + "&to=" + to + "&text=" + Util.encodeURL(s);
 			//System.out.println(req);
-			if(proxy != null && proxy.length() > 0) {
+			if(Languages.useProxy && proxy != null && proxy.length() > 0) {
 				req = proxy + Util.encodeURL(req);
 			}
 		    try {
