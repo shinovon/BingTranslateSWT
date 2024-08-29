@@ -504,6 +504,11 @@ public class TranslateSWTUI
 			reinit(-1);
 			return;
 		}
+		if (ev.widget == useProxyMenuItem) {
+			Languages.useProxy = useProxyMenuItem.getSelection();
+			saveSets();
+			return;
+		}
 		if(ev.widget == instMenuItem) {
 			QueryDialog dialog = new QueryDialog(shell, SWT.NONE,
 					QueryDialog.STANDARD);
