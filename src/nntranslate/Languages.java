@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Arman Jussupgaliyev
+ * Copyright (c) 2021-2026 Arman Jussupgaliyev
  */
 package nntranslate;
 
@@ -9,10 +9,8 @@ public class Languages {
 	
 	public static final String[] engines = new String[] {
 			"Google",
-			"Deepl",
-			"Reverso",
-			"Libre",
-			"Bing"
+			"iCIBA",
+			"Reverso"
 	};
 
 	private static String[][] langs = new String[][] {
@@ -25,7 +23,7 @@ public class Languages {
 	
 	public static String engine = "google";
 
-	public static String instance = "simplytranslate.org";
+	public static String instance = "https://simplytranslate.org";
 
 	public static String proxyUrl = "http://nnproject.cc/hproxy.php?";
 	public static boolean useProxy = true;

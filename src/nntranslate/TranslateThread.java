@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Arman Jussupgaliyev
+ * Copyright (c) 2021-2026 Arman Jussupgaliyev
  */
 package nntranslate;
 
@@ -124,51 +124,28 @@ public class TranslateThread extends Thread {
 		//ui.setText("Loading..");
 		String from = ui.getFromLang();
 		String to = ui.getToLang();
-		if(engine.equals("bing")) {
-			String req = "http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=037C394ED1EA70440C3B5E07FA0A6A837DCE47A9&from=" + from + "&to=" + to + "&text=" + Util.encodeURL(s);
-//			if(proxy != null && proxy.length() > 0) {
-//				req = proxy + Util.encodeURL(req);
-//			}
-			try {
-				String r = Util.get(req);
-				if(r.length() >= 3 && r.charAt(1) == '"' && r.charAt(r.length() - 1) == '"')
-					r = r.substring(2, r.length() - 1);
-				else if(r.length() >= 2 && r.charAt(0) == '"' && r.charAt(r.length() - 1) == '"')
-					r = r.substring(1, r.length() - 1);
-				r = Util.replace(r, "\\u2029", "\n");
-				r = Util.replace(r, "\\n", "\n");
-				r = Util.cut(r, "\\r");
-				ui.setText(lastTranslated = r);
-				ui.sync();
-			} catch (Throwable e) {
-				ui.setText("Error!");
-				ui.sync();
-				ui.msg("Translation failed\n" + e.toString());
-			}
-		} else {
-			String req = "https://" + instance + "/api/translate/?engine="+engine+"&from=" + from + "&to=" + to + "&text=" + Util.encodeURL(s);
-			//System.out.println(req);
-			if(Languages.useProxy && proxy != null && proxy.length() > 0) {
-				req = proxy + Util.encodeURL(req);
-			}
-		    try {
-				String r = Util.get(req);
-				if(r.startsWith("{")) {
-					JSONObject j = JSON.getObject(r);
-					if(j.has("translated-text")) {
-						r = j.getString("translated-text");
-					} else {
-						r = j.getString("translated_text");
-					}
+		String req = instance + "/api/translate/?engine="+engine+"&from=" + from + "&to=" + to + "&text=" + Util.encodeURL(s);
+		//System.out.println(req);
+		if(Languages.useProxy && proxy != null && proxy.length() > 0) {
+			req = proxy + Util.encodeURL(req);
+		}
+	    try {
+			String r = Util.get(req);
+			if(r.startsWith("{")) {
+				JSONObject j = JSON.getObject(r);
+				if(j.has("translated-text")) {
+					r = j.getString("translated-text");
+				} else {
+					r = j.getString("translated_text");
 				}
-				lastTranslated = r;
-				ui.setText(r);
-				ui.sync();
-			} catch (Throwable e) {
-				ui.setText("Error!");
-				ui.sync();
-				ui.msg("Translation failed\n" + e.toString());
 			}
+			lastTranslated = r;
+			ui.setText(r);
+			ui.sync();
+		} catch (Throwable e) {
+			ui.setText("Error!");
+			ui.sync();
+			ui.msg("Translation failed\n" + e.toString());
 		}
 		ui.setTranslating(false);
 	    Languages.save();
