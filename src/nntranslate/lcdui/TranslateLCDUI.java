@@ -256,7 +256,7 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 			s = new StringItem("Developed by", "shinovon");
 			s.setLayout(Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_LEFT);
 			f.append(s);
-			s = new StringItem("Web", "nnp.nnchan.ru", Item.HYPERLINK);
+			s = new StringItem("Web", "nnproject.cc", Item.HYPERLINK);
 			s.setLayout(Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_LEFT);
 			s.setDefaultCommand(hyperlinkCmd);
 			s.setItemCommandListener(this);

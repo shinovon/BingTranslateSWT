@@ -27,7 +27,7 @@ public class Languages {
 
 	public static String instance = "simplytranslate.org";
 
-	public static String proxyUrl = "http://nnp.nnchan.ru/glype/browse.php?u=";
+	public static String proxyUrl = "http://nnproject.cc/hproxy.php?";
 	public static boolean useProxy = true;
 
 	private static String[] langNames;
