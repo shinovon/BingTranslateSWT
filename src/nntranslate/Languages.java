@@ -137,13 +137,16 @@ public class Languages {
 	private static void loadCachedLangs() {
 		try {
 			RecordStore r = RecordStore.openRecordStore("gt_"+engine, false);
-			String t = new String(r.getRecord(1), "UTF-8");
-			r.closeRecordStore();
-			String[] a = Util.split(t, ';');
-			langs = new String[a.length][2];
-			for(int i = 0; i < a.length; i++) {
-				if(a[i].length() == 0) continue;
-				langs[i] = Util.split(a[i], ',');
+			try {
+				String t = new String(r.getRecord(1), "UTF-8");
+				String[] a = Util.split(t, ';');
+				langs = new String[a.length][2];
+				for(int i = 0; i < a.length; i++) {
+					if(a[i].length() == 0) continue;
+					langs[i] = Util.split(a[i], ',');
+				}
+			} finally {
+				r.closeRecordStore();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

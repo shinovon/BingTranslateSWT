@@ -71,6 +71,7 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	private ChoiceGroup engineChoice;
 	private TextField instanceField;
 	private TextField proxyField;
+	private ChoiceGroup proxyChoice;
 	
 	public TranslateLCDUI() {
 		new Thread(this).start();
@@ -232,6 +233,10 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 				
 				proxyField = new TextField("Proxy URL", Languages.proxyUrl, 100, TextField.ANY);
 				settingsForm.append(proxyField);
+				
+				proxyChoice = new ChoiceGroup("", ChoiceGroup.MULTIPLE, new String[] {"Use proxy"}, null);
+				proxyChoice.setSelectedIndex(0, Languages.useProxy);
+				settingsForm.append(proxyChoice);
 			}
 			display.setCurrent(settingsForm);
 			return;
@@ -287,6 +292,7 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 				String engine = Languages.engines[engineChoice.getSelectedIndex()].toLowerCase();
 				String inst = instanceField.getString();
 				String proxy = proxyField.getString();
+				Languages.useProxy = proxyChoice.isSelected(0);
 				
 				if(!inst.equals(Languages.instance)) {
 					Languages.instance = inst;

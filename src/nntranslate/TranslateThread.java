@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import cc.nnproject.json.JSON;
 import cc.nnproject.json.JSONObject;
 
 public class TranslateThread extends Thread {
@@ -132,7 +131,7 @@ public class TranslateThread extends Thread {
 	    try {
 			String r = Util.get(req);
 			if(r.startsWith("{")) {
-				JSONObject j = JSON.getObject(r);
+				JSONObject j = JSONObject.parseObject(r);
 				if(j.has("translated-text")) {
 					r = j.getString("translated-text");
 				} else {
@@ -166,21 +165,21 @@ public class TranslateThread extends Thread {
 		}
 	}
 	*/
-	public String[][] getTargetLanguages(String en) throws IOException {
+	public String[][] getTargetLanguages(String en) throws Exception {
 		if(en == null) {
 			en = engine;
 		}
 		if(en.equals("bing")) {
 			return BingLanguages.SUPPORTED_LANGUAGES;
 		} else {
-			String req = "https://" + instance + "/api/target_languages/?engine="+engine;
-			if(proxy != null && proxy.length() > 0) {
+			String req = instance + "/api/target_languages/?engine="+engine;
+			if(Languages.useProxy && proxy != null && proxy.length() > 0) {
 				req = proxy + Util.encodeURL(req);
 			}
 			String r = Util.get(req);
 			if(r.indexOf("Not Found") != -1) {
-				req = "https://" + instance + "/api/get_languages/?engine="+engine;
-				if(proxy != null && proxy.length() > 0) {
+				req = instance + "/api/get_languages/?engine="+engine;
+				if(Languages.useProxy && proxy != null && proxy.length() > 0) {
 					req = proxy + Util.encodeURL(req);
 				}
 				r = Util.get(req);
@@ -189,12 +188,12 @@ public class TranslateThread extends Thread {
 		}
 	}
 	
-	private String[][] parseLanguages(String s) {
+	private String[][] parseLanguages(String s) throws Exception {
 		s = s.trim();
 		String[][] bing = BingLanguages.SUPPORTED_LANGUAGES;
 		//System.out.println(s);
 		if(s.startsWith("{")) {
-			JSONObject r = JSON.getObject(s);
+			JSONObject r = JSONObject.parseObject(s);
 			int l = r.size();
 			String[][] res = new String[l][2];
 			int i = 0;
@@ -211,6 +210,9 @@ public class TranslateThread extends Thread {
 			}
 			
 			return res;
+		}
+		if (s.length() == 0) {
+			throw new Exception("Empty response");
 		}
 		Vector v = new Vector();
 		String[] sr = Util.split(Util.cut(s, "\r"), '\n');
