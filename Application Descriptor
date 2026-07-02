@@ -7,7 +7,7 @@ MIDlet-Name: Translate
 Nokia-Scalable-Icon: /icon.svg
 MIDlet-Vendor: nnproject
 MIDlet-Icon: /icon.png
-MIDlet-1: Translate,/icon.png,nntranslate.v2.TranslateMIDlet
+MIDlet-1: Translate,/icon.png,Translate
 MicroEdition-Profile: MIDP-2.0
 MIDlet-Jar-URL: Translate.jar
 Nokia-Scalable-Icon-MIDlet-1: /icon.svg

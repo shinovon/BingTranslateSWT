@@ -1,9 +1,8 @@
 /*
  * Copyright (c) 2021-2026 Arman Jussupgaliyev
  */
-package nntranslate;
 
-import java.io.IOException;
+
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -11,7 +10,6 @@ import cc.nnproject.json.JSONObject;
 
 public class TranslateThread extends Thread {
 	
-
 	protected ITranslateUI ui;
 	protected boolean r;
 	private boolean b;
@@ -26,9 +24,9 @@ public class TranslateThread extends Thread {
 
 	public final void run() {
 		try {
-			while(ui.running()) {
-				if(b) {
-					if(i > 0) i--;
+			while (ui.running()) {
+				if (b) {
+					if (i > 0) i--;
 					else {
 						action();
 						b = false;
@@ -91,9 +89,9 @@ public class TranslateThread extends Thread {
 	}
 
 	protected void action() {
-		if(d) {
+		if (d) {
 			d = false;
-			engine = Languages.engine;
+			engine = Translate.engine;
 			ui.setDownloading(true);
 			try {
 				ui.setLanguages(getTargetLanguages(engine));
@@ -106,16 +104,16 @@ public class TranslateThread extends Thread {
 			return;
 		}
 		String s = ui.getText();
-		if(r && lastInput != null && lastInput.equals(s)) {
+		if (r && lastInput != null && lastInput.equals(s)) {
 			r = false;
-			if(lastTranslated != null) ui.setText(lastTranslated);
+			if (lastTranslated != null) ui.setText(lastTranslated);
 			return;
 		}
-		if(lastInput != null && lastInput.equals(s) && lastTranslated != null) return;
+		if (lastInput != null && lastInput.equals(s) && lastTranslated != null) return;
 		lastInput = s;
 		ui.sync();
-		if(s == null || s.length() < 2) return;
-		if(engine == null) {
+		if (s == null || s.length() < 2) return;
+		if (engine == null) {
 			ui.setText("No engine set!");
 			return;
 		}
@@ -123,16 +121,16 @@ public class TranslateThread extends Thread {
 		//ui.setText("Loading..");
 		String from = ui.getFromLang();
 		String to = ui.getToLang();
-		String req = instance + "/api/translate/?engine="+engine+"&from=" + from + "&to=" + to + "&text=" + Util.encodeURL(s);
+		String req = instance + "/api/translate/?engine="+engine+"&from=" + from + "&to=" + to + "&text=" + Translate.encodeURL(s);
 		//System.out.println(req);
-		if(Languages.useProxy && proxy != null && proxy.length() > 0) {
-			req = proxy + Util.encodeURL(req);
+		if (Translate.useProxy && proxy != null && proxy.length() > 0) {
+			req = proxy + Translate.encodeURL(req);
 		}
 	    try {
-			String r = Util.get(req);
-			if(r.startsWith("{")) {
+			String r = Translate.get(req);
+			if (r.startsWith("{")) {
 				JSONObject j = JSONObject.parseObject(r);
-				if(j.has("translated-text")) {
+				if (j.has("translated-text")) {
 					r = j.getString("translated-text");
 				} else {
 					r = j.getString("translated_text");
@@ -147,18 +145,18 @@ public class TranslateThread extends Thread {
 			ui.msg("Translation failed\n" + e.toString());
 		}
 		ui.setTranslating(false);
-	    Languages.save();
+		Translate.save();
 	}
 	/*
 	public String[][] getSourceLanguages(String en) throws IOException {
-		if(en == null) {
+		if (en == null) {
 			en = engine;
 		}
-		if(en.equals("bing")) {
+		if (en.equals("bing")) {
 			return BingLanguages.SUPPORTED_LANGUAGES;
 		} else {
 			String req = "https://" + instance + "/api/source_languages/?engine="+engine;
-			if(proxy != null && proxy.length() > 0) {
+			if (proxy != null && proxy.length() > 0) {
 				req = proxy + Util.encodeURL(req);
 			}
 			return parseLanguages(Util.get(req));
@@ -166,23 +164,23 @@ public class TranslateThread extends Thread {
 	}
 	*/
 	public String[][] getTargetLanguages(String en) throws Exception {
-		if(en == null) {
+		if (en == null) {
 			en = engine;
 		}
-		if(en.equals("bing")) {
-			return BingLanguages.SUPPORTED_LANGUAGES;
+		if (en.equals("bing")) {
+			return Translate.LANGUAGES;
 		} else {
 			String req = instance + "/api/target_languages/?engine="+engine;
-			if(Languages.useProxy && proxy != null && proxy.length() > 0) {
-				req = proxy + Util.encodeURL(req);
+			if (Translate.useProxy && proxy != null && proxy.length() > 0) {
+				req = proxy + Translate.encodeURL(req);
 			}
-			String r = Util.get(req);
-			if(r.indexOf("Not Found") != -1) {
+			String r = Translate.get(req);
+			if (r.indexOf("Not Found") != -1) {
 				req = instance + "/api/get_languages/?engine="+engine;
-				if(Languages.useProxy && proxy != null && proxy.length() > 0) {
-					req = proxy + Util.encodeURL(req);
+				if (Translate.useProxy && proxy != null && proxy.length() > 0) {
+					req = proxy + Translate.encodeURL(req);
 				}
-				r = Util.get(req);
+				r = Translate.get(req);
 			}
 			return parseLanguages(r);
 		}
@@ -190,18 +188,18 @@ public class TranslateThread extends Thread {
 	
 	private String[][] parseLanguages(String s) throws Exception {
 		s = s.trim();
-		String[][] bing = BingLanguages.SUPPORTED_LANGUAGES;
+		String[][] bing = Translate.LANGUAGES;
 		//System.out.println(s);
-		if(s.startsWith("{")) {
+		if (s.startsWith("{")) {
 			JSONObject r = JSONObject.parseObject(s);
 			int l = r.size();
 			String[][] res = new String[l][2];
 			int i = 0;
-			for(Enumeration en = r.keys(); en.hasMoreElements(); ) {
+			for (Enumeration en = r.keys(); en.hasMoreElements(); ) {
 				String k = (String)en.nextElement();
 				String n = r.getString(k);
-				for(int j = 0; j < bing.length; j++) {
-					if(bing[j][0].equalsIgnoreCase(k)) {
+				for (int j = 0; j < bing.length; j++) {
+					if (bing[j][0].equalsIgnoreCase(k)) {
 						n = bing[j][1];
 						break;
 					}
@@ -215,22 +213,22 @@ public class TranslateThread extends Thread {
 			throw new Exception("Empty response");
 		}
 		Vector v = new Vector();
-		String[] sr = Util.split(Util.cut(s, "\r"), '\n');
-		for(int i = 0; i < sr.length; i++) {
+		String[] sr = Translate.split(Translate.cut(s, "\r"), '\n');
+		for (int i = 0; i < sr.length; i++) {
 			//System.out.println(sr[i]);
-			if(sr[i].length() == 0) continue;
-			if(sr[i].indexOf("<script") != -1) {
-				if(sr[i].indexOf("</script>") == -1) continue;
-				while(sr[i].indexOf("</script>") != -1) {
+			if (sr[i].length() == 0) continue;
+			if (sr[i].indexOf("<script") != -1) {
+				if (sr[i].indexOf("</script>") == -1) continue;
+				while (sr[i].indexOf("</script>") != -1) {
 					sr[i] = sr[i].substring(sr[i].indexOf("</script>")+9);
 				}
 				//System.out.println("R: " + sr[i]);
-				if(sr[i].length() == 0) continue;
+				if (sr[i].length() == 0) continue;
 			}
 			String n = sr[i];
 			String l = sr[i+1];
-			for(int j = 0; j < bing.length; j++) {
-				if(bing[j][0].equalsIgnoreCase(l)) {
+			for (int j = 0; j < bing.length; j++) {
+				if (bing[j][0].equalsIgnoreCase(l)) {
 					n = bing[j][1];
 					break;
 				}
@@ -242,7 +240,7 @@ public class TranslateThread extends Thread {
 		v.copyInto(vv);
 		String[][] res = new String[vv.length][2];
 		v = null;
-		for(int i = 0; i < vv.length; i++) {
+		for (int i = 0; i < vv.length; i++) {
 			res[i] = (String[]) vv[i];
 		}
 		return res;

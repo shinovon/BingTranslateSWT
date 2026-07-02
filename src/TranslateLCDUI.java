@@ -1,14 +1,12 @@
 /*
- * Copyright (c) 2021-2024 Arman Jussupgaliyev
+ * Copyright (c) 2021-2026 Arman Jussupgaliyev
  */
-package nntranslate.lcdui;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 import javax.microedition.lcdui.*;
 import javax.microedition.media.Manager;
@@ -16,13 +14,9 @@ import javax.microedition.media.Player;
 import javax.microedition.media.PlayerListener;
 import javax.microedition.media.control.VolumeControl;
 
+//#ifndef NO_NOKIAUI
 import com.nokia.mid.ui.Clipboard;
-
-import nntranslate.ITranslateUI;
-import nntranslate.Languages;
-import nntranslate.v2.TranslateMIDlet;
-import nntranslate.TranslateThread;
-import nntranslate.Util;
+//#endif
 
 public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, ItemCommandListener, ItemStateListener, PlayerListener {
 
@@ -40,8 +34,10 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	private static final Command setLangOutCmd = new Command("Change", Command.OK, 1);
 	
 	private static final Command ttsCmd = new Command("Listen", Command.ITEM, 4);
+//#ifndef NO_NOKIAUI
 	private static final Command copyCmd = new Command("Copy", Command.ITEM, 2);
 	private static final Command pasteCmd = new Command("Paste", Command.ITEM, 3);
+//#endif
 	
 	private static final Command listDoneCmd = new Command("Done", Command.OK, 1);
 	
@@ -49,7 +45,9 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	
 	private static final Command hyperlinkCmd = new Command("Open", Command.ITEM, 2);
 	
+//#ifndef NO_NOKIAUI
 	private static boolean clipboard;
+//#endif
 
 	private TranslateThread translateThread = new TranslateThread(this);
 
@@ -78,15 +76,17 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	}
 
 	public void run() {
-		display = Display.getDisplay(TranslateMIDlet.midlet);
-		
+		display = Display.getDisplay(Translate.midlet);
+
+//#ifndef NO_NOKIAUI
 		clipboard = false;
 		try {
-			if(System.getProperty("com.nokia.mid.ui.version") != null) {
+			if (System.getProperty("com.nokia.mid.ui.version") != null) {
 				Class.forName("com.nokia.mid.ui.Clipboard");
 				clipboard = true;
 			}
-		} catch (Throwable e) {}
+		} catch (Throwable ignored) {}
+//#endif
 		
 		listLangIn = new List("Input language", List.EXCLUSIVE);
 		listLangOut = new List("Output language", List.EXCLUSIVE);
@@ -98,10 +98,10 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 		updateLangs();
 		
 		translateThread.start();
-		translateThread.setEngine(Languages.engine);
-		translateThread.setInstance(Languages.instance);
-		translateThread.setProxy(Languages.proxyUrl);
-		if(Languages.needDownload()) {
+		translateThread.setEngine(Translate.engine);
+		translateThread.setInstance(Translate.instance);
+		translateThread.setProxy(Translate.proxyUrl);
+		if (Translate.needDownload()) {
 			translateThread.setDownload();
 			translateThread.now();
 		}
@@ -119,25 +119,29 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 		mainForm.append(inField = new TextField("Input", "", 500, TextField.ANY));
 		inField.setItemCommandListener(this);
 		inField.addCommand(ttsCmd);
-		if(clipboard) {
+//#ifndef NO_NOKIAUI
+		if (clipboard) {
 			inField.addCommand(copyCmd);
 			inField.addCommand(pasteCmd);
 		}
+//#endif
 		
 		mainForm.append(outField = new TextField("Output", "", 500, TextField.ANY | TextField.UNEDITABLE));
 		outField.setItemCommandListener(this);
 		outField.addCommand(ttsCmd);
-		if(clipboard) {
+//#ifndef NO_NOKIAUI
+		if (clipboard) {
 			outField.addCommand(copyCmd);
 		}
+//#endif
 		
 		mainForm.append(setLangInBtn = new StringItem("", "", StringItem.BUTTON));
-		setLangInBtn.setText("In: " + Languages.getLangFromIndex(listLangIn.getSelectedIndex())[1]);
+		setLangInBtn.setText("In: " + Translate.langs[listLangIn.getSelectedIndex()][1]);
 		setLangInBtn.setLayout(Item.LAYOUT_EXPAND | Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_NEWLINE_BEFORE);
 		setLangInBtn.setDefaultCommand(setLangInCmd);
 		setLangInBtn.setItemCommandListener(this);
 		mainForm.append(setLangOutBtn = new StringItem("", "", StringItem.BUTTON));
-		setLangOutBtn.setText("Out: " + Languages.getLangFromIndex(listLangOut.getSelectedIndex())[1]);
+		setLangOutBtn.setText("Out: " + Translate.langs[listLangOut.getSelectedIndex()][1]);
 		setLangOutBtn.setLayout(Item.LAYOUT_EXPAND | Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_NEWLINE_BEFORE);
 		setLangOutBtn.setDefaultCommand(setLangOutCmd);
 		setLangOutBtn.setItemCommandListener(this);
@@ -145,7 +149,7 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	}
 
 	public String getText() {
-		if(inputText == null) {
+		if (inputText == null) {
 			inputText = inField.getString();
 		}
 		return inputText;
@@ -180,80 +184,87 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	public void exit() {
 		exiting = true;
 		translateThread.interrupt();
-		TranslateMIDlet.midlet.notifyDestroyed();
+		Translate.midlet.notifyDestroyed();
 	}
 
 	public void itemStateChanged(Item item) {
-		if(item == inField) {
+		if (item == inField) {
 			inputText = inField.getString();
-			if(inputText.trim().length() == 0)
+			if (inputText.trim().length() == 0)
 				return;
 			translateThread.schedule();
 		}
 	}
 
 	public void commandAction(Command c, Displayable d) {
-		if(c == translateCmd) {
+		if (c == translateCmd) {
 			inputText = inField.getString();
 			translateThread.now();
 			return;
 		}
-		if(c == listDoneCmd) {
-			Languages.setSelected(listLangIn.getSelectedIndex(), listLangOut.getSelectedIndex());
-			from = Languages.getLangFromIndex(Languages.getFromIndex())[0];
-			to = Languages.getLangFromIndex(Languages.getToIndex())[0];
-			setLangInBtn.setText("In: " + Languages.getLangFromIndex(Languages.getFromIndex())[1]);
-			setLangOutBtn.setText("Out: " + Languages.getLangFromIndex(Languages.getToIndex())[1]);
+		if (c == listDoneCmd) {
+			Translate.setSelected(listLangIn.getSelectedIndex(), listLangOut.getSelectedIndex());
+			from = Translate.langs[Translate.getFromIndex()][0];
+			to = Translate.langs[Translate.getToIndex()][0];
+			setLangInBtn.setText("In: " + Translate.langs[Translate.getFromIndex()][1]);
+			setLangOutBtn.setText("Out: " + Translate.langs[Translate.getToIndex()][1]);
 			display.setCurrent(mainForm);
 			return;
 		}
-		if(c == exitCmd) {
+		if (c == exitCmd) {
 			exit();
 			return;
 		}
-		if(c == settingsCmd) {
-			if(settingsForm == null) {
+		if (c == settingsCmd) {
+			if (settingsForm == null) {
 				settingsForm = new Form("Settings");
 				settingsForm.addCommand(backCmd);
 				settingsForm.setCommandListener(this);
 				
-				String[] engines = Languages.engines;
-				String curEngine = Languages.engine;
+				String[] engines = Translate.ENGINES;
+				String curEngine = Translate.engine;
 				engineChoice = new ChoiceGroup("Translate engine", Choice.POPUP, engines, null);
-				for(int i = 0; i < engines.length; i++) {
-					if(engines[i].equalsIgnoreCase(curEngine)) {
+				for (int i = 0; i < engines.length; i++) {
+					if (engines[i].equalsIgnoreCase(curEngine)) {
 						engineChoice.setSelectedIndex(i, true);
 						break;
 					}
 				}
 				settingsForm.append(engineChoice);
 				
-				instanceField = new TextField("Instance", Languages.instance, 100, TextField.ANY);
+				instanceField = new TextField("Instance", Translate.instance, 100, TextField.ANY);
 				settingsForm.append(instanceField);
 				
-				proxyField = new TextField("Proxy URL", Languages.proxyUrl, 100, TextField.ANY);
+				proxyField = new TextField("Proxy URL", Translate.proxyUrl, 100, TextField.ANY);
 				settingsForm.append(proxyField);
 				
-				proxyChoice = new ChoiceGroup("", ChoiceGroup.MULTIPLE, new String[] {"Use proxy"}, null);
-				proxyChoice.setSelectedIndex(0, Languages.useProxy);
+				String[] settings;
+				if (Translate.blackberry) {
+					settings = new String[] { "Use proxy", "Use Wi-Fi" };
+				} else {
+					settings = new String[] { "Use proxy" };
+				}
+				
+				proxyChoice = new ChoiceGroup("", ChoiceGroup.MULTIPLE, settings, null);
+				proxyChoice.setSelectedIndex(0, Translate.useProxy);
+				if (Translate.blackberry) proxyChoice.setSelectedIndex(1, Translate.blackberryWifi);
 				settingsForm.append(proxyChoice);
 			}
 			display.setCurrent(settingsForm);
 			return;
 		}
-		if(c == aboutCmd) {
+		if (c == aboutCmd) {
 			Form f = new Form("About");
 			f.addCommand(backCmd);
 			f.setCommandListener(this);
 			StringItem s;
 			try {
 				f.append(new ImageItem(null, Image.createImage("/icon.png"), Item.LAYOUT_LEFT, null));
-				s = new StringItem(null, "Translate v" + TranslateMIDlet.midlet.getAppProperty("MIDlet-Version"));
+				s = new StringItem(null, "Translate v" + Translate.midlet.getAppProperty("MIDlet-Version"));
 				s.setFont(Font.getFont(0, 0, Font.SIZE_LARGE));
 				s.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_VCENTER);
 				f.append(s);
-			} catch (IOException e) {
-			}
+			} catch (IOException ignored) {}
 			s = new StringItem(null, "J2ME online translator app\n\n");
 			s.setFont(Font.getDefaultFont());
 			s.setLayout(Item.LAYOUT_NEWLINE_BEFORE | Item.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_LEFT);
@@ -280,131 +291,136 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 			display.setCurrent(f);
 			return;
 		}
-		if(c == clearLangsCmd) {
-			Languages.deleteAllLangs();
+		if (c == clearLangsCmd) {
+			Translate.deleteAllLangs();
 			translateThread.setDownload();
 			translateThread.now();
 			display.setCurrent(mainForm);
 			return;
 		}
-		if(c == backCmd) {
-			if(d == settingsForm) {
-				String engine = Languages.engines[engineChoice.getSelectedIndex()].toLowerCase();
+		if (c == backCmd) {
+			if (d == settingsForm) {
+				String engine = Translate.ENGINES[engineChoice.getSelectedIndex()].toLowerCase();
 				String inst = instanceField.getString();
 				String proxy = proxyField.getString();
-				Languages.useProxy = proxyChoice.isSelected(0);
+				Translate.useProxy = proxyChoice.isSelected(0);
+				if (Translate.blackberry) Translate.blackberryWifi = proxyChoice.isSelected(1);
 				
-				if(!inst.equals(Languages.instance)) {
-					Languages.instance = inst;
-				    Languages.deleteAllLangs();
-					Languages.setCurrentEngine(engine);
-					Languages.proxyUrl = proxy;
+				if (!inst.equals(Translate.instance)) {
+					Translate.instance = inst;
+				    Translate.deleteAllLangs();
+					Translate.setCurrentEngine(engine);
+					Translate.proxyUrl = proxy;
 					translateThread.setInstance(inst);
 					translateThread.setEngine(engine);
 					translateThread.setProxy(proxy);
 					translateThread.setDownload();
 					translateThread.now();
 				} else {
-					Languages.setSelected(listLangIn.getSelectedIndex(), listLangOut.getSelectedIndex());
-					Languages.setCurrentEngine(engine);
-					Languages.proxyUrl = proxy;
+					Translate.setSelected(listLangIn.getSelectedIndex(), listLangOut.getSelectedIndex());
+					Translate.setCurrentEngine(engine);
+					Translate.proxyUrl = proxy;
 					translateThread.setEngine(engine);
 					translateThread.setProxy(proxy);
-					if(Languages.needDownload()) {
+					if (Translate.needDownload()) {
 						translateThread.setDownload();
 						translateThread.now();
 					} else {
 						updateLangs();
 					}
 				}
-				Languages.save();
+				Translate.save();
 			}
 			display.setCurrent(mainForm);
 			return;
 		}
-		if(c == reverseCmd) {
+		if (c == reverseCmd) {
 			int n1 = listLangIn.getSelectedIndex();
 			int n2 = listLangOut.getSelectedIndex();
 			listLangIn.setSelectedIndex(n2, true);
 			listLangOut.setSelectedIndex(n1, true);
-			from = Languages.getLangFromIndex(n2)[0];
-			to = Languages.getLangFromIndex(n1)[0];
+			from = Translate.langs[n2][0];
+			to = Translate.langs[n1][0];
 			inField.setString(inputText = outField.getString());
 			outField.setString("");
-			setLangInBtn.setText("In: " + Languages.getLangFromIndex(n2)[1]);
-			setLangOutBtn.setText("Out: " + Languages.getLangFromIndex(n1)[1]);
+			setLangInBtn.setText("In: " + Translate.langs[n2][1]);
+			setLangOutBtn.setText("Out: " + Translate.langs[n1][1]);
 			translateThread.schedule();
 			return;
 		}
 	}
 
 	public void commandAction(Command c, Item item) {
-		if(c == setLangInCmd) {
+		if (c == setLangInCmd) {
 			display.setCurrent(listLangIn);
 			return;
 		}
-		if(c == setLangOutCmd) {
+		if (c == setLangOutCmd) {
 			display.setCurrent(listLangOut);
 			return;
 		}
-		if(c == ttsCmd) {
+		if (c == ttsCmd) {
 			String s = ((TextField)item).getString();
-			if(s == null) return;
+			if (s == null) return;
 			playTts(item == inField ? from : to, s);
 			return;
 		}
-		if(c == hyperlinkCmd) {
+		if (c == hyperlinkCmd) {
 			try {
-				if(TranslateMIDlet.midlet.platformRequest("http://" + ((StringItem) item).getText()))
-					TranslateMIDlet.midlet.notifyDestroyed();
-			} catch (Exception e) {}
+				if (Translate.midlet.platformRequest("http://" + ((StringItem) item).getText()))
+					Translate.midlet.notifyDestroyed();
+			} catch (Exception ignored) {}
 			return;
 		}
-		if(!clipboard) return;
-		if(c == copyCmd) {
+//#ifndef NO_NOKIAUI
+		if (!clipboard) return;
+		if (c == copyCmd) {
 			try {
 				clipboard((TextField) item, true);
-			} catch (Throwable e) {}
+			} catch (Throwable ignored) {}
 			return;
 		}
-		if(c == pasteCmd) {
+		if (c == pasteCmd) {
 			try {
 				clipboard((TextField) item, false);
-			} catch (Throwable e) {}
+			} catch (Throwable ignored) {}
 			return;
 		}
+//#endif
 	}
 	
+//#ifndef NO_NOKIAUI
 	private static void clipboard(TextField item, boolean b) {
-		if(!clipboard) return;
-		if(b) {
+		if (!clipboard) return;
+		if (b) {
 			String s = ((TextField)item).getString();
 			try {
 				Clipboard.copyToClipboard(s);
-			} catch (Throwable e) {}
+			} catch (Throwable ignored) {}
 			return;
 		}
 		try {
 			((TextField)item).setString(Clipboard.copyFromClipboard());
-		} catch (Throwable e) {}
+		} catch (Throwable ignored) {}
 	}
+//#endif
 	
 	private void updateLangs() {
 		listLangIn.deleteAll();
 		listLangOut.deleteAll();
-		String[] a = Languages.getLangNames();
-		for(int i = 0; i < a.length; i++) {
+		String[] a = Translate.langNames;
+		for (int i = 0; i < a.length; i++) {
 			listLangIn.append(a[i], null);
 			listLangOut.append(a[i], null);
 		}
-		listLangIn.setSelectedIndex(Languages.getFromIndex(), true);
-		listLangOut.setSelectedIndex(Languages.getToIndex(), true);
-		from = Languages.getLangFromIndex(Languages.getFromIndex())[0];
-		to = Languages.getLangFromIndex(Languages.getToIndex())[0];
+		listLangIn.setSelectedIndex(Translate.getFromIndex(), true);
+		listLangOut.setSelectedIndex(Translate.getToIndex(), true);
+		from = Translate.langs[Translate.getFromIndex()][0];
+		to = Translate.langs[Translate.getToIndex()][0];
 	}
 
 	public void setDownloading(boolean b) {
-		mainForm.setTicker(b ? new Ticker("Loading languages..") : null);
+		mainForm.setTicker(b ? new Ticker("Loading TranslateMIDlet..") : null);
 	}
 
 	public void downloadingError(String s) {
@@ -416,11 +432,11 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	}
 
 	public void setLanguages(String[][] l) {
-		Languages.setSelected(listLangIn.getSelectedIndex(), listLangOut.getSelectedIndex());
-		Languages.setDownloaded(l);
-		Languages.updateLangs();
+		Translate.setSelected(listLangIn.getSelectedIndex(), listLangOut.getSelectedIndex());
+		Translate.setDownloaded(l);
+		Translate.updateLangs();
 		updateLangs();
-		Languages.save();
+		Translate.save();
 	}
 
 	public void downloadingDone() {
@@ -432,21 +448,20 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	}
 	
 	private void playTts(String lang, String s) {
-		if(s.trim().length() == 0) return;
-		if(ttsPlaying) return;
+		if (s.trim().length() == 0) return;
+		if (ttsPlaying) return;
 		ttsPlaying = true;
 		mainForm.setTicker(new Ticker("Listening.."));
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			String url = "https://" + Languages.instance + "/api/tts/?engine="
-			//+ Languages.getCurrentEngine()
+			String url = Translate.instance + "/api/tts/?engine="
+			//+ TranslateMIDlet.getCurrentEngine()
 					+ "google"
-			+ "&lang=" + lang + "&text=" + Util.encodeURL(s);
-			if(Languages.proxyUrl != null && Languages.proxyUrl.length() > 0) {
-				url = Languages.proxyUrl + Util.encodeURL(url);
+			+ "&lang=" + lang + "&text=" + Translate.encodeURL(s);
+			if (Translate.proxyUrl != null && Translate.proxyUrl.length() > 0) {
+				url = Translate.proxyUrl + Translate.encodeURL(url);
 			}
-			HttpConnection hc = (HttpConnection) Connector.open(url);
-			hc.setRequestMethod("GET");
+			HttpConnection hc = (HttpConnection) Translate.open(url);
 			InputStream is = hc.openInputStream();
 			byte[] b = new byte[1024];
 			int i;
@@ -471,9 +486,9 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 	}
 	
 	public void playerUpdate(Player p, String event, Object eventData) {
-		if(END_OF_MEDIA.equals(event) || STOPPED.equals(event)) {
-			if(ttsplayer == null) return;
-			if(ttsPlaying) {
+		if (END_OF_MEDIA.equals(event) || STOPPED.equals(event)) {
+			if (ttsplayer == null) return;
+			if (ttsPlaying) {
 				mainForm.setTicker(null);
 			}
 			ttsPlaying = false;

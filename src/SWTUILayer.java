@@ -1,14 +1,13 @@
 /*
  * Copyright (c) 2021-2024 Arman Jussupgaliyev
  */
-package nntranslate.swt;
+//#ifndef NO_SWT
 
-import nntranslate.ITranslateUI;
-
-public class ClassInvoker {
+public class SWTUILayer {
 	
 	public static ITranslateUI init() {
 		return TranslateSWTUI._init();
 	}
 
 }
+//#endif

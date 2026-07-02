@@ -1,9 +1,8 @@
 /*
- * Copyright (c) 2021-2024 Arman Jussupgaliyev
+ * Copyright (c) 2021-2026 Arman Jussupgaliyev
  * Copyright (c) 2021 Fyodor Ryzhov
  */
-package nntranslate.swt;
-
+//#ifndef NO_SWT
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -64,12 +63,6 @@ import org.eclipse.swt.widgets.Text;
 
 import com.nokia.mid.ui.Clipboard;
 
-import nntranslate.ITranslateUI;
-import nntranslate.Languages;
-import nntranslate.v2.TranslateMIDlet;
-import nntranslate.TranslateThread;
-import nntranslate.Util;
-
 public class TranslateSWTUI
 		implements Runnable, SelectionListener, ITranslateUI, ScreenListener, ControlListener, FocusListener, TraverseListener, PaintListener, ModifyListener, PlayerListener, KeyListener {
 	
@@ -81,8 +74,8 @@ public class TranslateSWTUI
 	private static final boolean is94 = model != null && model.indexOf("platform_version=5.0") != -1;
 
 	public void modifyText(ModifyEvent ev) {
-		to = Languages.getLangFromIndex(comboTo.getSelectionIndex())[0];
-		from = Languages.getLangFromIndex(comboFrom.getSelectionIndex())[0];
+		to = Translate.langs[comboTo.getSelectionIndex()][0];
+		from = Translate.langs[comboFrom.getSelectionIndex()][0];
 		try {
 			inputString = textIn.getText();
 		} catch (Throwable e) {
@@ -93,20 +86,20 @@ public class TranslateSWTUI
 
 	private final SelectionListener selectionListener = new SelectionListener() {
 		public void widgetDefaultSelected(SelectionEvent ev) {
-			if(fullscreenLangs && !is93) {
+			if (fullscreenLangs && !is93) {
 
 				int in;
 				int out;
-				if(ev.widget == inLangsList) {
+				if (ev.widget == inLangsList) {
 
 					comboReset();
 					
-					Languages.setSelected(in = Languages.getLangFromName(inLangsList.getSelection()[0]),
+					Translate.setSelected(in = Translate.getLangFromName(inLangsList.getSelection()[0]),
 							out = comboTo.getSelectionIndex());
-					to = Languages.getLangFromIndex(in)[0];
-					from = Languages.getLangFromIndex(out)[0];
+					to = Translate.langs[in][0];
+					from = Translate.langs[out][0];
 					comboFrom.select(in);
-					Languages.save();
+					Translate.save();
 					
 					translateThread.clearLastInput();
 					inLangsList.dispose();
@@ -120,15 +113,15 @@ public class TranslateSWTUI
 					shell.forceFocus();
 					textIn.forceFocus();
 					comboFrom.setVisible(true);
-				} else if(ev.widget == outLangsList) {
+				} else if (ev.widget == outLangsList) {
 					comboReset();
 					
-					Languages.setSelected(in = comboFrom.getSelectionIndex(), 
-							out = Languages.getLangFromName(outLangsList.getSelection()[0]));
-					to = Languages.getLangFromIndex(in)[0];
-					from = Languages.getLangFromIndex(out)[0];
+					Translate.setSelected(in = comboFrom.getSelectionIndex(), 
+							out = Translate.getLangFromName(outLangsList.getSelection()[0]));
+					to = Translate.langs[in][0];
+					from = Translate.langs[out][0];
 					comboTo.select(out);
-					Languages.save();
+					Translate.save();
 					
 					translateThread.clearLastInput();
 					outLangsList.dispose();
@@ -154,23 +147,23 @@ public class TranslateSWTUI
 			 * try { inputText = textIn.getText(); } catch (Throwable e) { }
 			 */
 			if (ev.widget instanceof Combo) {
-				Languages.setSelected(in = comboFrom.getSelectionIndex(),
+				Translate.setSelected(in = comboFrom.getSelectionIndex(),
 						out = comboTo.getSelectionIndex());
-				to = Languages.getLangFromIndex(in)[0];
-				from = Languages.getLangFromIndex(out)[0];
-				Languages.save();
+				to = Translate.langs[in][0];
+				from = Translate.langs[out][0];
+				Translate.save();
 				translateThread.clearLastInput();
 				translateThread.schedule();
 			} else if (ev.widget == outLangsDoneCmd) {
 				
 				comboReset();
 				/*
-				Languages.setSelected(in = comboFrom.getSelectionIndex(), 
-						out = Languages.getLangFromName(outLangsList.getSelection()[0]));
-				to = Languages.getLangFromIndex(in)[1];
-				from = Languages.getLangFromIndex(out)[1];
+				Translate.setSelected(in = comboFrom.getSelectionIndex(), 
+						out = Translate.getLangFromName(outLangsList.getSelection()[0]));
+				to = Translate.langs[in)[1];
+				from = Translate.langs[out)[1];
 				comboTo.select(out);
-				Languages.save();
+				Translate.save();
 				translateThread.clearLastInput();
 				*/
 				outLangsList.dispose();
@@ -187,12 +180,12 @@ public class TranslateSWTUI
 			} else if (ev.widget == inLangsDoneCmd) {
 				comboReset();
 				/*
-				Languages.setSelected(in = Languages.getLangFromName(inLangsList.getSelection()[0]),
+				Translate.setSelected(in = Translate.getLangFromName(inLangsList.getSelection()[0]),
 						out = comboTo.getSelectionIndex());
-				to = Languages.getLangFromIndex(in)[1];
-				from = Languages.getLangFromIndex(out)[1];
+				to = Translate.langs[in)[1];
+				from = Translate.langs[out)[1];
 				comboFrom.select(in);
-				Languages.save();
+				Translate.save();
 				translateThread.clearLastInput();
 				*/
 				inLangsList.dispose();
@@ -206,17 +199,17 @@ public class TranslateSWTUI
 				shell.forceFocus();
 				textIn.forceFocus();
 				comboFrom.setVisible(true);
-			} else if(ev.widget == inLangsList) {
-				Languages.setSelected(in = Languages.getLangFromName(inLangsList.getSelection()[0]),
+			} else if (ev.widget == inLangsList) {
+				Translate.setSelected(in = Translate.getLangFromName(inLangsList.getSelection()[0]),
 						out = comboTo.getSelectionIndex());
-				to = Languages.getLangFromIndex(in)[0];
-				from = Languages.getLangFromIndex(out)[0];
+				to = Translate.langs[in][0];
+				from = Translate.langs[out][0];
 				comboFrom.select(in);
-			} else if(ev.widget == outLangsList) {
-				Languages.setSelected(in = comboFrom.getSelectionIndex(), 
-						out = Languages.getLangFromName(outLangsList.getSelection()[0]));
-				to = Languages.getLangFromIndex(in)[0];
-				from = Languages.getLangFromIndex(out)[0];
+			} else if (ev.widget == outLangsList) {
+				Translate.setSelected(in = comboFrom.getSelectionIndex(), 
+						out = Translate.getLangFromName(outLangsList.getSelection()[0]));
+				to = Translate.langs[in][0];
+				from = Translate.langs[out][0];
 				comboTo.select(out);
 			}
 		}
@@ -327,17 +320,17 @@ public class TranslateSWTUI
 	}
 /*
 	private void updateLangs() {
-		//Languages.setSelected(langsList.getSelection());
-		Languages.setSelected(comboFrom.getSelectionIndex(), comboTo.getSelectionIndex());
-		Languages.updateLangs();
+		//Translate.setSelected(langsList.getSelection());
+		Translate.setSelected(comboFrom.getSelectionIndex(), comboTo.getSelectionIndex());
+		Translate.updateLangs();
 		//String st = comboTo.getText();
 		//String sf = comboFrom.getText();
-		comboFrom.setItems(Languages.getLangNames());
-		comboTo.setItems(Languages.getLangNames());
-		comboFrom.select(Languages.getFromIndex());
-		comboTo.select(Languages.getToIndex());
-		//Languages.setSelected(fi, ti);
-		Languages.save();
+		comboFrom.setItems(Translate.getLangNames());
+		comboTo.setItems(Translate.getLangNames());
+		comboFrom.select(Translate.getFromIndex());
+		comboTo.select(Translate.getToIndex());
+		//Translate.setSelected(fi, ti);
+		Translate.save();
 	}
 */
 	private void updateLangsPosition() {
@@ -363,8 +356,8 @@ public class TranslateSWTUI
 				langsShell.setLayout(new FillLayout());
 				langsShell.addControlListener(this);
 				langsList = new SortedList(langsShell, SWT.MULTI | SWT.V_SCROLL, SortedList.FILTER);
-				langsList.setItems(Languages.SUPPORTED_LANGUAGE_NAMES);
-				langsList.setSelection(Languages.getLangNames());
+				langsList.setItems(Translate.SUPPORTED_LANGUAGE_NAMES);
+				langsList.setSelection(Translate.getLangNames());
 				langsDoneCmd = new Command(langsShell, Command.EXIT, 1);
 				langsDoneCmd.setText("Done");
 				langsDoneCmd.addSelectionListener(this);
@@ -389,7 +382,7 @@ public class TranslateSWTUI
 		}
 		*/
 		if (/* ev.widget == aboutcmd || */ev.widget == aboutMenuItem) {
-			msg("Translate v"+TranslateMIDlet.midlet.getAppProperty("MIDlet-Version")+"\nBy shinovon (nnproject)");
+			msg("Translate v"+Translate.version+"\nBy shinovon (nnproject)");
 			return;
 		}
 		if (ev.widget == copyOutBtn || ev.widget == copyoutcmd) {
@@ -434,8 +427,8 @@ public class TranslateSWTUI
 			int newOut = comboTo.getSelectionIndex();
 			comboFrom.select(newOut);
 			comboTo.select(newIn);
-			to = Languages.getLangFromIndex(newIn)[0];
-			from = Languages.getLangFromIndex(newOut)[0];
+			to = Translate.langs[newIn][0];
+			from = Translate.langs[newOut][0];
 			String outText = "";
 			try {
 				outText = textOut.getText();
@@ -452,9 +445,9 @@ public class TranslateSWTUI
 			translateThread.schedule();
 			return;
 		}
-		if(ev.widget == ttsFromBtn || ev.widget == ttsincmd) {
-			/*String s = Languages.getCurrentEngine();
-			if(!s.equals("google")) {
+		if (ev.widget == ttsFromBtn || ev.widget == ttsincmd) {
+			/*String s = Translate.getCurrentEngine();
+			if (!s.equals("google")) {
 				MessageBox mb = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
 				mb.setMessage("TTS is only available for Google");
 				mb.open();
@@ -464,15 +457,15 @@ public class TranslateSWTUI
 				inputString = ss = textIn.getText();
 			} catch (Exception e) {
 			}
-			if(ss != null) playTts(from, ss);
+			if (ss != null) playTts(from, ss);
 				
 			//}
 			return;
 		}
-		if(ev.widget == ttsToBtn || ev.widget == ttsoutcmd) {
+		if (ev.widget == ttsToBtn || ev.widget == ttsoutcmd) {
 			/*
-			String s = Languages.getCurrentEngine();
-			if(!s.equals("google")) {
+			String s = Translate.getCurrentEngine();
+			if (!s.equals("google")) {
 				MessageBox mb = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
 				mb.setMessage("TTS is only available for Google");
 				mb.open();
@@ -483,7 +476,7 @@ public class TranslateSWTUI
 				ss = textOut.getText();
 			} catch (Exception e) {
 			}
-			if(ss != null) playTts(to, ss);
+			if (ss != null) playTts(to, ss);
 			//}
 			return;
 		}
@@ -492,7 +485,7 @@ public class TranslateSWTUI
 			saveSets();
 			comboFrom.dispose();
 			comboFrom = null;
-			if(reverseBtn != null) {
+			if (reverseBtn != null) {
 				reverseBtn.dispose();
 				reverseBtn = null;
 			}
@@ -505,84 +498,84 @@ public class TranslateSWTUI
 			return;
 		}
 		if (ev.widget == useProxyMenuItem) {
-			Languages.useProxy = useProxyMenuItem.getSelection();
+			Translate.useProxy = useProxyMenuItem.getSelection();
 			saveSets();
 			return;
 		}
-		if(ev.widget == instMenuItem) {
+		if (ev.widget == instMenuItem) {
 			QueryDialog dialog = new QueryDialog(shell, SWT.NONE,
 					QueryDialog.STANDARD);
-			dialog.setPromptText("Instance:", Languages.instance);
+			dialog.setPromptText("Instance:", Translate.instance);
 			String s = dialog.open();
 			if (s == null) {
 				return;
 			}
-			translateThread.setInstance(Languages.instance = s);
-		    Languages.save();
-		    Languages.deleteAllLangs();
+			translateThread.setInstance(Translate.instance = s);
+		    Translate.save();
+		    Translate.deleteAllLangs();
 			translateThread.setDownload();
 			translateThread.now();
 			return;
 		}
-		if(ev.widget == fontMenuItem) {
+		if (ev.widget == fontMenuItem) {
 			FontDialog fd = new FontDialog(shell);
-			if(font != null) {
+			if (font != null) {
 				fd.setFontList(new FontData[] { font });
 			}
 			FontData font = fd.open();
-			if(font != null) {
-				if(textIn != null) {
+			if (font != null) {
+				if (textIn != null) {
 					textIn.setFont(new Font(display, font));
 				}
-				if(textOut != null) {
+				if (textOut != null) {
 					textOut.setFont(new Font(display, font));
 				}
 				this.font = font;
 			}
 			return;
 		}
-		if(ev.widget == uiMenuItem) {
+		if (ev.widget == uiMenuItem) {
 			bingDesign = uiMenuItem.getSelection();
 			saveSets();
 			reinit(-1);
 			return;
 		}
-		if(ev.widget == proxyUrlMenuItem) {
+		if (ev.widget == proxyUrlMenuItem) {
 			QueryDialog dialog = new QueryDialog(shell, SWT.NONE,
 					QueryDialog.STANDARD);
-			String s = Languages.proxyUrl;
-			if(s == null) s = "";
+			String s = Translate.proxyUrl;
+			if (s == null) s = "";
 			dialog.setPromptText("Proxy URL:", s);
 			s = dialog.open();
 			if (s == null) {
 				return;
 			}
-			translateThread.setProxy(Languages.proxyUrl = s);
-		    Languages.save();
+			translateThread.setProxy(Translate.proxyUrl = s);
+		    Translate.save();
 			return;
 		}
-		if(ev.widget == clearLangsMenuItem) {
-			Languages.deleteAllLangs();
+		if (ev.widget == clearLangsMenuItem) {
+			Translate.deleteAllLangs();
 			translateThread.setDownload();
 			translateThread.now();
 			return;
 		}
-		if(ev.widget instanceof MenuItem) {
+		if (ev.widget instanceof MenuItem) {
 			String engine = ((MenuItem) ev.widget).getText().toLowerCase();
-			Languages.setSelected(comboFrom.getSelectionIndex(), comboTo.getSelectionIndex());
-			Languages.setCurrentEngine(engine);
+			Translate.setSelected(comboFrom.getSelectionIndex(), comboTo.getSelectionIndex());
+			Translate.setCurrentEngine(engine);
 			translateThread.setEngine(engine);
-		    Languages.save();
-			if(Languages.needDownload()) {
+		    Translate.save();
+			if (Translate.needDownload()) {
 				translateThread.setDownload();
 				translateThread.now();
 			} else {
 				try {
-					comboFrom.setItems(Languages.getLangNames());
-					comboTo.setItems(Languages.getLangNames());
-					comboFrom.select(Languages.getFromIndex());
-					comboTo.select(Languages.getToIndex());
-					Languages.save();
+					comboFrom.setItems(Translate.langNames);
+					comboTo.setItems(Translate.langNames);
+					comboFrom.select(Translate.getFromIndex());
+					comboTo.select(Translate.getToIndex());
+					Translate.save();
 				} catch (Exception e2) {
 					e2.printStackTrace();
 				}
@@ -591,21 +584,21 @@ public class TranslateSWTUI
 	}
 
 	private void playTts(String lang, String s) {
-		if(s.trim().length() == 0) return;
-		if(ttsPlaying) return;
+		if (s.trim().length() == 0) return;
+		if (ttsPlaying) return;
 		ttsPlaying = true;
-		if(ttstask == null)
+		if (ttstask == null)
 			ttstask = new TaskTip(shell, SWT.NONE);
 		ttstask.setText("Listening");
 		ttstask.setVisible(true);
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			String url = "https://" + Languages.instance + "/api/tts/?engine="
-			//+ Languages.getCurrentEngine()
+			String url = Translate.instance + "/api/tts/?engine="
+			//+ Translate.getCurrentEngine()
 					+ "google"
-			+ "&lang=" + lang + "&text=" + Util.encodeURL(s);
-			if(Languages.useProxy && Languages.proxyUrl != null && Languages.proxyUrl.length() > 0) {
-				url = Languages.proxyUrl + Util.encodeURL(url);
+			+ "&lang=" + lang + "&text=" + Translate.encodeURL(s);
+			if (Translate.useProxy && Translate.proxyUrl != null && Translate.proxyUrl.length() > 0) {
+				url = Translate.proxyUrl + Translate.encodeURL(url);
 			}
 			HttpConnection hc = (HttpConnection) Connector.open(url);
 			hc.setRequestMethod("GET");
@@ -635,9 +628,9 @@ public class TranslateSWTUI
 	}
 	
 	public void playerUpdate(Player p, String event, Object eventData) {
-		if(END_OF_MEDIA.equals(event) || STOPPED.equals(event)) {
-			if(ttsplayer == null) return;
-			if(ttstask != null) {
+		if (END_OF_MEDIA.equals(event) || STOPPED.equals(event)) {
+			if (ttsplayer == null) return;
+			if (ttstask != null) {
 				display.asyncExec(new Runnable() {
 					public void run() {
 						ttstask.setVisible(false);
@@ -693,10 +686,10 @@ public class TranslateSWTUI
 		}
 		display = new Display();
 		translateThread.start();
-		translateThread.setEngine(Languages.engine);
-		translateThread.setInstance(Languages.instance);
-		translateThread.setProxy(Languages.proxyUrl);
-		if(Languages.needDownload()) {
+		translateThread.setEngine(Translate.engine);
+		translateThread.setInstance(Translate.instance);
+		translateThread.setProxy(Translate.proxyUrl);
+		if (Translate.needDownload()) {
 			translateThread.setDownload();
 			translateThread.now();
 		}
@@ -720,7 +713,7 @@ public class TranslateSWTUI
 		/*
 		 * String s = System.getProperty("microedition.platform");
 		 * 
-		 * if(s != null && s.indexOf("platform_version=3.2") > -1) { Command group = new
+		 * if (s != null && s.indexOf("platform_version=3.2") > -1) { Command group = new
 		 * Command(shell, Command.COMMANDGROUP, 1); group.setText("App"); aboutcmd = new
 		 * Command(group, Command.GENERAL, 1); aboutcmd.setText("About");
 		 * aboutcmd.addSelectionListener(this); } else {
@@ -749,7 +742,7 @@ public class TranslateSWTUI
 		setsMenuItem.setText("Settings");
 		Menu setsMenu = new Menu(shell, SWT.DROP_DOWN);
 		setsMenuItem.setMenu(setsMenu);
-		if(!is93) {
+		if (!is93) {
 			fullListMenuItem = new MenuItem(setsMenu, SWT.CHECK);
 			fullListMenuItem.addSelectionListener(this);
 			fullListMenuItem.setText("Fullscreen lang. list");
@@ -763,9 +756,9 @@ public class TranslateSWTUI
 		engineMenuItem.setText("Translate engine");
 		Menu enginesMenu = new Menu(shell, SWT.DROP_DOWN);
 		engineMenuItem.setMenu(enginesMenu);
-		String[] engines = Languages.engines;
+		String[] engines = Translate.ENGINES;
 		menuEngines = new MenuItem[engines.length];
-		for(int i = 0; i < engines.length; i++) {
+		for (int i = 0; i < engines.length; i++) {
 			MenuItem mi = createEngineItem(engines[i], enginesMenu);
 			menuEngines[i] = mi;
 		}
@@ -780,7 +773,7 @@ public class TranslateSWTUI
 		useProxyMenuItem = new MenuItem(setsMenu, SWT.CHECK);
 		useProxyMenuItem.addSelectionListener(this);
 		useProxyMenuItem.setText("Use proxy");
-		useProxyMenuItem.setSelection(Languages.useProxy);
+		useProxyMenuItem.setSelection(Translate.useProxy);
 		
 		clearLangsMenuItem = new MenuItem(setsMenu, SWT.PUSH);
 		clearLangsMenuItem.setText("Refresh languages");
@@ -820,7 +813,7 @@ public class TranslateSWTUI
 		MenuItem i = new MenuItem(m, SWT.RADIO);
 		i.addSelectionListener(this);
 		i.setText(s);
-		i.setSelection(s.equalsIgnoreCase(Languages.engine));
+		i.setSelection(s.equalsIgnoreCase(Translate.engine));
 		return i;
 	}
 
@@ -849,7 +842,7 @@ public class TranslateSWTUI
 	public String getFromLang() {
 		display.syncExec(new Runnable() {
 			public void run() {
-				from = Languages.getLangFromIndex(comboFrom.getSelectionIndex())[0];
+				from = Translate.langs[comboFrom.getSelectionIndex()][0];
 			}
 		});
 		return from;
@@ -858,14 +851,14 @@ public class TranslateSWTUI
 	public String getToLang() {
 		display.syncExec(new Runnable() {
 			public void run() {
-				to = Languages.getLangFromIndex(comboTo.getSelectionIndex())[0];
+				to = Translate.langs[comboTo.getSelectionIndex()][0];
 			}
 		});
 		return to;
 	}
 
 	private void init() {
-		if(bingDesign) {
+		if (bingDesign) {
 			final GridData fillHorizontal = new GridData();
 			fillHorizontal.horizontalAlignment = GridData.FILL;
 			fillHorizontal.grabExcessHorizontalSpace = true;
@@ -892,25 +885,25 @@ public class TranslateSWTUI
 	
 	private void initCombos(boolean forceBing) {
 		comboReset();
-		if(comboTo != null) {
+		if (comboTo != null) {
 			comboTo.dispose();
 			comboTo = null;
 		}
-		if(comboFrom != null) {
+		if (comboFrom != null) {
 			comboFrom.dispose();
 			comboFrom = null;
 		}
-		if(reverseBtn != null) {
+		if (reverseBtn != null) {
 			reverseBtn.dispose();
 			reverseBtn = null;
 		}
-		if(bingDesign || forceBing) {
-			if(centerComp == null) {
-				if(toComp != null) {
+		if (bingDesign || forceBing) {
+			if (centerComp == null) {
+				if (toComp != null) {
 					toComp.dispose();
 					toComp = null;
 				}
-				if(fromComp != null) {
+				if (fromComp != null) {
 					fromComp.dispose();
 					fromComp = null;
 				}
@@ -937,23 +930,23 @@ public class TranslateSWTUI
 			int comboStyle = SWT.DROP_DOWN;
 			if (shell.getSize().x < 300)
 				comboStyle = SWT.NONE;
-			//if(fullscreenLangs)
+			//if (fullscreenLangs)
 			//	comboStyle |= SWT.READ_ONLY;
 			comboFrom = new Combo(centerComp, comboStyle);
 			comboFrom.setLayoutData(comboLayout);
 	
 			reverseBtn = new Button(centerComp, SWT.CENTER);
 			reverseBtn.setText("<>");
-			if(!pc) reverseBtn.setLayoutData(new RowData(40, 44));
+			if (!pc) reverseBtn.setLayoutData(new RowData(40, 44));
 	
 			comboTo = new Combo(centerComp, comboStyle);
 			comboTo.setLayoutData(comboLayout);
 		} else {
-			if(centerComp != null) {
+			if (centerComp != null) {
 				centerComp.dispose();
 				centerComp = null;
 			}
-			if(fromComp == null) {
+			if (fromComp == null) {
 				fromComp = new Composite(parent, SWT.NONE);
 				toComp = new Composite(parent, SWT.NONE);
 				
@@ -991,13 +984,13 @@ public class TranslateSWTUI
 			comboTo.setLayoutData(comboLayout);
 		}
 		try {
-			comboFrom.setItems(Languages.getLangNames());
+			comboFrom.setItems(Translate.langNames);
 			comboFrom.addSelectionListener(selectionListener);
-			comboTo.setItems(Languages.getLangNames());
+			comboTo.setItems(Translate.langNames);
 			comboTo.addSelectionListener(selectionListener);
-			comboFrom.select(Languages.getFromIndex());
-			comboTo.select(Languages.getToIndex());
-			if(reverseBtn != null)
+			comboFrom.select(Translate.getFromIndex());
+			comboTo.select(Translate.getToIndex());
+			if (reverseBtn != null)
 				reverseBtn.addSelectionListener(this);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1077,23 +1070,23 @@ public class TranslateSWTUI
 		copyInBtn = null;
 		
 
-		if(ttsincmd != null) ttsincmd.dispose();
+		if (ttsincmd != null) ttsincmd.dispose();
 		ttsincmd = null;
-		if(ttsoutcmd != null) ttsoutcmd.dispose();
+		if (ttsoutcmd != null) ttsoutcmd.dispose();
 		ttsoutcmd = null;
 		
-		if(copyincmd != null) copyincmd.dispose();
+		if (copyincmd != null) copyincmd.dispose();
 		copyincmd = null;
-		if(pasteincmd != null) pasteincmd.dispose();
+		if (pasteincmd != null) pasteincmd.dispose();
 		pasteincmd = null;
 		
-		if(copyoutcmd != null) copyoutcmd.dispose();
+		if (copyoutcmd != null) copyoutcmd.dispose();
 		copyoutcmd = null;
-		if(clearoutcmd != null) clearoutcmd.dispose();
+		if (clearoutcmd != null) clearoutcmd.dispose();
 		clearoutcmd = null;
 		
-		if(bingDesign || w > h) {
-			if(centerComp == null) {
+		if (bingDesign || w > h) {
+			if (centerComp == null) {
 				initCombos(true);
 			}
 			if (w > h && w > 500) {
@@ -1197,7 +1190,7 @@ public class TranslateSWTUI
 				centerComp.layout();
 			}
 		} else {
-			if(centerComp != null) {
+			if (centerComp != null) {
 				initCombos(false);
 			}
 			if (w > h && w > 500) {
@@ -1301,38 +1294,38 @@ public class TranslateSWTUI
 /*
 				copyInBtn = new Button(fromComp, SWT.PUSH);
 				copyInBtn.setText("C");
-				if(!pc) copyInBtn.setLayoutData(new GridData(48, 44));
+				if (!pc) copyInBtn.setLayoutData(new GridData(48, 44));
 				copyInBtn.addSelectionListener(this);
 
 				clearInBtn = new Button(fromComp, SWT.PUSH);
 				clearInBtn.setText("X");
-				if(!pc) clearInBtn.setLayoutData(new GridData(48, 44));
+				if (!pc) clearInBtn.setLayoutData(new GridData(48, 44));
 				clearInBtn.addSelectionListener(this);
 				*/
 				
 				/*
 				ttsFromBtn = new Button(fromComp, SWT.PUSH);
 				ttsFromBtn.setText("TTS");
-				if(!pc) ttsFromBtn.setLayoutData(new GridData(48, 44));
+				if (!pc) ttsFromBtn.setLayoutData(new GridData(48, 44));
 				ttsFromBtn.addSelectionListener(this);
 				*/
 				
 /*
 				copyOutBtn = new Button(toComp, SWT.PUSH);
 				copyOutBtn.setText("C");
-				if(!pc) copyOutBtn.setLayoutData(new GridData(48, 44));
+				if (!pc) copyOutBtn.setLayoutData(new GridData(48, 44));
 				copyOutBtn.addSelectionListener(this);
 				
 				clearOutBtn = new Button(toComp, SWT.PUSH);
 				clearOutBtn.setText("X");
-				if(!pc) clearOutBtn.setLayoutData(new GridData(48, 44));
+				if (!pc) clearOutBtn.setLayoutData(new GridData(48, 44));
 				clearOutBtn.addSelectionListener(this);
 				*/
 				
 				/*
 				ttsToBtn = new Button(toComp, SWT.PUSH);
 				ttsToBtn.setText("TTS");
-				if(!pc) ttsToBtn.setLayoutData(new GridData(48, 44));
+				if (!pc) ttsToBtn.setLayoutData(new GridData(48, 44));
 				ttsToBtn.addSelectionListener(this);
 				*/
 
@@ -1343,7 +1336,7 @@ public class TranslateSWTUI
 			}
 		}
 
-		if(!is93) {
+		if (!is93) {
 			copyincmd = new Command(textIn, Command.GENERAL, 3);
 			copyincmd.setText("Copy");
 			copyincmd.addSelectionListener(this);
@@ -1353,7 +1346,7 @@ public class TranslateSWTUI
 		pasteincmd.setText("Paste");
 		pasteincmd.addSelectionListener(this);
 		
-		if(!is93) {
+		if (!is93) {
 			copyoutcmd = new Command(textOut, Command.GENERAL, 3);
 			copyoutcmd.setText("Copy");
 			copyoutcmd.addSelectionListener(this);
@@ -1372,7 +1365,7 @@ public class TranslateSWTUI
 		ttsoutcmd.setText("Listen");
 		ttsoutcmd.addSelectionListener(this);
 		
-		if(is93) { //
+		if (is93) { //
 			textIn.addPaintListener(this);
 			textOut.addPaintListener(this);
 			textIn.addKeyListener(this);
@@ -1391,7 +1384,7 @@ public class TranslateSWTUI
 		upd();
 
 		comboReset();
-		if(fullscreenLangs) {
+		if (fullscreenLangs) {
 			comboFrom.addFocusListener(this);
 			comboTo.addFocusListener(this);
 		}
@@ -1399,7 +1392,7 @@ public class TranslateSWTUI
 
 	// workaround for buggy text fields on 9.3
 	public void paintControl(PaintEvent e) {
-		if(e.widget.getData("ignorePaint") != null) {
+		if (e.widget.getData("ignorePaint") != null) {
 			e.widget.setData("ignorePaint", null);
 			return;
 		}
@@ -1407,14 +1400,14 @@ public class TranslateSWTUI
 		Rectangle b = ((Text)e.widget).getBounds();
 		Color bg = display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
 		Color fg = display.getSystemColor(SWT.COLOR_WIDGET_FOREGROUND);
-		if(bg.equals(fg) && bg.equals(fg = display.getSystemColor(SWT.COLOR_BLACK))) {
+		if (bg.equals(fg) && bg.equals(fg = display.getSystemColor(SWT.COLOR_BLACK))) {
 			fg = display.getSystemColor(SWT.COLOR_WHITE);
 		}
 		gc.setBackground(bg);
 		gc.setForeground(bg);
 	    gc.fillRectangle(0,0,b.width-1,b.height-1);
 //	    String s = e.widget == textOut ? outString : e.widget == textIn ? inputString : null;
-//	    if(s == null) return;
+//	    if (s == null) return;
 //		gc.setForeground(fg);
 //    	gc.drawText(s, 2, 0, SWT.DRAW_DELIMITER);
 		e.widget.setData("ignorePaint", "");
@@ -1422,10 +1415,10 @@ public class TranslateSWTUI
 	}
 
 	public void keyPressed(KeyEvent e) {
-		if(e.keyCode == '*') {
+		if (e.keyCode == '*') {
 			// zoom in
 			e.doit = false;
-			if(font == null) {
+			if (font == null) {
 				font = ((Control) e.widget).getFont().getFontData()[0];
 				fontSize = font.getHeight();
 			}
@@ -1434,10 +1427,10 @@ public class TranslateSWTUI
 			textOut.setFont(new Font(display, font));
 			return;
 		}
-		if(e.keyCode == '#') {
+		if (e.keyCode == '#') {
 			// zoom out
 			e.doit = false;
-			if(font == null) {
+			if (font == null) {
 				font = ((Control) e.widget).getFont().getFontData()[0];
 				fontSize = font.getHeight();
 			}
@@ -1473,7 +1466,7 @@ public class TranslateSWTUI
 	public void exit() {
 		exiting = true;
 		Display.getDefault().wake();
-		TranslateMIDlet.midlet.notifyDestroyed();
+		Translate.midlet.notifyDestroyed();
 	}
 
 	public void sync() {
@@ -1523,16 +1516,16 @@ public class TranslateSWTUI
 
 			int in;
 			int out;
-			if(e.widget == inLangsList) {
+			if (e.widget == inLangsList) {
 
 				comboReset();
 				
-				Languages.setSelected(in = Languages.getLangFromName(inLangsList.getSelection()[0]),
+				Translate.setSelected(in = Translate.getLangFromName(inLangsList.getSelection()[0]),
 						out = comboTo.getSelectionIndex());
-				to = Languages.getLangFromIndex(in)[0];
-				from = Languages.getLangFromIndex(out)[0];
+				to = Translate.langs[in][0];
+				from = Translate.langs[out][0];
 				comboFrom.select(in);
-				Languages.save();
+				Translate.save();
 				
 				translateThread.clearLastInput();
 				inLangsList.dispose();
@@ -1546,15 +1539,15 @@ public class TranslateSWTUI
 				shell.forceFocus();
 				textIn.forceFocus();
 				comboFrom.setVisible(true);
-			} else if(e.widget == outLangsList) {
+			} else if (e.widget == outLangsList) {
 				comboReset();
 				
-				Languages.setSelected(in = comboFrom.getSelectionIndex(), 
-						out = Languages.getLangFromName(outLangsList.getSelection()[0]));
-				to = Languages.getLangFromIndex(in)[0];
-				from = Languages.getLangFromIndex(out)[0];
+				Translate.setSelected(in = comboFrom.getSelectionIndex(), 
+						out = Translate.getLangFromName(outLangsList.getSelection()[0]));
+				to = Translate.langs[in][0];
+				from = Translate.langs[out][0];
 				comboTo.select(out);
-				Languages.save();
+				Translate.save();
 				
 				translateThread.clearLastInput();
 				outLangsList.dispose();
@@ -1575,7 +1568,7 @@ public class TranslateSWTUI
 
 	public void focusGained(FocusEvent e) {
 		if (fullscreenLangs && e.widget instanceof Combo) {
-			if((System.currentTimeMillis() - comboInitTime) < 700 || comboInitTime == 0) return;
+			if ((System.currentTimeMillis() - comboInitTime) < 700 || comboInitTime == 0) return;
 			if (e.widget == comboTo) {
 				if (outLangsShell == null) {
 					outLangsShell = new Shell(shell, SWT.BORDER | SWT.TITLE | SWT.MODELESS);
@@ -1630,14 +1623,14 @@ public class TranslateSWTUI
 	public void setDownloading(final boolean b) {
 		display.asyncExec(new Runnable() {
 			public void run() {
-				if(b) {
-					if(dlTask == null) {
+				if (b) {
+					if (dlTask == null) {
 						dlTask = new TaskTip(shell, SWT.INDETERMINATE);
 					}
-					dlTask.setText("Loading languages...");
+					dlTask.setText("Loading Translate...");
 					dlTask.setVisible(true);
 				} else {
-					if(dlTask != null) {
+					if (dlTask != null) {
 						dlTask.setVisible(false);
 						dlTask.dispose();
 						dlTask = null;
@@ -1651,7 +1644,7 @@ public class TranslateSWTUI
 		display.asyncExec(new Runnable() {
 
 			public void run() {
-				if(dlTask != null) {
+				if (dlTask != null) {
 					dlTask.setVisible(false);
 				}
 				errorTask = new TaskTip(shell, SWT.NONE);
@@ -1660,7 +1653,7 @@ public class TranslateSWTUI
 
 				display.timerExec(4000, new Runnable() {
 					public void run() {
-						if(errorTask != null) {
+						if (errorTask != null) {
 							errorTask.setVisible(false);
 							errorTask.dispose();
 							errorTask = null;
@@ -1675,7 +1668,7 @@ public class TranslateSWTUI
 		display.asyncExec(new Runnable() {
 
 			public void run() {
-				if(dlTask != null) {
+				if (dlTask != null) {
 					dlTask.setVisible(false);
 				}
 				errorTask = new TaskTip(shell, SWT.NONE);
@@ -1684,7 +1677,7 @@ public class TranslateSWTUI
 
 				display.timerExec(2500, new Runnable() {
 					public void run() {
-						if(errorTask != null) {
+						if (errorTask != null) {
 							errorTask.setVisible(false);
 							errorTask.dispose();
 							errorTask = null;
@@ -1699,18 +1692,18 @@ public class TranslateSWTUI
 		display.asyncExec(new Runnable() {
 			public void run() {
 				try {
-					//Languages.setSelected(langsList.getSelection());
-					Languages.setSelected(comboFrom.getSelectionIndex(), comboTo.getSelectionIndex());
-					Languages.setDownloaded(l);
-					Languages.updateLangs();
+					//Translate.setSelected(langsList.getSelection());
+					Translate.setSelected(comboFrom.getSelectionIndex(), comboTo.getSelectionIndex());
+					Translate.setDownloaded(l);
+					Translate.updateLangs();
 					//String st = comboTo.getText();
 					//String sf = comboFrom.getText();
-					comboFrom.setItems(Languages.getLangNames());
-					comboTo.setItems(Languages.getLangNames());
-					comboFrom.select(Languages.getFromIndex());
-					comboTo.select(Languages.getToIndex());
-					//Languages.setSelected(fi, ti);
-					Languages.save();
+					comboFrom.setItems(Translate.langNames);
+					comboTo.setItems(Translate.langNames);
+					comboFrom.select(Translate.getFromIndex());
+					comboTo.select(Translate.getToIndex());
+					//Translate.setSelected(fi, ti);
+					Translate.save();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -1721,14 +1714,14 @@ public class TranslateSWTUI
 	public void setTranslating(final boolean b) {
 		display.asyncExec(new Runnable() {
 			public void run() {
-				if(b) {
-					if(dlTask == null) {
+				if (b) {
+					if (dlTask == null) {
 						dlTask = new TaskTip(shell, SWT.INDETERMINATE);
 					}
 					dlTask.setText("Translating...");
 					dlTask.setVisible(true);
 				} else {
-					if(dlTask != null) {
+					if (dlTask != null) {
 						dlTask.setVisible(false);
 						dlTask.dispose();
 						dlTask = null;
@@ -1739,3 +1732,4 @@ public class TranslateSWTUI
 	}
 
 }
+//#endif
