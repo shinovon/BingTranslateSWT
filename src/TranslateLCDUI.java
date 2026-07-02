@@ -260,7 +260,7 @@ public class TranslateLCDUI implements Runnable, ITranslateUI, CommandListener, 
 			StringItem s;
 			try {
 				f.append(new ImageItem(null, Image.createImage("/icon.png"), Item.LAYOUT_LEFT, null));
-				s = new StringItem(null, "Translate v" + Translate.midlet.getAppProperty("MIDlet-Version"));
+				s = new StringItem(null, "Translate v" + Translate.version);
 				s.setFont(Font.getFont(0, 0, Font.SIZE_LARGE));
 				s.setLayout(Item.LAYOUT_LEFT | Item.LAYOUT_VCENTER);
 				f.append(s);
